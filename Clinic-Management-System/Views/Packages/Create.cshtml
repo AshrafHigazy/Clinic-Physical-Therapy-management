@@ -1,0 +1,170 @@
+﻿@model Clinic_Management_System.Models.Package
+@{
+    ViewData["Title"] = "إضافة باقة جديدة";
+}
+
+<div class="container py-4">
+
+    <!-- ✅ رسائل النظام -->
+    @if (TempData["Info"] != null)
+    {
+        <div class="alert alert-info text-center rounded-3 shadow-sm mb-3" id="alertBox">
+            <i class="bi bi-info-circle-fill"></i> @TempData["Info"]
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger text-center rounded-3 shadow-sm mb-3" id="alertBox">
+            <i class="bi bi-exclamation-triangle-fill"></i> @TempData["Error"]
+        </div>
+    }
+
+    <!-- ✅ الكارد المودرن -->
+    <div class="card card-modern">
+        <h3 class="text-center text-primary mb-4 fw-bold">
+            <i class="bi bi-box-seam"></i> إضافة باقة جديدة
+        </h3>
+
+        <form asp-action="Create" method="post" class="w-75 mx-auto">
+
+            <input type="hidden" asp-for="PatientId" value="@ViewBag.PatientId" />
+
+            <!-- الطبيب المتدرب -->
+            <div class="mb-3">
+                <label asp-for="InternDoctorId" class="form-label fw-semibold">الطبيب المتدرب</label>
+                <select id="doctorSelect" asp-for="InternDoctorId" class="form-select border-2 rounded-3" style="border-color:#00B4D8;"></select>
+                <span asp-validation-for="InternDoctorId" class="text-danger small"></span>
+            </div>
+
+            <!-- المؤسسة -->
+            <div class="mb-3">
+                <label asp-for="OrganizationId" class="form-label fw-semibold">المؤسسة</label>
+                <select asp-for="OrganizationId" class="form-select border-2 rounded-3" style="border-color:#00B4D8;">
+                    <option value="">-- اختر المؤسسة --</option>
+                    @foreach (var org in (List<Clinic_Management_System.Models.Organization>)ViewBag.Organizations)
+                    {
+                        <option value="@org.Id">@org.Name</option>
+                    }
+                </select>
+            </div>
+
+            <!-- الفحص -->
+            <div class="mb-3">
+                <label asp-for="CheckId" class="form-label fw-semibold">الفحص</label>
+                <select asp-for="CheckId" class="form-select border-2 rounded-3" style="border-color:#00B4D8;">
+                    <option value="">-- اختر الفحص --</option>
+                    @foreach (var check in (List<Clinic_Management_System.Models.Check>)ViewBag.Checks)
+                    {
+                        <option value="@check.CheckId">@check.Diagnosis</option>
+                    }
+                </select>
+            </div>
+
+            <!-- نوع الباقة -->
+            <div class="mb-3">
+                <label asp-for="Type" class="form-label fw-semibold">نوع الباقة</label>
+                <select asp-for="Type" class="form-select border-2 rounded-3" style="border-color:#00B4D8;">
+                    <option value="">-- اختر نوع الباقة --</option>
+                    @foreach (var type in Enum.GetValues(typeof(Clinic_Management_System.Models.Enums.PackageType)))
+                    {
+                        <option value="@type">@type</option>
+                    }
+                </select>
+                <span asp-validation-for="Type" class="text-danger small"></span>
+            </div>
+
+            <!-- عدد الجلسات -->
+            <div class="mb-3">
+                <label asp-for="NumOfSessions" class="form-label fw-semibold">عدد الجلسات</label>
+                <input asp-for="NumOfSessions" class="form-control border-2 rounded-3" style="border-color:#00B4D8;" />
+                <span asp-validation-for="NumOfSessions" class="text-danger small"></span>
+            </div>
+
+            <!-- المبلغ -->
+            <div class="mb-3">
+                <label asp-for="AmountPaid" class="form-label fw-semibold">المبلغ المدفوع</label>
+                <input asp-for="AmountPaid" class="form-control border-2 rounded-3" style="border-color:#00B4D8;" />
+                <span asp-validation-for="AmountPaid" class="text-danger small"></span>
+            </div>
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-check-circle"></i> حفظ
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#doctorSelect').select2({
+                placeholder: "ابحث عن الطبيب...",
+                width: '100%',
+                ajax: {
+                    url: '/Packages/SearchDoctors',
+                    dataType: 'json',
+                    delay: 250,
+                    data: params => ({ term: params.term }),
+                    processResults: data => ({
+                        results: data.map(d => ({ id: d.id, text: d.name }))
+                    }),
+                    cache: true
+                }
+            });
+
+            // إخفاء الرسائل بعد 5 ثوانٍ (نفس سلوك قائمة المرضى)
+            setTimeout(() => {
+                const alertBox = document.getElementById("alertBox");
+                if (alertBox) {
+                    alertBox.style.opacity = "0";
+                    alertBox.style.transition = "opacity 1s ease";
+                    setTimeout(() => alertBox.remove(), 1000);
+                }
+            }, 5000);
+        });
+    </script>
+
+    <style>
+        /* 🌟 تصميم موحد مودرن (نفس اللي اتفقنا عليه) */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 30px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .form-label {
+            color: #0077B6;
+        }
+
+        .btn-success {
+            background-color: #00B4D8;
+            border-color: #0077B6;
+            font-weight: 600;
+        }
+
+            .btn-success:hover {
+                background-color: #0096c7;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

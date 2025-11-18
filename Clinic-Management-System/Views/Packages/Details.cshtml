@@ -1,0 +1,292 @@
+﻿@model Clinic_Management_System.Models.Package
+
+@{
+    ViewData["Title"] = "تفاصيل الباقة";
+}
+
+<div class="container py-4">
+
+    <!-- ✅ كارد تفاصيل الباقة -->
+    <div class="card card-modern mb-4">
+        <h3 class="text-center text-primary fw-bold mb-4">
+            <i class="bi bi-box-seam"></i> تفاصيل الباقة
+        </h3>
+
+        <div class="row g-3 details-grid">
+
+            <div class="col-md-6">
+                <label>رقم الباقة</label>
+                <div class="detail-box">@Model.Id</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>اسم المريض</label>
+                <div class="detail-box">@Model.Patient?.FullName</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>الطبيب المشرف</label>
+                <div class="detail-box">@Model.InternDoctor?.FullName</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>الفحص</label>
+                <div class="detail-box diagnosis-box">
+                    @Model.Check?.Diagnosis
+                </div>
+            </div>
+
+
+            <div class="col-md-6">
+                <label>المؤسسة</label>
+                <div class="detail-box">@Model.Organization?.Name</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>تاريخ البداية</label>
+                <div class="detail-box">@Model.StartDate.ToString("yyyy-MM-dd")</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>تاريخ النهاية</label>
+                <div class="detail-box">@Model.EndDate?.ToString("yyyy-MM-dd")</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>نوع الباقة</label>
+                <div class="detail-box">@Model.Type</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>عدد الجلسات الكلي</label>
+                <div class="detail-box">@Model.NumOfSessions</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>الجلسات المنفذة</label>
+                <div class="detail-box">@Model.SessionsCount</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>المبلغ المدفوع</label>
+                <div class="detail-box">ج.م @Model.AmountPaid.ToString("N0")</div>
+            </div>
+
+
+            <div class="col-md-6">
+                <label>الحالة</label>
+                <div class="detail-box">
+                    <span class="badge bg-@(Model.Status == "Active" ? "success" : "danger") px-3 py-2">
+                        @Model.Status
+                    </span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ✅ جدول الجلسات -->
+    <h4 class="fw-bold text-primary mb-3 text-center">الجلسات العلاجية</h4>
+
+    @if (Model.TreatmentSessions != null && Model.TreatmentSessions.Any())
+    {
+        <div class="card card-modern">
+            <table class="table table-modern text-center align-middle">
+                <thead>
+                    <tr>
+                        <th>رقم الجلسة</th>
+                        <th>التاريخ</th>
+                        <th>الملاحظات</th>
+                        <th>الخيارات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var session in Model.TreatmentSessions)
+                    {
+                        <tr>
+                            <td>@session.Id</td>
+                            <td>@session.SessionDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td>
+                                @if (string.IsNullOrWhiteSpace(session.Prognosis))
+                                {
+                                    <span class="badge bg-secondary px-3">لا توجد ملاحظات</span>
+                                }
+                                else if (session.Prognosis.Length <= 20)
+                                {
+                                    <span class="badge bg-info text-dark px-3">@session.Prognosis</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-primary px-3" title="@session.Prognosis">
+                                        @session.Prognosis.Substring(0, 20)...
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <a asp-controller="TreatmentSession" asp-action="Edit"
+                                   asp-route-id="@session.Id"
+                                   class="btn btn-sm btn-outline-warning rounded-pill">
+                                     تعديل
+                                </a>
+
+                                <button class="btn btn-sm btn-outline-danger rounded-pill delete-btn"
+                                        data-id="@session.Id"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal">
+                                     حذف
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center rounded-3 shadow-sm">
+            لا توجد جلسات علاجية لهذه الباقة.
+        </div>
+    }
+
+    <!-- ✅ أزرار التنقل -->
+    <div class="mt-4 d-flex flex-wrap justify-content-between gap-2">
+        <a asp-controller="Patient" asp-action="GetAll" class="btn btn-outline-info rounded-pill px-4">
+            👥 الرجوع للمرضى
+        </a>
+
+        <a asp-controller="Packages"
+           asp-action="PatientPackages"
+           asp-route-patientId="@Model.PatientId"
+           class="btn btn-outline-primary rounded-pill px-4">
+            عرض باقات المريض
+        </a>
+
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-success rounded-pill px-4">
+            ✏️ تعديل الباقة
+        </a>
+    </div>
+
+</div>
+
+<!-- ✅ مودال الحذف -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content p-3 rounded-3 shadow-lg">
+            <div class="modal-header border-0 bg-danger text-white justify-content-center position-relative rounded-3">
+                <h5 class="modal-title fw-bold">
+                    <i class="bi bi-exclamation-triangle-fill"></i> تأكيد الحذف
+                </h5>
+                <button type="button" class="btn-close btn-close-white position-absolute"
+                        data-bs-dismiss="modal" style="right:1rem;"></button>
+            </div>
+
+
+            <div class="modal-body text-center">
+                <p class="fs-5 mb-0">هل أنت متأكد إنك عايز تحذف الجلسة؟</p>
+            </div>
+
+            <div class="modal-footer border-0 justify-content-center">
+                <form id="deleteForm" method="post">
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">حذف</button>
+                </form>
+                <button class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+            btn.addEventListener("click", function () {
+                let id = this.getAttribute("data-id");
+                document.getElementById("deleteForm").action =
+                    "/TreatmentSession/DeleteConfirmed/" + id;
+            });
+        });
+    </script>
+
+    <style>
+        .diagnosis-box {
+            white-space: normal !important;
+            line-height: 1.8;
+            font-size: 1rem;
+            padding: 12px 16px;
+        }
+
+        /* 🌟 الكارد المودرن الموحد */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 25px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* 🧾 تفاصيل الباقة */
+        .details-grid label {
+            font-weight: 700;
+            color: #0077B6;
+            margin-bottom: 4px;
+        }
+
+        .detail-box {
+            background: #f7fbff;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid #e2f1ff;
+            font-weight: 600;
+            color: #1B3A4B;
+        }
+
+        /* 📋 جدول الجلسات بنفس ستايل الجداول */
+        .table-modern {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.25);
+        }
+
+            .table-modern th {
+                background-color: #eaf9fb !important;
+                color: #0077B6;
+                font-weight: 700;
+                border-bottom: 2px solid #00B4D8;
+            }
+
+            .table-modern td {
+                border-color: #dee2e6;
+                vertical-align: middle;
+            }
+
+            .table-modern tbody tr:hover {
+                background-color: #f3fcfd !important;
+                transition: background-color 0.2s ease;
+            }
+
+        .btn-success {
+            background-color: #00B4D8;
+            border-color: #0077B6;
+            font-weight: 600;
+        }
+
+            .btn-success:hover {
+                background-color: #0096c7;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}
