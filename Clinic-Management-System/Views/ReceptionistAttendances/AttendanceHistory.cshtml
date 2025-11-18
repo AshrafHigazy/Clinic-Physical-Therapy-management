@@ -1,0 +1,124 @@
+﻿@model IEnumerable<Clinic_Management_System.Models.ReceptionistAttendance>
+@{
+    ViewData["Title"] = "سجل الحضور";
+    var receptionistName = Model.FirstOrDefault()?.Receptionist.FullName ?? "";
+}
+
+<div class="container py-4">
+    <div class="card card-modern p-4">
+        <h3 class="text-center text-primary fw-bold mb-4">
+            <i class="bi bi-calendar-check"></i> سجل حضور الموظف:
+            <span class="text-dark">@receptionistName</span>
+        </h3>
+
+        @if (!Model.Any())
+        {
+            <div class="alert alert-info text-center mt-3 rounded-3 shadow-sm">
+                <i class="bi bi-info-circle"></i> لا يوجد سجلات حضور لهذا الموظف
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-modern table-hover align-middle text-center">
+                    <thead>
+                        <tr>
+                            <th> التاريخ</th>
+                            <th> وقت الدخول</th>
+                            <th> وقت الخروج</th>
+                            <th> عدد الساعات</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in Model.OrderByDescending(a => a.Date))
+                        {
+                            <tr>
+                                <td>@a.Date.ToString("yyyy-MM-dd")</td>
+                                @using System.Globalization
+                            <td>@(a.CheckIn?.ToString("h:mm tt", new CultureInfo("ar-EG")) ?? "-")</td>
+                            <td>@(a.CheckOut?.ToString("h:mm tt", new CultureInfo("ar-EG")) ?? "-")</td>
+                            <td>@(a.Hours?.ToString("F2") ?? "0")</td>
+                        </tr>
+                                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+        <div class="text-center mt-4">
+            <a asp-action="Index" asp-controller="Receptionists" class="btn btn-outline-secondary px-4 rounded-pill">
+                <i class="bi bi-arrow-return-left"></i> العودة
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* 🎨 النمط الموحد للنظام */
+        .card-modern {
+            background: #fff;
+            border: 2px solid #0077B6;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 30px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .table-modern {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.25);
+        }
+
+            .table-modern th {
+                background-color: #eaf9fb;
+                color: #0077B6;
+                font-weight: 700;
+                border-bottom: 2px solid #00B4D8;
+            }
+
+            .table-modern td {
+                border-color: #dee2e6;
+                vertical-align: middle;
+            }
+
+            .table-modern tbody tr:hover {
+                background-color: #f3fcfd !important;
+                transition: background-color 0.2s ease;
+            }
+
+        .alert-info {
+            background-color: #e0f7ff;
+            border: 1.5px solid #00B4D8;
+            color: #023E8A;
+            font-weight: 500;
+        }
+
+        .btn-outline-secondary {
+            border: 2px solid #adb5bd;
+            font-weight: 500;
+        }
+
+            .btn-outline-secondary:hover {
+                background-color: #e2e6ea;
+                color: #212529;
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+}

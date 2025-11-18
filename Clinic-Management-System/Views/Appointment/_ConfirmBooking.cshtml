@@ -1,0 +1,87 @@
+﻿@{
+    var receptionists = ViewBag.Receptionists as List<Clinic_Management_System.Models.Receptionist>;
+    var patientId = ViewBag.PatientId;
+
+    // القيمة الأصلية القادمة من الكنترولر
+    string rawDate = ViewBag.Date as string;
+
+    // تحويل التاريخ المرسل
+    DateTime baseDate;
+    if (!DateTime.TryParse(rawDate, out baseDate))
+    {
+        baseDate = DateTime.Today;
+    }
+
+    // نضبط الساعة دائمًا لتكون 12:00 PM
+    DateTime initialDate = new DateTime(
+        baseDate.Year,
+        baseDate.Month,
+        baseDate.Day,
+        12, 0, 0
+    );
+
+    string date = initialDate.ToString("yyyy-MM-ddTHH:mm");
+}
+
+
+<div class="modal-header bg-success text-white justify-content-center position-relative">
+    <h5 class="modal-title">تأكيد حجز الموعد</h5>
+    <button type="button" class="btn-close btn-close-white position-absolute"
+            data-bs-dismiss="modal" style="right:1rem;"></button>
+</div>
+
+<div class="modal-body">
+    <form id="confirmBookingForm">
+        <input type="hidden" name="patientId" value="@patientId" />
+        <div class="mb-3">
+            <label>التاريخ والوقت</label>
+            <input type="datetime-local" name="start"
+                   class="form-control"
+                   value="@date" step="1800" required />
+
+        </div>
+
+        <div class="mb-3">
+            <label>اختر السكرتير</label>
+            <select name="receptionistId" class="form-select" required>
+                @foreach (var r in receptionists)
+                {
+                    <option value="@r.Id">@r.FullName</option>
+                }
+            </select>
+        </div>
+
+        <div class="text-end">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">إلغاء</button>
+            <button type="submit" class="btn btn-success">تأكيد الحجز</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    $('#confirmBookingForm').on('submit', function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            url: '/Appointment/Create',
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message); // ✅ تم الحجز بنجاح
+                    var modalEl = document.getElementById('dynamicConfirmModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    if (window.calendar) window.calendar.refetchEvents();
+                } else {
+                    alert(response.message); // ⚠ رسالة الخطأ المخصصة
+                }
+            },
+            error: function () {
+                alert('❌ حدث خطأ أثناء الاتصال بالخادم');
+            }
+        });
+    });
+
+
+</script>

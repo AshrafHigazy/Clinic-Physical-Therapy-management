@@ -1,0 +1,94 @@
+﻿@model Clinic_Management_System.Models.Receptionist
+@{
+    ViewData["Title"] = "تعديل بيانات موظف الاستقبال";
+}
+
+<div class="container py-4">
+    <div class="card card-modern">
+        <h3 class="text-center text-warning mb-4 fw-bold">
+            <i class="bi bi-pencil-square"></i> تعديل بيانات موظف الاستقبال
+        </h3>
+
+        <form asp-action="Edit" method="post" class="w-75 mx-auto">
+            <input type="hidden" asp-for="Id" />
+            <partial name="_ReceptionistForm" model="Model" />
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-warning text-white px-4 rounded-pill">
+                    <i class="bi bi-save"></i> حفظ التعديلات
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">
+                    <i class="bi bi-arrow-return-left"></i> عودة
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        /* 🎨 نفس تصميم صفحة تعديل شركات التأمين */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 30px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .form-label {
+            color: #0077B6;
+            font-weight: 600;
+        }
+
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #00B4D8;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #0077B6;
+                box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
+            }
+
+        .btn-warning {
+            background-color: #ffb703;
+            border-color: #ffb703;
+            font-weight: 600;
+        }
+
+            .btn-warning:hover {
+                background-color: #ffa500;
+                border-color: #ff9900;
+            }
+
+        .btn-outline-secondary {
+            font-weight: 500;
+            border-width: 2px;
+        }
+
+            .btn-outline-secondary:hover {
+                background-color: #e2e6ea;
+                color: #212529;
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+}

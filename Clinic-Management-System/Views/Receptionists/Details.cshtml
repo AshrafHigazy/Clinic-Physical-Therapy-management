@@ -1,0 +1,126 @@
+﻿@model Clinic_Management_System.Models.Receptionist
+@{
+    ViewData["Title"] = "تفاصيل موظف الاستقبال";
+}
+
+<div class="container py-4">
+    <div class="card card-modern p-4 rounded-4">
+        <h3 class="text-center text-primary mb-4 fw-bold">
+            <i class="bi bi-person-badge"></i> تفاصيل موظف الاستقبال
+        </h3>
+
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <table class="table table-hover text-center align-middle shadow-sm rounded-3">
+                    <tbody>
+                        <tr>
+                            <th class="text-primary fw-semibold">الاسم الكامل</th>
+                            <td>@Model.FullName</td>
+                        </tr>
+                        <tr>
+                            <th class="text-primary fw-semibold">تاريخ التعيين</th>
+                            <td>@Model.HiringDate.ToString("yyyy/MM/dd")</td>
+                        </tr>
+                        <tr>
+                            <th class="text-primary fw-semibold">المرتب</th>
+                            <td>@($"ج.م{Model.Salary:N0}")</td>
+                        </tr>
+
+                        <tr>
+                            <th class="text-primary fw-semibold">الوردية</th>
+                            <td>@Model.Shift</td>
+                        </tr>
+                        <tr>
+                            <th class="text-primary fw-semibold">رقم الهاتف</th>
+                            <td>@Model.Phone</td>
+                        </tr>
+                        <tr>
+                            <th class="text-primary fw-semibold">الحالة</th>
+                            <td>
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success px-3 py-2">نشط</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger px-3 py-2">غير نشط</span>
+                                }
+                            </td>
+                        </tr>
+                        <tr>
+                            <th class="text-primary fw-semibold">الدور</th>
+                            <td>@Model.Role</td>
+                        </tr>
+                        <tr>
+                          @*   <th class="text-primary fw-semibold">البريد الإلكتروني</th>
+                            <td>@Model.Email</td> *@
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning text-white px-4 rounded-pill">
+                <i class="bi bi-pencil"></i> تعديل
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">
+                <i class="bi bi-arrow-return-left"></i> رجوع
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* 🎨 تنسيق المودرن統一 */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.35);
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        th {
+            background-color: #eaf9fb;
+            border-radius: 8px;
+            width: 35%;
+        }
+
+        td {
+            color: #333;
+            font-weight: 500;
+        }
+
+        .table {
+            border: 2px solid #00B4D8;
+            border-radius: 10px !important;
+            overflow: hidden;
+        }
+
+        .btn-warning {
+            background-color: #f4a261;
+            border: none;
+        }
+
+            .btn-warning:hover {
+                background-color: #e76f51;
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+}

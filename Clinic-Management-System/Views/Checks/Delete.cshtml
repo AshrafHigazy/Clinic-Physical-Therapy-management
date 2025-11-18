@@ -1,0 +1,131 @@
+﻿@model Clinic_Management_System.Models.Check
+@{
+    ViewData["Title"] = "حذف الفحص";
+}
+
+<div class="container py-4">
+    <div class="card card-modern text-center" style="max-width: 650px; margin: auto;">
+        <h3 class="text-danger fw-bold mb-3">
+            <i class="bi bi-trash3"></i> حذف الفحص
+        </h3>
+
+        <h5 class="fw-semibold text-dark mb-4">
+            فحص بتاريخ: @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+        </h5>
+
+        <!-- جدول البيانات بنفس ستايل شركة التأمين -->
+        <div class="table-responsive mb-4">
+            <table class="table table-modern text-center align-middle">
+                <tbody>
+                    <tr>
+                        <th>الاقتراح</th>
+                        <td>@Model.Sugestion</td>
+                    </tr>
+                  @*   <tr>
+                        <th>تقييم العيادة</th>
+                        <td>@Model.ClinicAssessment</td>
+                    </tr>
+
+                    <tr>
+                        <th>التشخيص</th>
+                        <td>@Model.Diagnosis</td>
+                    </tr> *@
+                    <tr>
+                        <th> التشخيص</th>
+                        <td class="check-text">
+                            @Html.Raw(Model.Diagnosis?.Replace("\n", "<br />"))
+                        </td>
+                    </tr>
+                  @*   <tr>
+                        <th>تاريخ الفحص</th>
+                        <td>@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
+                    </tr> *@
+                </tbody>
+            </table>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.CheckId" method="post"
+              onsubmit="return confirmDelete()">
+            <input type="hidden" asp-for="CheckId" />
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-danger px-4">
+                    <i class="bi bi-trash"></i> حذف نهائي
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-return-left"></i> إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+
+    <script>
+        // تأكيد الحذف
+        function confirmDelete() {
+            return confirm("⚠ هل أنت متأكد من حذف هذا الفحص بشكل نهائي؟");
+        }
+    </script>
+
+    <style>
+        /* 🌟 نفس ستايل صفحة حذف شركة التأمين بلون أحمر */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.45);
+            padding: 30px;
+            border: 2px solid #DC3545;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .table-modern {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.25);
+        }
+
+            .table-modern th {
+                background-color: #fdeaea;
+                color: #DC3545;
+                width: 40%;
+                font-weight: 700;
+                border-bottom: 2px solid #b02a37;
+            }
+
+            .table-modern td {
+                border-color: #dee2e6;
+                vertical-align: middle;
+            }
+
+            .table-modern tr:hover td {
+                background-color: #fff1f1 !important;
+                transition: background-color 0.2s ease;
+            }
+
+        .btn-danger {
+            background-color: #DC3545;
+            border-color: #b02a37;
+        }
+
+            .btn-danger:hover {
+                background-color: #bb2d3b;
+                border-color: #8b1f2a;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

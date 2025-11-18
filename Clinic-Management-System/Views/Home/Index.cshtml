@@ -1,0 +1,359 @@
+@{
+    ViewData["Title"] = "الصفحة الرئيسية";
+}
+
+<!-- Bootstrap modal لعرض تفاصيل الموعد -->
+<div class="modal fade" id="appointmentDetailsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content" id="appointmentDetailsContent">
+            <!-- content يملأه AJAX -->
+        </div>
+    </div>
+</div>
+
+<!-- modal تأكيد إضافة حجز جديد -->
+<div class="modal fade" id="confirmAddModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">إضافة حجز جديد</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                هل تريد إضافة حجز جديد في هذا اليوم؟
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">لا</button>
+                <button id="confirmAddYes" class="btn btn-primary">نعم</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="calendar-container">
+    <div id="calendar"></div>
+</div>
+
+@section Scripts {
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- FullCalendar -->
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+
+            window.calendar = new FullCalendar.Calendar(calendarEl, {
+                locale: 'ar',
+                direction: 'rtl',
+                themeSystem: 'bootstrap5',
+                initialView: 'timeGridWeek',
+                height: 'calc(100vh - 100px)',
+                allDaySlot: false,
+                slotMinTime: "12:00:00",
+                slotMaxTime: "23:00:00",
+                slotDuration: "00:30:00",
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'timeGridWeek,timeGridDay'
+                },
+                buttonText: {
+                    today: 'اليوم الحالي',
+                    week: 'الأسبوع',
+                    day: 'اليوم'
+                },
+                selectable: true,
+                nowIndicator: true,
+
+                // ✅ 1. إعدادات منع التداخل والسماح بالتكديس (Stacking)
+                eventOverlap: false,
+                slotEventOverlap: false,
+
+                // جلب الأحداث من السيرفر
+                events: '/Appointment/GetAppointments',
+
+                // عند الضغط على اليوم
+                dateClick: function (info) {
+                    var dateOnly = info.dateStr.split('T')[0];
+                    var modalEl = document.getElementById('confirmAddModal');
+                    var modal = new bootstrap.Modal(modalEl);
+                    modal.show();
+
+                    document.getElementById('confirmAddYes').onclick = function () {
+                        window.location.href = '/Patient/GetAll?date=' + dateOnly;
+                    };
+                },
+
+        // شكل الحجز
+        eventContent: function (info) {
+            var isAttended = info.event.extendedProps.isAttended;
+            var isCanceled = info.event.extendedProps.isCanceled;
+            var desc = info.event.extendedProps.description || '';
+
+            // لون اسم المريض والوقت
+            var color = "#0077B6"; // أزرق افتراضي
+            if (isAttended === true) color = "#28a745"; // أخضر
+            if (isCanceled === true) color = "#dc3545"; // أحمر
+
+            var startTime = new Date(info.event.start);
+            var timeStr = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+            var container = document.createElement('div');
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.alignItems = 'flex-start';
+            container.style.cursor = 'pointer';
+            container.style.backgroundColor = 'transparent';
+            container.style.border = 'none';
+
+            var title = document.createElement('div');
+            title.innerHTML = `<strong style="color:${color}; font-size:14px;">${info.event.title}</strong>
+                               <small style="color:${color}">(${timeStr})</small>`;
+            container.appendChild(title);
+
+            var meta = document.createElement('div');
+            meta.style.marginTop = '6px';
+            meta.style.display = 'flex';
+            meta.style.gap = '6px';
+
+            var btnAttend = document.createElement('button');
+            btnAttend.className = 'btn btn-success btn-sm';
+            btnAttend.style.padding = '2px 6px';
+            btnAttend.innerHTML = '<span style="font-weight:bold;">✔ حضور</span>';
+            btnAttend.onclick = function (e) {
+                e.stopPropagation();
+                updateStatus(info.event.id, true, false);
+            };
+
+            var btnAbsent = document.createElement('button');
+            btnAbsent.className = 'btn btn-danger btn-sm';
+            btnAbsent.style.padding = '2px 6px';
+            btnAbsent.innerHTML = '<span style="font-weight:bold;">✖ غياب</span>';
+            btnAbsent.onclick = function (e) {
+                e.stopPropagation();
+                updateStatus(info.event.id, false, true);
+            };
+
+            if (isAttended === true || isCanceled === true) {
+                // تلوين كلمة حضر / غاب داخل الوصف أيضاً
+                var coloredDesc = desc
+                    .replace("حضر", "<span style='color:#28a745; font-weight:bold;'>حضر</span>")
+                    .replace("غاب", "<span style='color:#dc3545; font-weight:bold;'>غاب</span>");
+
+                var descEl = document.createElement("div");
+                descEl.innerHTML = coloredDesc;
+                meta.appendChild(descEl);
+
+            } else {
+                meta.appendChild(btnAttend);
+                meta.appendChild(btnAbsent);
+            }
+
+            container.appendChild(meta);
+
+            return { domNodes: [container] };
+        },
+
+
+                // عند الضغط على الحجز
+                eventClick: function (info) {
+                    info.jsEvent.preventDefault();
+                    var id = info.event.id;
+                    window.location.href = '/Appointment/DetailsPage?id=' + id;
+                },
+
+                eventDidMount: function (info) {
+                    info.el.style.cursor = 'pointer';
+                    var desc = info.event.extendedProps.description || '';
+                    info.el.setAttribute('title', desc);
+                    info.el.style.backgroundColor = 'transparent';
+                }
+            });
+
+            window.calendar.render();
+                    // تفعيل الضغط على عمود الساعات الجانبي
+        setTimeout(() => {
+
+            document.querySelectorAll(".fc-timegrid-slot-label").forEach(label => {
+
+                label.style.cursor = "pointer";
+
+                label.addEventListener("click", () => {
+
+                    const time = label.getAttribute("data-time");   // مثال: "14:00"
+
+                    // تحويل الوقت إلى تاريخ اليوم الظاهر في التقويم
+                    const currentDate = window.calendar.getDate();  // يوم معروض
+
+                    const year = currentDate.getFullYear();
+                    const month = currentDate.getMonth() + 1;
+                    const day = currentDate.getDate();
+
+                    const fullDate = `${year}-${month}-${day}T${time}`;
+
+                    // فتح صفحة الاختيار (نفس اللي بيحصل عند dateClick)
+                    window.location.href = '/Patient/GetAll?date=' + fullDate.split("T")[0] + '&time=' + time;
+                });
+            });
+
+        }, 500);
+
+        });
+
+        // AJAX: تحديث الحالة حضر/غاب
+        function updateStatus(id, attended, canceled) {
+            $.ajax({
+                url: '/Appointment/UpdateStatus',
+                method: 'POST',
+                data: { id: id, isAttended: attended, isCanceled: canceled },
+                success: function () {
+                    if (window.calendar) window.calendar.refetchEvents();
+                },
+                error: function () {
+                    alert("❌ حدث خطأ أثناء التعديل!");
+                }
+            });
+        }
+
+        // AJAX: إلغاء الموعد
+        function cancelAppointment(id) {
+            if (!confirm('هل تريد تأكيد إلغاء هذا الموعد؟')) return;
+            $.ajax({
+                url: '/Appointment/Cancel',
+                method: 'POST',
+                data: { id: id },
+                success: function () {
+                    if (window.calendar) window.calendar.refetchEvents();
+                    var modalEl = document.getElementById('appointmentDetailsModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                },
+                error: function () {
+                    alert('حدث خطأ أثناء إلغاء الموعد');
+                }
+            });
+        }
+
+        // AJAX: حذف نهائي
+        function deleteAppointment(id) {
+            if (!confirm('هل تريد حذف الموعد نهائياً؟')) return;
+            $.ajax({
+                url: '/Appointment/Delete',
+                method: 'POST',
+                data: { id: id },
+                success: function () {
+                    if (window.calendar) window.calendar.refetchEvents();
+                    var modalEl = document.getElementById('appointmentDetailsModal');
+                    var modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                },
+                error: function () {
+                    alert('حدث خطأ أثناء حذف الموعد');
+                }
+            });
+        }
+    </script>
+
+    <style>
+        /* تصميم التقويم لصفحة Dashboard */
+        .calendar-container {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 20px;
+            margin-top: 20px;
+            animation: fadeIn 0.4s ease;
+            border: 2px solid #0077B6;
+        }
+
+        #calendar {
+            font-family: 'Cairo', sans-serif;
+            font-size: 0.9rem;
+            border-radius: 12px;
+        }
+
+        .fc-timegrid-slot,
+        .fc-daygrid-day {
+            border-color: #ddd !important;
+        }
+
+        .fc-toolbar-title {
+            font-size: 1.1rem !important;
+            font-weight: 700;
+            color: #0077B6;
+        }
+
+        .fc-button {
+            background-color: #00B4D8 !important;
+            border: none !important;
+            border-radius: 8px !important;
+            font-size: 0.85rem !important;
+            font-weight: 600;
+        }
+
+        .fc-button:hover {
+            background-color: #0096c7 !important;
+        }
+
+        .fc-daygrid-day:hover,
+        .fc-timegrid-slot:hover {
+            background-color: #eaf9fb !important;
+        }
+
+        .fc .fc-timeGridWeek-view .fc-scrollgrid {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .fc .fc-timegrid-slot {
+            height: 70px !important;
+        }
+
+        .fc .fc-timegrid-slot-lane {
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .fc-event {
+            border: 1px solid #ddd !important;
+            border-radius: 8px !important;
+            padding: 2px 6px !important;
+            font-size: 13px !important;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.15s ease;
+        }
+
+        .fc-event:hover {
+            background-color: #f5f5f5 !important;
+            transform: scale(1.02);
+        }
+
+        .fc-daygrid-day-frame:hover {
+            background-color: transparent !important;
+        }
+
+        .modal {
+            z-index: 20000 !important;
+        }
+
+        .modal-backdrop {
+            z-index: 19900 !important;
+        }
+
+        /* إخفاء الأزرار داخل عرض الأسبوع */
+        .fc-timeGridWeek-view .btn-success,
+        .fc-timeGridWeek-view .btn-danger {
+            display: none !important;
+        }
+
+        .fc-event {
+            font-weight: bold;
+        }
+
+
+    </style>
+    }

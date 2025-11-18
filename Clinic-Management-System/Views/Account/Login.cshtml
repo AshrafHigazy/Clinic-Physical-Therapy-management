@@ -1,0 +1,132 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <title>تسجيل الدخول</title>
+
+    <link href="~/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <style>
+        :root {
+            --main-color: #00B4D8;
+            --main-dark: #0077B6;
+            --bg-light: #F7FBFC;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg-light);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* 🔵 خلفية الصفحة بالكامل */
+        .login-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('/images/Login2.png') no-repeat center center;
+            background-size: contain; /* يظهر الصورة بالكامل */
+            background-repeat: no-repeat;
+            background-color: #00051A; /* لون خلفية مناسب */
+            z-index: 0;
+        }
+
+        .login-card {
+            width: 380px;
+            padding: 30px;
+            border-radius: 20px;
+            background: #fff;
+            border: 2px solid var(--main-dark);
+            box-shadow: 0 10px 25px rgba(0, 119, 182, 0.35);
+            animation: popIn 0.5s ease;
+            position: relative;
+            z-index: 10; /* 🔵 الكارت فوق الخلفية */
+        }
+
+        h4 {
+            color: var(--main-dark);
+            font-weight: 700;
+        }
+
+        .input-modern {
+            border: 2px solid var(--main-color);
+            border-radius: 10px;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .input-modern:focus {
+                border-color: var(--main-dark);
+                box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
+            }
+
+        .btn-login {
+            background: var(--main-dark);
+            border: none;
+            padding: 10px;
+            font-size: 1.1rem;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+            .btn-login:hover {
+                background: var(--main-color);
+                transform: translateY(-2px);
+            }
+
+        @@keyframes popIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body class="d-flex justify-content-center align-items-center" style="height:100vh">
+
+    <!-- 🔵 الخلفية -->
+    <div class="login-bg"></div>
+
+    <!-- 🔵 الكارت فوق الخلفية بدون تغيير داخله -->
+    <div class="login-card">
+
+        <h4 class="text-center mb-4">تسجيل الدخول</h4>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="alert alert-danger text-center">@ViewBag.Error</div>
+        }
+
+        <form method="post">
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">البريد الإلكتروني</label>
+                <input type="email" name="email" class="form-control input-modern" placeholder="example@mail.com" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">كلمة المرور</label>
+                <input type="password" name="password" class="form-control input-modern" placeholder="••••••••" required />
+            </div>
+
+            <button class="btn btn-login w-100 text-white fw-bold">تسجيل دخول</button>
+
+        </form>
+
+    </div>
+
+</body>
+</html>

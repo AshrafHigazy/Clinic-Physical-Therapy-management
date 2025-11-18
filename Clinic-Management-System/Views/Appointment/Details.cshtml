@@ -1,0 +1,14 @@
+﻿@model Clinic_Management_System.Models.Appointment
+
+<div class="card p-3">
+    <h5>@Model.Patient.FullName</h5>
+    <p>التوقيت: @Model.StartTime.ToString("yyyy/MM/dd HH:mm") - @Model.EndTime.ToString("HH:mm")</p>
+    <p>السكرتير: @Model.Receptionist?.FullName</p>
+    <p>الحالة: @(Model.IsCanceled ? "غاب" : (Model.IsAttended ? "حضر" : "لم يُؤكد"))</p>
+
+    <div class="d-flex gap-2">
+        <button class="btn btn-success" onclick="updateStatus(@Model.Id, true, false)">تسجيل حضوره</button>
+        <button class="btn btn-danger" onclick="updateStatus(@Model.Id, false, true)">تسجيل غيابه</button>
+        <button class="btn btn-outline-danger" onclick="deleteAppointment(@Model.Id)">إلغاء الموعد</button>
+    </div>
+</div>

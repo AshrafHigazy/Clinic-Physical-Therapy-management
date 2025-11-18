@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "الحجوزات";
+}
+
+
+<div id="calendar-container">
+    <div id="calendar"></div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            var calendarEl = document.getElementById('calendar');
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'ar',
+                height: '80vh',
+                selectable: true,
+
+                // ✅ دي المرحلة الجاية هنعدلها لما نروح للمرضى
+                select: function (info) {
+                    var date = info.startStr.split("T")[0];
+                    window.location.href = '/Patient/GetAll?date=' + date;
+                },
+
+                events: '/Appointment/GetAppointments',
+
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                }
+            });
+                    dateClick: function (info) {
+            var selectedDate = info.dateStr;
+            window.location.href = '/Patient/GetAll?date=' + selectedDate;
+        }
+
+
+            calendar.render();
+        });
+    </script>
+}

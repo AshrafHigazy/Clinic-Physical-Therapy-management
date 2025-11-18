@@ -1,0 +1,121 @@
+﻿@model Patient
+@{
+    ViewData["Title"] = "تفاصيل المريض";
+}
+
+<div class="container py-4">
+    <div class="card card-modern">
+        <h3 class="text-center text-primary mb-4">
+            <i class="bi bi-person-vcard"></i> تفاصيل المريض
+        </h3>
+
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <table class="table table-hover table-modern text-center align-middle">
+                    <tbody>
+                        <tr><th> الاسم</th><td>@Model.FullName</td></tr>
+                        <tr><th> العنوان</th><td>@Model.Address</td></tr>
+                        <tr><th> رقم الهاتف</th><td>@Model.Phone</td></tr>
+                        <tr><th> النوع</th><td>@Model.Gender</td></tr>
+                        <tr><th> العمر </th><td>@Model.Age</td></tr>
+                        <tr><th> تاريخ التسجيل</th><td>@Model.CreateAt.ToString("yyyy/MM/dd")</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-md-6">
+                <h5 class="text-secondary fw-bold mb-3"> السجل المرضي</h5>
+                @if (Model.MedicalRecords != null && Model.MedicalRecords.Any())
+                {
+                    <ul class="list-group list-group-flush table-modern">
+                        @foreach (var disease in Model.MedicalRecords)
+                        {
+                            <li class="list-group-item text-center fw-semibold text-dark">
+                                 @disease
+                            </li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <div class="alert alert-warning text-center rounded-3 shadow-sm">
+                         لا يوجد سجل مرضي لهذا المريض
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-outline-warning px-4 me-2">
+                <i class="bi bi-pencil-square"></i> تعديل
+            </a>
+            <a asp-action="GetAll" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-return-left"></i> عودة
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* 🎨 توحيد الشكل مع باقي الصفحات */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 30px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .table-modern {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.25);
+        }
+
+            .table-modern th {
+                background-color: #eaf9fb;
+                color: #0077B6;
+                width: 40%;
+                font-weight: 700;
+                border-bottom: 2px solid #00B4D8;
+            }
+
+            .table-modern td {
+                border-color: #dee2e6;
+                vertical-align: middle;
+            }
+
+            .table-modern tr:hover td {
+                background-color: #f3fcfd !important;
+                transition: background-color 0.2s ease;
+            }
+
+        .btn-outline-warning {
+            color: #ffb703;
+            border-color: #ffb703;
+        }
+
+            .btn-outline-warning:hover {
+                background-color: #ffb703;
+                color: white;
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+}

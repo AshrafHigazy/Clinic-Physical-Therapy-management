@@ -1,0 +1,243 @@
+﻿@model Clinic_Management_System.Models.ReceptionistCurrentShift
+@{
+    ViewData["Title"] = "تسجيل حضور موظف الاستقبال";
+    var currentShifts = ViewData["CurrentShifts"] as List<Clinic_Management_System.Models.ReceptionistCurrentShift>;
+}
+
+<div class="container py-4">
+    <div class="card card-modern p-4">
+        <h3 class="text-center text-primary fw-bold mb-4">
+            <i class="bi bi-calendar-check"></i> تسجيل حضور موظفي الاستقبال
+        </h3>
+
+        <!-- ✅ رسائل النظام -->
+        @if (ViewBag.Message != null)
+        {
+            <div id="autoHideAlert" class="alert alert-@ViewBag.MessageType text-center fw-bold rounded-3 shadow-sm fade show">
+                <i class="bi bi-info-circle"></i> @ViewBag.Message
+            </div>
+        }
+
+        <!-- ✅ نموذج بدء العمل -->
+        <div class="card card-section border-info p-4 mb-4">
+            <form id="startShiftForm" asp-action="StartShift" method="post">
+                <div class="row align-items-end">
+                    <div class="col-md-6 mb-3">
+                        <label for="receptionistId" class="form-label fw-semibold text-primary">اختر موظف الاستقبال:</label>
+                        <select id="receptionistId" name="receptionistId" class="form-select border-2 rounded-3" style="border-color:#00B4D8;" required>
+                            <option value="">-- اختر موظف الاستقبال --</option>
+                            @foreach (var r in (SelectList)ViewData["ReceptionistId"])
+                            {
+                                <option value="@r.Value">@r.Text</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <button type="button" class="btn btn-primary w-100 rounded-pill" onclick="openStartConfirmModal()">
+                            <i class="bi bi-play-circle"></i> بدء العمل
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- ✅ قائمة الموظفين الحاليين -->
+        @if (currentShifts != null && currentShifts.Any())
+        {
+            <div class="card card-section border-success p-4">
+                <h5 class="mb-3 text-success fw-bold"><i class="bi bi-person-check"></i> موظفو الاستقبال العاملون الآن</h5>
+                <div class="table-responsive">
+                    <table class="table table-modern text-center align-middle">
+                        <thead>
+                            <tr>
+                                <th>الموظف</th>
+                                <th>وقت بدء العمل</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var shift in currentShifts)
+                            {
+                                <tr>
+                                    <td>@shift.Receptionist.FullName</td>
+                                    <td>@shift.StartTime.ToString("h:mm tt", new System.Globalization.CultureInfo("ar-EG"))</td>
+                                    <td>
+                                        <button type="button"
+                                                class="btn btn-outline-danger btn-sm rounded-pill"
+                                                onclick="openEndConfirmModal('@shift.Receptionist.FullName', '@shift.ReceptionistId')">
+                                            <i class="bi bi-stop-circle"></i> إنهاء العمل
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info text-center rounded-3 mt-3 shadow-sm">
+                <i class="bi bi-info-circle"></i> لا يوجد موظفو استقبال يعملون الآن
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ✅ نافذة تأكيد بدء العمل -->
+<div class="modal fade" id="startConfirmModal" tabindex="-1" aria-labelledby="startConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+            <div class="modal-header bg-primary text-white justify-content-center position-relative">
+                <h5 class="modal-title" id="startConfirmLabel">تأكيد بدء العمل</h5>
+                <button type="button" class="btn-close btn-close-white position-absolute" data-bs-dismiss="modal" style="right:1rem;"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="fs-5">هل تريد بدء عمل <strong id="selectedReceptionistName"></strong>؟</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-primary px-4" onclick="submitStartShift()">تأكيد</button>
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ نافذة تأكيد إنهاء العمل -->
+<div class="modal fade" id="endConfirmModal" tabindex="-1" aria-labelledby="endConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0 rounded-3">
+            <div class="modal-header bg-danger text-white justify-content-center position-relative">
+                <h5 class="modal-title" id="endConfirmLabel">تأكيد إنهاء العمل</h5>
+                <button type="button" class="btn-close btn-close-white position-absolute" data-bs-dismiss="modal" style="right:1rem;"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="fs-5">هل أنت متأكد من إنهاء عمل <strong id="employeeName"></strong>؟</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <form id="confirmEndForm" method="post" asp-action="EndShift">
+                    <input type="hidden" id="modalReceptionistId" name="receptionistId" />
+                    <button type="submit" class="btn btn-danger px-4">تأكيد</button>
+                    <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">إلغاء</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ السكريبت -->
+<script>
+    function openStartConfirmModal() {
+        const select = document.getElementById('receptionistId');
+        const selectedText = select.options[select.selectedIndex].text;
+        if (select.value === "") {
+            alert("من فضلك اختر موظف الاستقبال أولاً.");
+            return;
+        }
+        document.getElementById('selectedReceptionistName').innerText = selectedText;
+        new bootstrap.Modal(document.getElementById('startConfirmModal')).show();
+    }
+
+    function submitStartShift() {
+        document.getElementById('startShiftForm').submit();
+    }
+
+    function openEndConfirmModal(name, id) {
+        document.getElementById('employeeName').innerText = name;
+        document.getElementById('modalReceptionistId').value = id;
+        new bootstrap.Modal(document.getElementById('endConfirmModal')).show();
+    }
+
+    // ✅ إخفاء الرسائل بعد 5 ثوانٍ
+    document.addEventListener("DOMContentLoaded", function () {
+        const alertBox = document.getElementById("autoHideAlert");
+        if (alertBox) {
+            setTimeout(() => {
+                alertBox.style.transition = "opacity 1s ease";
+                alertBox.style.opacity = "0";
+                setTimeout(() => alertBox.remove(), 1000);
+            }, 5000);
+        }
+    });
+</script>
+
+<style>
+    /* 🌟 تصميم موحّد مع باقي صفحات النظام */
+    .card-modern {
+        background: #fff;
+        border: 2px solid #0077B6;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+        animation: fadeIn 0.4s ease;
+    }
+
+    .card-section {
+        background: #ffffff;
+        border-radius: 15px;
+        border: 2px solid #00B4D8;
+        box-shadow: 0 5px 15px rgba(0, 119, 182, 0.2);
+    }
+
+    .table-modern {
+        background: #ffffff;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 119, 182, 0.25);
+    }
+
+        .table-modern th {
+            background-color: #eaf9fb;
+            color: #0077B6;
+            font-weight: 700;
+            border-bottom: 2px solid #00B4D8;
+        }
+
+        .table-modern td {
+            vertical-align: middle;
+            border-color: #dee2e6;
+        }
+
+        .table-modern tbody tr:hover {
+            background-color: #f3fcfd !important;
+            transition: background-color 0.2s ease;
+        }
+
+    .btn-primary {
+        background-color: #00B4D8;
+        border: none;
+        font-weight: 600;
+    }
+
+        .btn-primary:hover {
+            background-color: #0096c7;
+        }
+
+    .btn-danger {
+        background-color: #dc3545;
+        border: none;
+        font-weight: 600;
+    }
+
+        .btn-danger:hover {
+            background-color: #b02a37;
+        }
+
+    .btn-secondary {
+        font-weight: 500;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>

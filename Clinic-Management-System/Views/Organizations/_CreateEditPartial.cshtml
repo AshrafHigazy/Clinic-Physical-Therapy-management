@@ -1,0 +1,144 @@
+﻿@model Clinic_Management_System.Models.Organization
+
+@{
+    var selectedContracts = Model?.TyppeOfContract ?? new List<string>();
+
+    var options = new List<string>
+    {
+        "مؤسسة علاجية ٢٠٢١",
+        "مؤسسة علاجية ٢٠٢٣",
+        "سعر الطرف الواحد ١٥٠",
+        "سعر الطرف الواحد ٢٠٠"
+    };
+}
+
+<div class="card card-modern p-4 rounded-4">
+    <h5 class="fw-bold text-center text-primary mb-4">
+         بيانات الشركة
+    </h5>
+
+    <!-- ✅ اسم الشركة -->
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label fw-semibold">اسم الشركة</label>
+        <input asp-for="Name" class="form-control input-modern" placeholder="اكتب اسم الشركة" />
+        <span asp-validation-for="Name" class="text-danger small"></span>
+    </div>
+
+    <!-- ✅ تاريخ التعاقد -->
+    <div class="mb-3">
+        <label asp-for="CreateAt" class="form-label fw-semibold">تاريخ التعاقد</label>
+        <input asp-for="CreateAt" type="date" class="form-control input-modern" />
+        <span asp-validation-for="CreateAt" class="text-danger small"></span>
+    </div>
+
+    <!-- ✅ نوع التعاقد -->
+    <div class="mb-3">
+        <label asp-for="TyppeOfContract" class="form-label fw-semibold">نوع التعاقد</label>
+        <select asp-for="TyppeOfContract" class="form-select select2 input-modern" multiple="multiple"
+                id="TyppeOfContract" data-placeholder="اختر نوع أو أكثر من أنواع التعاقد">
+            @foreach (var item in options)
+            {
+                <option value="@item" selected="@(selectedContracts.Contains(item) ? "selected" : null)">@item</option>
+            }
+        </select>
+        <span asp-validation-for="TyppeOfContract" class="text-danger small"></span>
+    </div>
+
+    <!-- ✅ حالة الشركة -->
+    <div class="mb-3">
+        <label class="form-label fw-semibold d-block">هل الشركة متعاقدة حالياً؟</label>
+        <div class="btn-group d-flex" role="group" aria-label="حالة الشركة">
+            <input type="radio" class="btn-check" name="IsActive" id="activeYes" value="true" @(Model?.IsActive == true ? "checked" : "")>
+            <label class="btn btn-outline-success flex-fill rounded-start" for="activeYes">نعم</label>
+
+            <input type="radio" class="btn-check" name="IsActive" id="activeNo" value="false" @(Model?.IsActive == false ? "checked" : "")>
+            <label class="btn btn-outline-danger flex-fill rounded-end" for="activeNo">لا</label>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <!-- ✅ مكتبة Select2 -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <style>
+        /* 🎨 النمط العام */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .form-label {
+            color: #0077B6;
+            font-weight: 600;
+        }
+
+        .input-modern {
+            border: 2px solid #00B4D8;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .input-modern:focus {
+                border-color: #0077B6;
+                box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
+            }
+
+        /* 🎯 Select2 تحسين الشكل */
+        .select2-container--default .select2-selection--multiple {
+            min-height: 45px;
+            padding: 6px 10px;
+            font-size: 1rem;
+            border: 2px solid #00B4D8 !important;
+            border-radius: 10px !important;
+        }
+
+            .select2-container--default .select2-selection--multiple .select2-selection__choice {
+                background-color: #00B4D8 !important;
+                color: #fff !important;
+                border: none !important;
+                border-radius: 8px !important;
+                padding: 4px 8px;
+                margin-top: 3px;
+            }
+
+        .select2-dropdown {
+            border-radius: 10px !important;
+            border: 1px solid #00B4D8 !important;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+
+    <script>
+        $(function () {
+            $('.select2').select2({
+                placeholder: $(this).data('placeholder'),
+                allowClear: true,
+                width: '100%',
+                tags: true,
+                closeOnSelect: false,
+                language: { noResults: () => "لا توجد نتائج" }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,138 @@
+﻿@model IEnumerable<Clinic_Management_System.Models.Check>
+
+@{
+    ViewData["Title"] = "قائمة الفحوصات";
+}
+
+<div class="container py-4">
+
+    <!-- زر إضافة -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3 class="text-primary fw-bold m-0">
+            <i class="bi bi-heart-pulse"></i> قائمة الفحوصات
+        </h3>
+
+       @*  <a class="btn btn-primary rounded-3 px-3" asp-action="Create">
+            <i class="bi bi-plus-circle"></i> إضافة الفحص جديد
+        </a> *@
+    </div>
+
+    <!-- الكارد الرئيسي -->
+    <div class="card card-modern">
+
+        <table class="table table-hover table-modern align-middle text-center">
+            <thead class="table-primary text-dark">
+                <tr>
+                    <th> كود الفحص</th>
+                    <th> اسم المريض</th>
+                    <th> تاريخ الفحص</th>
+                    <th> الإجراءات</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model.OrderByDescending(x => x.CreatedAt))
+                {
+                    <tr>
+                        <td>@item.CheckId</td>
+                        <td>@item.Patient?.FullName</td>
+                        <td>
+                            @item.CreatedAt.ToString(
+                            "yyyy/MM/dd - hh:mm tt",
+                                                new System.Globalization.CultureInfo("ar-EG")
+                                                )
+                    </td>
+
+                    <td>
+                        <div class="d-flex flex-wrap justify-content-center gap-1">
+
+                            <a asp-action="Details" asp-route-id="@item.CheckId"
+                               class="btn btn-sm btn-outline-secondary rounded-pill">
+                                 التفاصيل
+                            </a>
+
+                            <a asp-action="Edit" asp-route-id="@item.CheckId"
+                               class="btn btn-sm btn-outline-primary rounded-pill">
+                                 تعديل
+                            </a>
+
+                            <a asp-action="Delete" asp-route-id="@item.CheckId"
+                               class="btn btn-sm btn-outline-danger rounded-pill">
+                                 حذف
+                            </a>
+
+                        </div>
+                    </td>
+                </tr>
+                                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* 🎨 نفس التصميم المودرن المستخدم في صفحة شركات التأمين */
+
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 25px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .table-modern {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.25);
+        }
+
+            .table-modern th {
+                background-color: #eaf9fb;
+                color: #0077B6;
+                font-weight: 700;
+                border-bottom: 2px solid #00B4D8;
+            }
+
+            .table-modern td {
+                border-color: #dee2e6;
+            }
+
+            .table-modern tbody tr:hover {
+                background-color: #f3fcfd !important;
+                transition: background-color 0.2s ease;
+            }
+
+        /* الأزرار */
+        .btn-outline-primary:hover {
+            background-color: #0077B6;
+            color: #fff !important;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: #fff !important;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #adb5bd;
+            color: #fff !important;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

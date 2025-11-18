@@ -1,0 +1,146 @@
+﻿@model Clinic_Management_System.Models.Check
+
+@{
+    ViewData["Title"] = "تفاصيل الفحص";
+}
+
+<div class="container py-4">
+    <div class="card card-modern">
+        <h3 class="text-center text-primary mb-4">
+            <i class="bi bi-file-medical"></i> تفاصيل الفحص للمريض: @Model.Patient?.FullName
+        </h3>
+
+        <div class="row">
+            <div class="col-md-12">
+
+                <table class="table table-hover table-modern text-center align-middle mb-4">
+                    <tbody>
+                        <tr>
+                            <th> مين رشحنا ليك</th>
+                            <td class="check-text">
+                                @Html.Raw(Model.Sugestion?.Replace("\n", "<br />"))
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th> التقييم السريري</th>
+                            <td class="check-text">
+                                @Html.Raw(Model.ClinicAssessment?.Replace("\n", "<br />"))
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th> التشخيص</th>
+                            <td class="check-text">
+                                @Html.Raw(Model.Diagnosis?.Replace("\n", "<br />"))
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th> خطة العلاج</th>
+                            <td class="check-text">
+                                @Html.Raw(Model.PlaneOfTreatment?.Replace("\n", "<br />"))
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th> طرق العلاج</th>
+                            <td class="check-text">
+                                @Html.Raw(Model.MethodsOfTreatment?.Replace("\n", "<br />"))
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th> تاريخ الفحص</th>
+                            <td>
+                                @Model.CreatedAt.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt", new System.Globalization.CultureInfo("ar-EG"))
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.CheckId" class="btn btn-outline-warning px-4 me-2">
+                <i class="bi bi-pencil-square"></i> تعديل
+            </a>
+            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                <i class="bi bi-arrow-return-left"></i> عودة
+            </a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* 🎨 نفس ستايل صفحة تفاصيل المريض */
+
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 30px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .table-modern {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.25);
+        }
+
+            .table-modern th {
+                background-color: #eaf9fb;
+                color: #0077B6;
+                width: 40%;
+                font-weight: 700;
+                border-bottom: 2px solid #00B4D8;
+            }
+
+            .table-modern td {
+                border-color: #dee2e6;
+                vertical-align: top;
+                font-weight: 500;
+                background-color: #ffffff !important; /* 💡 مهم لإلغاء الشفافية */
+            }
+
+            /* 💙 تمديد الخط الفاصل بين كل صف */
+            .table-modern tbody tr {
+                border-bottom: 2px solid #00B4D8 !important;
+            }
+
+        /* ✨ تنسيق النص داخل الصفوف الطويلة */
+        .check-text {
+            text-align: right;
+            line-height: 1.8;
+            padding: 12px 16px;
+            white-space: normal;
+        }
+
+        .btn-outline-warning {
+            color: #ffb703;
+            border-color: #ffb703;
+        }
+
+            .btn-outline-warning:hover {
+                background-color: #ffb703;
+                color: white;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

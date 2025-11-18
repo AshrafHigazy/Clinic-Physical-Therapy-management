@@ -1,0 +1,126 @@
+﻿@model Clinic_Management_System.Models.InternDoctorAttendance
+
+@{
+    ViewData["Title"] = "تسجيل حضور الطبيب المتدرب";
+    var doctors = ViewBag.Doctors as List<Clinic_Management_System.Models.InternDoctor>;
+    int? selectedDoctorId = ViewBag.SelectedDoctorId as int?;
+}
+
+<div class="container py-4">
+    <div class="card card-modern">
+
+        <!-- 🔷 العنوان -->
+        <h3 class="text-center text-primary fw-bold mb-4">
+            <i class="bi bi-person-check-fill"></i> تسجيل حضور الطبيب المتدرب
+        </h3>
+
+        <form asp-action="Create" method="post" class="w-75 mx-auto">
+
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+            <!-- 🔹 اختيار الدكتور -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold text-primary">اسم الطبيب</label>
+                <select asp-for="InternDoctorId" class="form-select border-2 rounded-3" required>
+                    <option value="">-- اختر الطبيب --</option>
+                    @foreach (var doc in doctors)
+                    {
+                        <option value="@doc.InternDoctorId"
+                                @@(selectedDoctorId= =doc.InternDoctorId ? "selected" : "" )>
+                            @doc.FullName
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="InternDoctorId" class="text-danger small"></span>
+            </div>
+
+            <!-- 🔹 تاريخ الحضور -->
+            <div class="mb-3">
+                <label asp-for="Date" class="form-label fw-semibold text-primary">التاريخ</label>
+                <input asp-for="Date" type="date" class="form-control border-2 rounded-3"
+                       value="@DateTime.Today.ToString("yyyy-MM-dd")" required />
+                <span asp-validation-for="Date" class="text-danger small"></span>
+            </div>
+
+            <!-- 🔹 وقت الدخول -->
+            <div class="mb-3">
+                <label asp-for="CheckIn" class="form-label fw-semibold text-primary">وقت الدخول</label>
+                <input asp-for="CheckIn" type="time" class="form-control border-2 rounded-3" required />
+                <span asp-validation-for="CheckIn" class="text-danger small"></span>
+            </div>
+
+            <!-- 🔹 وقت الخروج -->
+            <div class="mb-3">
+                <label asp-for="CheckOut" class="form-label fw-semibold text-primary">وقت الخروج</label>
+                <input asp-for="CheckOut" type="time" class="form-control border-2 rounded-3" />
+                <span asp-validation-for="CheckOut" class="text-danger small"></span>
+            </div>
+
+            <!-- 🔘 الأزرار -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success px-4 rounded-pill">
+                    <i class="bi bi-check-circle"></i> حفظ
+                </button>
+
+                <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill ms-2">
+                    <i class="bi bi-arrow-return-left"></i> رجوع
+                </a>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        /* 🌟 الكارد الموحد */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            padding: 30px;
+            border: 2px solid #0077B6;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            animation: fadeIn 0.4s ease;
+        }
+
+        .form-label {
+            color: #0077B6;
+            font-weight: 600;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            border: 2px solid #00B4D8;
+            transition: all 0.3s ease;
+        }
+
+            .form-control:focus,
+            .form-select:focus {
+                border-color: #0077B6;
+                box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
+            }
+
+        .btn-success {
+            background-color: #06d6a0;
+            border-color: #06d6a0;
+        }
+
+            .btn-success:hover {
+                background-color: #05b384;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+    </style>
+}

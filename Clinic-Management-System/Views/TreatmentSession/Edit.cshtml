@@ -1,0 +1,27 @@
+﻿@model Clinic_Management_System.Models.TreatmentSession
+
+<div class="container py-4">
+
+    <h3 class="text-primary fw-bold mb-3">
+        تعديل تقييم الجلسة رقم: @Model.Id
+    </h3>
+
+    <form asp-action="Edit" method="post">
+        <input type="hidden" name="id" value="@Model.Id" />
+
+        <div class="mb-3">
+            <label class="form-label fw-bold">التقييم (Prognosis)</label>
+            <textarea name="prognosis" class="form-control" rows="3">@Model.Prognosis</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-success rounded-pill px-4">
+            <i class="bi bi-check-circle"></i> حفظ التعديل
+        </button>
+
+        <a asp-controller="Packages" asp-action="Details" asp-route-id="@Model.PackageId"
+           class="btn btn-secondary rounded-pill px-4 ms-2">
+            رجوع
+        </a>
+    </form>
+
+</div>

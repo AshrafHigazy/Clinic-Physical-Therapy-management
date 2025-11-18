@@ -1,0 +1,110 @@
+﻿@model Clinic_Management_System.Models.Receptionist
+
+<div class="card card-modern p-4 rounded-4">
+    <h5 class="fw-bold text-center text-primary mb-4">
+         بيانات موظف الاستقبال
+    </h5>
+
+    <div class="row g-3">
+        <!-- الاسم الكامل -->
+        <div class="col-md-6">
+            <label asp-for="FullName" class="form-label fw-semibold">الاسم الكامل</label>
+            <input asp-for="FullName" class="form-control input-modern" placeholder="اكتب اسم الموظف" />
+            <span asp-validation-for="FullName" class="text-danger small"></span>
+        </div>
+
+        <!-- المرتب -->
+        <div class="col-md-6">
+            <label asp-for="Salary" class="form-label fw-semibold">المرتب</label>
+            <input asp-for="Salary" class="form-control input-modern" placeholder="ادخل المرتب الشهري" />
+            <span asp-validation-for="Salary" class="text-danger small"></span>
+        </div>
+
+        <!-- الوردية -->
+        <div class="col-md-6">
+            <label asp-for="Shift" class="form-label fw-semibold">الوردية</label>
+            <select asp-for="Shift" class="form-select input-modern">
+                <option value="">-- اختر الوردية --</option>
+                <option value="صباحي" selected="@(Model?.Shift == "صباحي")">صباحية</option>
+                <option value="مسائي" selected="@(Model?.Shift == "مسائي")">مسائية</option>
+            </select>
+            <span asp-validation-for="Shift" class="text-danger small"></span>
+        </div>
+
+        <!-- الهاتف -->
+        <div class="col-md-6">
+            <label asp-for="Phone" class="form-label fw-semibold">رقم الهاتف</label>
+            <input asp-for="Phone" class="form-control input-modern" placeholder="01XXXXXXXXX" />
+            <span asp-validation-for="Phone" class="text-danger small"></span>
+        </div>
+
+  @*       <!-- البريد -->
+        <div class="col-md-6">
+            <label asp-for="Email" class="form-label fw-semibold">البريد الإلكتروني</label>
+            <input asp-for="Email" class="form-control input-modern" placeholder="example@email.com" />
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div> *@
+
+        <!-- الدور -->
+        <div class="col-md-6">
+            <label asp-for="Role" class="form-label fw-semibold">الدور</label>
+            <select asp-for="Role" class="form-select input-modern">
+                <option value="">-- اختر الدور --</option>
+                <option value="طبيب" selected="@(Model?.Role == "طبيب")">طبيب</option>
+                <option value="موظف استقبال" selected="@(Model?.Role == "موظف استقبال")">موظف استقبال</option>
+            </select>
+            <span asp-validation-for="Role" class="text-danger small"></span>
+        </div>
+@* 
+        <!-- كلمة المرور -->
+        <div class="col-md-6">
+            <label asp-for="Password" class="form-label fw-semibold">كلمة المرور</label>
+            <input asp-for="Password" type="password" class="form-control input-modern" placeholder="••••••••" />
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div> *@
+    </div>
+</div>
+
+@section Scripts {
+    <style>
+        /* 🌟 النمط المودرن統一 */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .form-label {
+            color: #0077B6;
+            font-weight: 600;
+        }
+
+        .input-modern {
+            border: 2px solid #00B4D8;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .input-modern:focus {
+                border-color: #0077B6;
+                box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+}

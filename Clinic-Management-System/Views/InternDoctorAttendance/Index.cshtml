@@ -1,0 +1,180 @@
+﻿@model IEnumerable<Clinic_Management_System.Models.InternDoctorAttendance>
+@using System.Globalization
+
+@{
+    ViewData["Title"] = "سجلات الحضور";
+}
+
+<div class="container py-4">
+
+    <!-- 🔷 العنوان -->
+    <div class="card card-modern mb-4 text-center">
+        <h3 class="text-primary fw-bold">
+            <i class="bi bi-calendar-day"></i>
+            سجلات الحضور لليوم: @ViewBag.SelectedDate.ToString("yyyy-MM-dd")
+        </h3>
+    </div>
+
+    <!-- 🔷 اختيار التاريخ -->
+    <div class="card card-modern mb-4 w-75 mx-auto">
+        <form method="get" class="d-flex justify-content-center align-items-center gap-2">
+            <input type="date"
+                   name="date"
+                   class="form-control border-2 rounded-3 w-50"
+                   value="@ViewBag.SelectedDate.ToString("yyyy-MM-dd")" />
+
+            <button type="submit"
+                    class="btn btn-primary rounded-pill px-4">
+                <i class="bi bi-search"></i> عرض
+            </button>
+        </form>
+    </div>
+
+
+    <!-- 🔷 جدول الحضور -->
+    @if (Model != null && Model.Any())
+    {
+        <div class="card card-modern">
+            <table class="table table-modern table-hover text-center align-middle">
+                <thead>
+                    <tr>
+                        <th>الرقم</th>
+                        <th>الاسم</th>
+                        <th>التاريخ</th>
+                        <th>وقت الدخول</th>
+                        <th>وقت الخروج</th>
+                        <th>الإجراء</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var record in Model)
+                    {
+                        <tr>
+                            <td>@record.InternDoctorId</td>
+                            <td>@record.InternDoctor?.FullName</td>
+                            <td>@record.Date.ToString("yyyy/MM/dd")</td>
+
+                            <td>@(record.CheckIn?.ToString("hh:mm tt", new CultureInfo("ar-EG")) ?? "—")</td>
+
+                            <td>
+                                @if (record.CheckOut == null)
+                                {
+                                    <span class="text-warning fw-semibold">لم يسجل خروج</span>
+                                }
+                                else
+                                {
+                                    @record.CheckOut?.ToString("hh:mm tt", new CultureInfo("ar-EG"))
+                                }
+                            </td>
+
+                            <td>
+                                <div class="d-flex justify-content-center gap-2">
+
+                                    <!-- زر تسجيل انصراف -->
+                                    @if (record.CheckOut == null)
+                                    {
+                                        <form asp-controller="InternDoctorAttendance"
+                                              asp-action="QuickCheckOut"
+                                              method="post">
+                                            <input type="hidden" name="doctorId" value="@record.InternDoctorId" />
+                                            <button type="submit"
+                                                    class="btn btn-outline-danger btn-sm rounded-pill">
+                                                 تسجيل انصراف
+                                            </button>
+                                        </form>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success px-3 py-2">تم الخروج</span>
+                                    }
+
+                                    <!-- زر تفاصيل -->
+                                    <a asp-controller="InternDoctorAttendance"
+                                       asp-action="GetByDoctor"
+                                       asp-route-id="@record.InternDoctorId"
+                                       class="btn btn-outline-info btn-sm rounded-pill">
+                                         تفاصيل
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            لا توجد سجلات حضور في هذا التاريخ.
+        </div>
+    }
+
+    <!-- 🔘 زر الرجوع -->
+    <div class="text-center mt-4">
+        <a asp-controller="InternDoctors"
+           asp-action="Index"
+           class="btn btn-outline-secondary px-4 rounded-pill">
+            <i class="bi bi-arrow-return-left"></i> رجوع لقائمة الأطباء
+        </a>
+    </div>
+</div>
+
+
+@section Scripts {
+    <style>
+        /* 🌟 الكارد الموحد */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            padding: 25px;
+            border: 2px solid #0077B6;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            animation: fadeIn .4s ease;
+        }
+
+        /* 🌟 الجدول */
+        .table-modern {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.25);
+        }
+
+            .table-modern th {
+                background-color: #eaf9fb !important;
+                color: #0077B6;
+                font-weight: 700;
+                border-bottom: 2px solid #00B4D8;
+            }
+
+            .table-modern tbody tr:hover {
+                background-color: #f3fcfd !important;
+                transition: .2s ease;
+            }
+
+        .form-control {
+            border: 2px solid #00B4D8;
+            border-radius: 10px;
+            transition: .3s ease;
+        }
+
+            .form-control:focus {
+                border-color: #0077B6;
+                box-shadow: 0 0 0 .2rem rgba(0,183,255,0.25);
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

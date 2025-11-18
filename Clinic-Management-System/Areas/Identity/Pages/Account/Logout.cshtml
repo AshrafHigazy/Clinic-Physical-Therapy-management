@@ -1,0 +1,107 @@
+﻿@page
+@model LogoutModel
+@{
+    ViewData["Title"] = "تسجيل الخروج";
+}
+
+<div class="container py-5" dir="rtl">
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="logout-card-modern shadow-lg border-0 rounded-4 p-4 text-center">
+
+                <!-- العنوان -->
+                <h3 class="fw-bold text-primary mb-3">
+                    <i class="bi bi-box-arrow-right"></i> تسجيل الخروج
+                </h3>
+
+                @if (User.Identity?.IsAuthenticated ?? false)
+                {
+                    <p class="text-muted mb-4">هل تريد تسجيل الخروج من النظام؟</p>
+
+                    <form class="d-flex justify-content-center"
+                          asp-area="Identity"
+                          asp-page="/Account/Logout"
+                          asp-route-returnUrl="@Url.Page("/", new { area = "" })"
+                          method="post">
+
+                        <button type="submit"
+                                class="btn btn-danger logout-btn px-4 py-2 fw-bold rounded-pill shadow-sm">
+                            <i class="bi bi-power"></i> تسجيل خروج
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <p class="text-success fw-bold fs-5 mb-3">
+                        <i class="bi bi-check-circle"></i> تم تسجيل الخروج بنجاح
+                    </p>
+
+                    <a href="/Identity/Account/Login"
+                       class="btn btn-primary rounded-pill px-4 login-return-btn">
+                        <i class="bi bi-box-arrow-in-right"></i> تسجيل الدخول مرة أخرى
+                    </a>
+                }
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- 🎨 CSS خاص لتنسيق logout بنفس ستايل Login -->
+<style>
+
+    :root {
+        --main-color: #00B4D8;
+        --main-dark: #0077B6;
+        --bg-light: #F7FBFC;
+    }
+
+    /* البطاقة */
+    .logout-card-modern {
+        background: #ffffff;
+        border: 2px solid var(--main-dark);
+        box-shadow: 0 12px 28px rgba(0, 119, 182, 0.28);
+        animation: fadeIn .4s ease;
+    }
+
+    /* زر تسجيل الخروج */
+    .logout-btn {
+        transition: 0.25s;
+        font-size: 1.1rem;
+    }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(220, 53, 69, 0.4);
+        }
+
+    /* زر العودة */
+    .login-return-btn {
+        transition: 0.25s;
+        font-size: 1.05rem;
+    }
+
+        .login-return-btn:hover {
+            background: var(--main-dark);
+            transform: translateY(-2px);
+        }
+
+    /* حركة دخول جميلة */
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>

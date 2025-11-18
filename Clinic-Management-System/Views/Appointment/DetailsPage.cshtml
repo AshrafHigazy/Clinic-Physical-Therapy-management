@@ -1,0 +1,174 @@
+﻿@model Appointment
+
+@{
+    ViewData["Title"] = "تفاصيل الموعد";
+    var patient = Model.Patient;
+}
+
+<div class="container py-4">
+
+    <div class="card card-modern">
+        <h3 class="text-center text-primary fw-bold mb-4">
+            <i class="bi bi-calendar-event"></i> تفاصيل موعد المريض
+        </h3>
+
+        <div class="row g-3 details-grid mb-3">
+            <div class="col-md-6">
+                <label>اسم المريض</label>
+                <div class="detail-box">@patient.FullName</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>رقم الهاتف</label>
+                <div class="detail-box">@patient.Phone</div>
+            </div>
+
+            <div class="col-md-6">
+                <label>بداية الجلسة</label>
+                <div class="detail-box">
+                    @Model.StartTime.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt", new System.Globalization.CultureInfo("ar-EG"))
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <label>نهاية الجلسة المتوقعة</label>
+                <div class="detail-box">
+                    @Model.EndTime.ToLocalTime().ToString("yyyy/MM/dd hh:mm tt", new System.Globalization.CultureInfo("ar-EG"))
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4 d-flex flex-wrap justify-content-center gap-2">
+            <button id="btnAttend" class="btn btn-success px-4 rounded-pill btn-appointment-action">
+                حضور
+            </button>
+            <button id="btnAbsent" class="btn btn-danger px-4 rounded-pill btn-appointment-action">
+                غياب
+            </button>
+            <button id="btnDelete" class="btn btn-outline-secondary px-4 rounded-pill btn-appointment-action">
+                إلغاء الحجز
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            // زر الحضور
+            $('#btnAttend').click(function () {
+                updateStatus(@Model.Id, true, false);
+            });
+
+            // زر الغياب
+            $('#btnAbsent').click(function () {
+                updateStatus(@Model.Id, false, true);
+            });
+
+            // زر حذف الحجز نهائياً
+            $('#btnDelete').click(function () {
+                if (!confirm("هل أنت متأكد من حذف هذا الحجز نهائياً؟")) return;
+
+                deleteAppointment(@Model.Id);
+            });
+
+        });
+
+        // تحديث حالة الحضور والغياب
+        function updateStatus(id, isAttended, isCanceled) {
+            $.ajax({
+                url: '/Appointment/UpdateStatus',
+                type: 'POST',
+                data: { id: id, isAttended: isAttended, isCanceled: isCanceled },
+                success: function () {
+                    alert('✅ تم تحديث الحالة بنجاح');
+                    window.location.href = '/Home/Index';
+                },
+                error: function () {
+                    alert('❌ حدث خطأ أثناء تحديث الحالة');
+                }
+            });
+        }
+
+        // حذف الموعد نهائياً
+        function deleteAppointment(id) {
+            $.ajax({
+                url: '/Appointment/Delete',
+                type: 'POST',
+                data: { id: id },
+                success: function () {
+                    alert('🗑️ تم حذف الحجز بنجاح');
+                    window.location.href = '/Home/Index';
+                },
+                error: function () {
+                    alert('❌ حدث خطأ أثناء حذف الحجز');
+                }
+            });
+        }
+    </script>
+
+    <style>
+        /* 🌟 الكارد المودرن الموحد */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 25px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        /* 🧾 تفاصيل الموعد */
+        .details-grid label {
+            font-weight: 700;
+            color: #0077B6;
+            margin-bottom: 4px;
+        }
+
+        .detail-box {
+            background: #f7fbff;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid #e2f1ff;
+            font-weight: 600;
+            color: #1B3A4B;
+        }
+
+        /* 🎯 أزرار الحركة */
+        .btn-appointment-action {
+            min-width: 140px;
+            font-weight: 600;
+        }
+
+        .btn-success {
+            background-color: #00B4D8;
+            border-color: #0077B6;
+        }
+
+            .btn-success:hover {
+                background-color: #0096c7;
+            }
+
+        .btn-danger {
+            font-weight: 600;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #e2e6ea;
+            color: #333;
+        }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

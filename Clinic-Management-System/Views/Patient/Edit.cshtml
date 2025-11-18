@@ -1,0 +1,123 @@
+﻿@using Clinic_Management_System.Models.Enums
+@model Patient
+@{
+    ViewData["Title"] = "تعديل بيانات المريض";
+}
+
+<div class="container py-4">
+    <div class="card card-modern">
+        <h3 class="text-center text-warning mb-4">
+            <i class="bi bi-pencil-square"></i> تعديل بيانات المريض
+        </h3>
+
+        <form asp-action="Edit" method="post" class="w-75 mx-auto">
+            <input type="hidden" asp-for="Id" />
+
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">اسم المريض</label>
+                    <input asp-for="FullName" class="form-control border-2 rounded-3" style="border-color:#00B4D8;" />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">رقم الهاتف</label>
+                    <input asp-for="Phone" class="form-control border-2 rounded-3" style="border-color:#00B4D8;" />
+                    <span asp-validation-for="Phone" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">العنوان</label>
+                    <input asp-for="Address" class="form-control border-2 rounded-3" style="border-color:#00B4D8;" />
+                    <span asp-validation-for="Address" class="text-danger small"></span>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">النوع</label>
+                    <select asp-for="Gender" class="form-select border-2 rounded-3" asp-items="Html.GetEnumSelectList<Gender>()" style="border-color:#00B4D8;"></select>
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">العمر</label>
+                    <input asp-for="Age" class="form-control border-2 rounded-3" style="border-color:#00B4D8;" />
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <label class="fw-bold mb-2">🩺 السجل المرضي</label>
+                <div class="row">
+                    @foreach (var disease in Enum.GetValues(typeof(MedicalRecord)))
+                    {
+                        <div class="col-md-4 mb-2">
+                            <div class="form-check">
+                                <input type="checkbox"
+                                       name="MedicalRecords"
+                                       value="@disease"
+                                       class="form-check-input"
+                                       @(Model.MedicalRecords != null && Model.MedicalRecords.Contains((MedicalRecord)disease) ? "checked" : "") />
+
+                                <label class="form-check-label">@disease</label>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success px-4">
+                    <i class="bi bi-save"></i> حفظ التعديلات
+                </button>
+                <a asp-action="GetAll" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-return-left"></i> عودة
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <style>
+        /* 🌟 تصميم موحد مودرن */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 30px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .form-label {
+            color: #0077B6;
+        }
+
+        .form-check-input:checked {
+            background-color: #00B4D8;
+            border-color: #0077B6;
+        }
+
+        .btn-success {
+            background-color: #00B4D8;
+            border-color: #0077B6;
+        }
+
+            .btn-success:hover {
+                background-color: #0096c7;
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

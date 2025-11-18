@@ -1,0 +1,173 @@
+﻿@model IEnumerable<Clinic_Management_System.Models.Organization>
+
+@{
+    ViewData["Title"] = "شركات التأمين";
+}
+
+<div class="container py-4">
+
+    <!-- ✅ رسائل التنبيه -->
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success text-center fw-semibold rounded-3 shadow-sm fade show" id="alertBox">
+            <i class="bi bi-check-circle-fill"></i> @TempData["SuccessMessage"]
+        </div>
+    }
+    else if (TempData["EditMessage"] != null)
+    {
+        <div class="alert alert-warning text-center fw-semibold rounded-3 shadow-sm fade show" id="alertBox">
+            <i class="bi bi-pencil-square"></i> @TempData["EditMessage"]
+        </div>
+    }
+    else if (TempData["DeleteMessage"] != null)
+    {
+        <div class="alert alert-danger text-center fw-semibold rounded-3 shadow-sm fade show" id="alertBox">
+            <i class="bi bi-trash-fill"></i> @TempData["DeleteMessage"]
+        </div>
+    }
+
+    <!-- ✅ كارد رئيسي -->
+    <div class="card card-modern mt-3">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="text-primary fw-bold m-0">
+                <i class="bi bi-building"></i> قائمة شركات التأمين
+            </h3>
+            <a asp-action="Create" class="btn btn-primary rounded-3 px-3">
+                <i class="bi bi-plus-circle"></i> إضافة شركة جديدة
+            </a>
+        </div>
+
+        <!-- ✅ جدول الشركات -->
+        <table class="table table-hover table-modern align-middle text-center">
+            <thead class="table-primary text-dark">
+                <tr>
+                    <th>كود الشركة</th>
+                    <th>اسم الشركة</th>
+                    <th>تاريخ التعاقد</th>
+                    <th>نوع التعاقد</th>
+                    <th>الحالة</th>
+                    <th>الإجراءات</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.OrderByDescending(x => x.IsActive))
+                {
+                    <tr>
+                        <td>@item.Id</td>
+                        <td>@item.Name</td>
+                        <td>@item.CreateAt.ToString("yyyy/MM/dd")</td>
+                        <td>@string.Join(", ", item.TyppeOfContract)</td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="badge bg-success">متعاقد حالياً</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">تم فسخ التعاقد</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex flex-wrap justify-content-center gap-1">
+                                <form asp-action="ToggleStatus" asp-route-id="@item.Id" method="post" class="d-inline">
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-sm btn-outline-warning rounded-pill text-dark">
+                                        @(item.IsActive ? "إلغاء التعاقد" : "تفعيل التعاقد")
+                                    </button>
+                                </form>
+                                <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary rounded-pill">تعديل</a>
+                                <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger rounded-pill">حذف</a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ✅ إخفاء الرسائل بعد 5 ثوانٍ
+        setTimeout(() => {
+            const alertBox = document.getElementById("alertBox");
+            if (alertBox) {
+                alertBox.classList.remove("show");
+                alertBox.classList.add("fade");
+                alertBox.style.transition = "opacity 1s ease";
+                alertBox.style.opacity = "0";
+                setTimeout(() => alertBox.remove(), 1000);
+            }
+        }, 5000);
+    </script>
+
+    <style>
+        /* 🎨 النمط المودرن الموحد */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            padding: 30px;
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .table-modern {
+            border-radius: 12px;
+            overflow: hidden;
+            background: #ffffff;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.25);
+        }
+
+            .table-modern th {
+                background-color: #eaf9fb;
+                color: #0077B6;
+                font-weight: 700;
+                border-bottom: 2px solid #00B4D8;
+            }
+
+            .table-modern td {
+                border-color: #dee2e6;
+                vertical-align: middle;
+            }
+
+            .table-modern tbody tr:hover {
+                background-color: #f3fcfd !important;
+                transition: background-color 0.2s ease;
+            }
+
+        .btn-outline-warning {
+            border-color: #ffb703;
+        }
+
+            .btn-outline-warning:hover {
+                background-color: #ffb703;
+                color: white !important;
+            }
+
+        .btn-outline-primary:hover {
+            background-color: #0077B6;
+            color: white !important;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: #dc3545;
+            color: white !important;
+        }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+}

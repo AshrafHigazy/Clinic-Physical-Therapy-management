@@ -1,0 +1,118 @@
+﻿@model Clinic_Management_System.Models.Organization
+
+@{
+    ViewData["Title"] = "حذف شركة التأمين";
+}
+
+<div class="container py-4">
+    <div class="card card-modern text-center" style="max-width: 650px; margin: auto;">
+        <h3 class="text-danger fw-bold mb-3">
+            <i class="bi bi-trash3"></i> حذف شركة التأمين
+        </h3>
+
+        <h5 class="fw-semibold text-dark mb-4">@Model.Name</h5>
+
+        <div class="table-responsive mb-4">
+            <table class="table table-modern text-center align-middle">
+                <tbody>
+                    <tr>
+                        <th>اسم الشركة</th>
+                        <td>@Model.Name</td>
+                    </tr>
+                    <tr>
+                        <th>نوع التعاقد</th>
+                        <td>@string.Join(", ", Model.TyppeOfContract)</td>
+                    </tr>
+                    <tr>
+                        <th>تاريخ التعاقد</th>
+                        <td>@Model.CreateAt.ToString("yyyy/MM/dd")</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <form asp-action="Delete" method="post" onsubmit="return confirmDelete('@Model.Name')">
+            @Html.AntiForgeryToken()
+            <input type="hidden" asp-for="Id" />
+            <div class="mt-4">
+                <button type="submit" class="btn btn-danger px-4">
+                    <i class="bi bi-trash"></i> حذف نهائي
+                </button>
+                <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                    <i class="bi bi-arrow-return-left"></i> إلغاء
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ✅ نافذة تأكيد الحذف باسم الشركة
+        function confirmDelete(name) {
+            return confirm(`⚠ هل أنت متأكد من حذف الشركة: "${name}"؟\nسيتم إزالة جميع بياناتها نهائيًا.`);
+        }
+    </script>
+
+    <style>
+        /* 🌟 تصميم موحّد بلون أحمر */
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.45); /* ظل أحمر ناعم */
+            padding: 30px;
+            border: 2px solid #DC3545; /* الحواف بالأحمر */
+            animation: fadeIn 0.4s ease;
+        }
+
+        .table-modern {
+            background: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.25); /* ظل أحمر للجداول */
+        }
+
+            .table-modern th {
+                background-color: #fdeaea; /* خلفية وردية فاتحة */
+                color: #DC3545;
+                width: 40%;
+                font-weight: 700;
+                border-bottom: 2px solid #b02a37;
+            }
+
+            .table-modern td {
+                border-color: #dee2e6;
+                vertical-align: middle;
+            }
+
+            .table-modern tr:hover td {
+                background-color: #fff1f1 !important;
+                transition: background-color 0.2s ease;
+            }
+
+        .btn-danger {
+            background-color: #DC3545;
+            border-color: #b02a37;
+        }
+
+            .btn-danger:hover {
+                background-color: #bb2d3b;
+                border-color: #8b1f2a;
+            }
+
+        @@keyframes fadeIn {
+            from
+
+        {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        }
+    </style>
+}

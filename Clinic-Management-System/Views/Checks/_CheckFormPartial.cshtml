@@ -1,0 +1,95 @@
+﻿@model Clinic_Management_System.Models.Check
+
+<input type="hidden" asp-for="PatientId" />
+<div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+<div class="card card-modern p-4 rounded-4">
+
+    <h5 class="fw-bold text-center text-primary mb-4">
+        بــيــانــات الــفــحــص
+    </h5>
+
+    <!-- الجهة المرشحة -->
+    <div class="mb-4">
+        <label asp-for="Sugestion" class="form-label fw-semibold">مــيــن رشــحــنــا لــيــك</label>
+        <textarea asp-for="Sugestion" class="form-control input-modern" rows="4"
+                  placeholder="مثال: صديق - طبيب - مدرب..."></textarea>
+        <span asp-validation-for="Sugestion" class="text-danger small"></span>
+    </div>
+
+    <!-- التقييم السريري -->
+    <div class="mb-4">
+        <label asp-for="ClinicAssessment" class="form-label fw-semibold">الــتــقــيــيــم الــســريــري</label>
+        <textarea asp-for="ClinicAssessment" class="form-control input-modern" rows="4"
+                  placeholder="مثال: قيود الحركة، ألم، ضعف عضلي"></textarea>
+        <span asp-validation-for="ClinicAssessment" class="text-danger small"></span>
+    </div>
+
+    <!-- التشخيص -->
+    <div class="mb-4">
+        <label asp-for="Diagnosis" class="form-label fw-semibold">الــتــشــخــيــص</label>
+        <textarea asp-for="Diagnosis" class="form-control input-modern" rows="3"
+                  placeholder="مثال: تشخيص الحالة"></textarea>
+        <span asp-validation-for="Diagnosis" class="text-danger small"></span>
+    </div>
+
+    <!-- خطة العلاج -->
+    <div class="mb-4">
+        <label asp-for="PlaneOfTreatment" class="form-label fw-semibold">خــطــة الــعــلاج</label>
+        <textarea asp-for="PlaneOfTreatment" class="form-control input-modern" rows="3"
+                  placeholder="مثال: 3 جلسات أسبوعيًا، تحسين الحركة"></textarea>
+        <span asp-validation-for="PlaneOfTreatment" class="text-danger small"></span>
+    </div>
+
+    <!-- طرق العلاج -->
+    <div class="mb-4">
+        <label asp-for="MethodsOfTreatment" class="form-label fw-semibold">طــرق الــعــلاج</label>
+        <textarea asp-for="MethodsOfTreatment" class="form-control input-modern" rows="3"
+                  placeholder="تمارين، تدليك، أجهزة، تعليمات منزلية"></textarea>
+        <span asp-validation-for="MethodsOfTreatment" class="text-danger small"></span>
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <style>
+        /* 🎨 نفس تنسيق صفحة Organization */
+
+        .card-modern {
+            background: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.45);
+            border: 2px solid #0077B6;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .form-label {
+            color: #0077B6;
+            font-weight: 600;
+        }
+
+        .input-modern {
+            border: 2px solid #00B4D8;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .input-modern:focus {
+                border-color: #0077B6;
+                box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
+            }
+
+        @@keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+}

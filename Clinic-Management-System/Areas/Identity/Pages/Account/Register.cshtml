@@ -1,0 +1,175 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "تسجيل حساب جديد";
+}
+
+<div class="container py-5" dir="rtl">
+
+    <div class="row justify-content-center align-items-start">
+
+        <!-- صندوق التسجيل -->
+        <div class="col-md-5">
+
+            <div class="register-card shadow-lg border-0 rounded-4 p-4">
+
+                <h3 class="text-center fw-bold text-primary mb-2">
+                    <i class="bi bi-person-plus-fill"></i> إنشاء حساب جديد
+                </h3>
+
+                <p class="text-center text-muted mb-4">
+                    قم بإدخال البيانات التالية لاستكمال عملية التسجيل
+                </p>
+
+                <!-- ملخص الأخطاء -->
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger text-center py-2 small"></div>
+
+                <form id="registerForm"
+                      asp-route-returnUrl="@Model.ReturnUrl"
+                      method="post">
+
+                    <!-- البريد -->
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Email"
+                               class="form-control input-modern"
+                               autocomplete="username"
+                               placeholder="email" />
+                        <label asp-for="Input.Email"></label>
+                        <span asp-validation-for="Input.Email" class="text-danger small"></span>
+                    </div>
+
+                    <!-- كلمة المرور -->
+                    <div class="form-floating mb-3">
+                        <input asp-for="Input.Password"
+                               type="password"
+                               class="form-control input-modern"
+                               autocomplete="new-password"
+                               placeholder="password" />
+                        <label asp-for="Input.Password"></label>
+                        <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                    </div>
+
+                    <!-- تأكيد كلمة المرور -->
+                    <div class="form-floating mb-4">
+                        <input asp-for="Input.ConfirmPassword"
+                               type="password"
+                               class="form-control input-modern"
+                               autocomplete="new-password"
+                               placeholder="confirm" />
+                        <label asp-for="Input.ConfirmPassword"></label>
+                        <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+                    </div>
+
+                    <!-- زر التسجيل -->
+                    <button id="registerSubmit"
+                            type="submit"
+                            class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow-sm register-btn">
+                        <i class="bi bi-check-circle"></i> إنشاء الحساب
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+        <!-- تسجيل خارجي -->
+        <div class="col-md-5 mt-4 mt-md-0">
+
+            <div class="shadow-sm border-0 rounded-4 p-4 bg-light">
+
+                <h4 class="fw-bold text-primary text-center mb-3">
+                    <i class="bi bi-shield-lock"></i> أو سجّل عبر خدمة خارجية
+                </h4>
+
+                <hr />
+
+                @if ((Model.ExternalLogins?.Count ?? 0) == 0)
+                {
+                    <p class="text-center text-muted">
+                        لا توجد خدمات تسجيل دخول خارجية مفعّلة.
+                    </p>
+                }
+                else
+                {
+                    <form id="external-account"
+                          asp-page="./ExternalLogin"
+                          asp-route-returnUrl="@Model.ReturnUrl"
+                          method="post">
+
+                        <div class="d-grid gap-2">
+                            @foreach (var provider in Model.ExternalLogins!)
+                            {
+                                <button type="submit"
+                                        name="provider"
+                                        value="@provider.Name"
+                                        class="btn btn-outline-primary fw-bold rounded-pill py-2">
+                                    <i class="bi bi-box-arrow-in-right"></i>
+                                    @provider.DisplayName
+                                </button>
+                            }
+                        </div>
+
+                    </form>
+                }
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+
+<style>
+    :root {
+        --main-color: #00B4D8;
+        --main-dark: #0077B6;
+        --bg-light: #F7FBFC;
+    }
+
+    /* البطاقة */
+    .register-card {
+        background: #ffffff;
+        border: 2px solid var(--main-dark);
+        box-shadow: 0 12px 28px rgba(0, 119, 182, 0.25);
+        animation: fadeIn .5s ease;
+    }
+
+    /* المدخلات */
+    .input-modern {
+        border: 2px solid #00B4D8;
+        border-radius: 12px;
+        transition: 0.3s ease;
+    }
+
+        .input-modern:focus {
+            border-color: #0077B6;
+            box-shadow: 0 0 0 .2rem rgba(0, 180, 216, 0.25);
+        }
+
+    /* زر التسجيل */
+    .register-btn:hover {
+        background: var(--main-dark);
+        transform: translateY(-2px);
+        transition: 0.25s;
+    }
+
+    /* حركة الدخول */
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+</style>
