@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
 
@@ -368,7 +368,7 @@
             <!-- Dashboard: تظهر للدكتور فقط -->
             @if (User.IsInRole("AdminDoctor"))
             {
-                <a class="nav-link" href="#">Dashboard</a>
+                <a class="nav-link" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-1"></i> لوحة التحكم</a>
             }
 
         </div>

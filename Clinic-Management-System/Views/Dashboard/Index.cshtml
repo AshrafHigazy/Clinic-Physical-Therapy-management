@@ -1,1 +1,910 @@
-﻿
+@using Clinic_Management_System.Models
+@using Clinic_Management_System.Models.Enums
+@{
+    ViewData["Title"] = "لوحة التحكم";
+    var currentYear = DateTime.Now.Year;
+    var monthsAr = new[] { "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" };
+
+    int[] monthlyCounts = (int[])ViewBag.MonthlyDataCounts;
+    decimal[] monthlyRevs = (decimal[])ViewBag.MonthlyDataRevenues;
+    int curMonthIdx = (int)ViewBag.CurrentMonthIndex;
+
+    var todayPkgList = (List<Package>)ViewBag.TodayPackagesList;
+    var todayChkList = (List<Check>)ViewBag.TodayChecksList;
+    var recentPatients = (List<Patient>)ViewBag.RecentPatients;
+    var todayAppts = (List<Appointment>)ViewBag.TodayAppointmentsList;
+}
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    /* ============ DASHBOARD PREMIUM DESIGN ============ */
+    :root {
+        --d-teal: #00B4D8;
+        --d-teal-dark: #0077B6;
+        --d-green: #2ecc71;
+        --d-orange: #f39c12;
+        --d-red: #e74c3c;
+        --d-purple: #8e44ad;
+        --d-blue: #3498db;
+        --d-indigo: #6366f1;
+        --d-body: #f0f4f8;
+    }
+
+    .dash-container {
+        background: var(--d-body);
+        min-height: 100vh;
+        padding: 1.5rem 1.5rem 3rem;
+    }
+
+    /* === Section Title === */
+    .sec-title {
+        font-weight: 800;
+        font-size: 1.2rem;
+        color: #1B3A4B;
+        margin-bottom: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sec-title i {
+        font-size: 1.3rem;
+        color: var(--d-teal);
+    }
+
+    /* ============ SECTION 1: Summary Cards ============ */
+    .stat-card {
+        border-radius: 14px;
+        padding: 1.25rem 1rem;
+        text-align: center;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+        transition: transform 0.35s cubic-bezier(.25,.8,.25,1), box-shadow 0.35s;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-6px) scale(1.02);
+        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+    }
+
+    .stat-card .stat-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    }
+
+    .stat-card .stat-num {
+        font-size: 2rem;
+        font-weight: 900;
+        line-height: 1;
+        margin-bottom: 0.4rem;
+    }
+
+    .stat-card .stat-label {
+        font-size: 0.82rem;
+        font-weight: 600;
+        opacity: 0.92;
+    }
+
+    /* gradient backgrounds */
+    .bg-grad-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+    .bg-grad-green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+    .bg-grad-teal { background: linear-gradient(135deg, #00B4D8, #0096c7); }
+    .bg-grad-red { background: linear-gradient(135deg, #f78ca0 0%, #f9748f 50%, #fd868c 100%); }
+    .bg-grad-orange { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); }
+    .bg-grad-purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+
+    /* ============ SECTION 2: Today Earnings ============ */
+    .today-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 1rem;
+        color: #1B3A4B;
+        font-weight: 700;
+        font-size: 1.15rem;
+    }
+
+    .today-header i { color: var(--d-teal); }
+
+    .today-header .date-badge {
+        background: #e8f4f8;
+        padding: 4px 14px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--d-teal-dark);
+    }
+
+    .today-stat {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.4rem 1rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        transition: transform 0.3s;
+        margin-bottom: 1rem;
+    }
+
+    .today-stat:hover {
+        transform: translateY(-4px);
+    }
+
+    .today-stat .ts-icon {
+        font-size: 1.8rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .today-stat .ts-value {
+        font-size: 1.6rem;
+        font-weight: 800;
+    }
+
+    .today-stat .ts-label {
+        font-size: 0.8rem;
+        color: #858796;
+        font-weight: 600;
+        margin-top: 0.35rem;
+    }
+
+    /* ============ TABLE STYLES ============ */
+    .dash-table-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .dash-table-card .table-title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #1B3A4B;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .dash-table-card .table-title i { color: var(--d-teal); }
+
+    /* Teal header table */
+    .tbl-dash {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 0;
+    }
+
+    .tbl-dash thead {
+        background: linear-gradient(90deg, var(--d-teal), var(--d-teal-dark));
+        color: #fff;
+    }
+
+    .tbl-dash thead th {
+        padding: 0.75rem 0.8rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border: none;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .tbl-dash tbody td {
+        padding: 0.7rem 0.8rem;
+        font-size: 0.88rem;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .tbl-dash tbody tr:hover {
+        background-color: #f3fafe;
+    }
+
+    .tbl-dash tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    /* total row */
+    .total-row {
+        background: linear-gradient(90deg, #e3f2fd, #bbdefb) !important;
+    }
+    
+    .total-row td {
+        font-weight: 800 !important;
+        font-size: 0.95rem !important;
+        color: var(--d-teal-dark);
+        border-bottom: none !important;
+    }
+
+    /* ============ CHART CARDS ============ */
+    .chart-card {
+        background: #fff;
+        border-radius: 14px;
+        box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .chart-card .chart-title {
+        font-weight: 700;
+        font-size: 1rem;
+        color: #1B3A4B;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .chart-card .chart-title i { color: var(--d-teal); }
+
+    /* ============ REVENUE TABLE ============ */
+    .rev-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .rev-table thead {
+        background: linear-gradient(90deg, var(--d-teal), var(--d-teal-dark));
+        color: #fff;
+    }
+
+    .rev-table thead th {
+        padding: 0.85rem 1rem;
+        font-weight: 700;
+        font-size: 0.9rem;
+        border: none;
+        text-align: center;
+    }
+
+    .rev-table tbody td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid #eef2f7;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .rev-table tbody tr:hover {
+        background: #f3fafe;
+    }
+
+    .rev-table tbody tr.active-month {
+        background: #e0f0ff;
+        border-right: 4px solid var(--d-teal);
+    }
+
+    .rev-table tbody tr.active-month td {
+        font-weight: 700;
+        color: var(--d-teal-dark);
+    }
+
+    .rev-table tfoot {
+        background: linear-gradient(90deg, #0b2a3e, #1B3A4B);
+        color: #fff;
+    }
+
+    .rev-table tfoot td {
+        padding: 1rem;
+        font-weight: 800;
+        font-size: 1rem;
+        border: none;
+        text-align: center;
+    }
+
+    /* ============ OPERATIONS CARDS ============ */
+    .ops-card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 1.2rem 0.8rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        border-top: 4px solid;
+        transition: transform 0.3s;
+        margin-bottom: 1rem;
+    }
+
+    .ops-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .ops-card .ops-icon {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .ops-card .ops-num {
+        font-size: 1.7rem;
+        font-weight: 900;
+        line-height: 1.1;
+    }
+
+    .ops-card .ops-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #858796;
+        margin-top: 0.3rem;
+    }
+
+    .ops-cyan { border-color: var(--d-teal); }
+    .ops-orange { border-color: var(--d-orange); }
+    .ops-purple { border-color: var(--d-purple); }
+    .ops-green { border-color: var(--d-green); }
+    .ops-red { border-color: var(--d-red); }
+    .ops-blue { border-color: var(--d-blue); }
+
+    /* badges */
+    .pkg-badge {
+        display: inline-block;
+        padding: 3px 10px;
+        border-radius: 6px;
+        font-weight: 700;
+        font-size: 0.78rem;
+        color: #fff;
+    }
+
+    .pkg-gold { background: #f6c23e; color: #333; }
+    .pkg-silver { background: #858796; }
+    .pkg-diamond { background: #36b9cc; }
+    .pkg-home { background: #1cc88a; }
+    .pkg-session { background: #4e73df; }
+
+    .status-badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .status-attended { background: #d4edda; color: #155724; }
+    .status-canceled { background: #f8d7da; color: #721c24; }
+    .status-pending { background: #fff3cd; color: #856404; }
+
+    /* Gender badge */
+    .gender-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 0.78rem;
+        font-weight: 600;
+    }
+
+    .gender-male { background: #d6eaf8; color: #2471a3; }
+    .gender-female { background: #f9ebea; color: #c0392b; }
+
+    /* ============ RESPONSIVE ============ */
+    @@media (max-width: 767px) {
+        .dash-container { padding: 1rem 0.5rem; }
+        .stat-card .stat-num { font-size: 1.5rem; }
+        .stat-card .stat-icon { font-size: 1.5rem; }
+        .today-stat .ts-value { font-size: 1.3rem; }
+        .ops-card .ops-num { font-size: 1.3rem; }
+    }
+</style>
+
+<div class="dash-container">
+
+    <!-- ═══════════════ القسم 1: ملخص سريع ═══════════════ -->
+    <div class="sec-title"><i class="bi bi-grid-3x3-gap-fill"></i> ملخص سريع</div>
+    <div class="row g-3 mb-4">
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="stat-card bg-grad-blue">
+                <i class="bi bi-people-fill stat-icon"></i>
+                <div class="stat-num counter" data-target="@ViewBag.TotalPatients">0</div>
+                <div class="stat-label">إجمالي المرضى</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="stat-card bg-grad-green">
+                <i class="bi bi-calendar2-check stat-icon"></i>
+                <div class="stat-num counter" data-target="@ViewBag.TodayAppointmentsCount">0</div>
+                <div class="stat-label">مواعيد اليوم</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="stat-card bg-grad-teal">
+                <i class="bi bi-check-circle-fill stat-icon"></i>
+                <div class="stat-num counter" data-target="@ViewBag.TodayAttended">0</div>
+                <div class="stat-label">حضور اليوم</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="stat-card bg-grad-red">
+                <i class="bi bi-x-octagon-fill stat-icon"></i>
+                <div class="stat-num counter" data-target="@ViewBag.TodayCanceled">0</div>
+                <div class="stat-label">غياب اليوم</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="stat-card bg-grad-orange">
+                <i class="bi bi-box2-heart-fill stat-icon"></i>
+                <div class="stat-num counter" data-target="@ViewBag.ActivePackagesCount">0</div>
+                <div class="stat-label">باقات نشطة</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="stat-card bg-grad-purple">
+                <i class="bi bi-cash-stack stat-icon"></i>
+                <div class="stat-num counter" data-target="@Math.Round((decimal)ViewBag.TotalRevenue, 0)">0</div>
+                <div class="stat-label">الإيرادات (ج.م)</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ القسم 2: مكسب اليوم ═══════════════ -->
+    <div class="today-header">
+        <i class="bi bi-calendar3 fs-5"></i>
+        <span>مكسب اليوم —</span>
+        <span class="date-badge">@DateTime.Today.ToString("yyyy/MM/dd")</span>
+    </div>
+
+    <!-- 4 small cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-3 col-md-6">
+            <div class="today-stat">
+                <span class="ts-icon" style="color: var(--d-green);">£</span>
+                <div class="ts-value" style="color: var(--d-green);">@Math.Round((decimal)ViewBag.TodayTotalEarnings, 0) ج.م</div>
+                <div class="ts-label">إجمالي مكسب اليوم</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="today-stat">
+                <i class="bi bi-box-seam-fill ts-icon" style="color: var(--d-teal);"></i>
+                <div class="ts-value" style="color: var(--d-teal);">@ViewBag.TodayPackagesCount</div>
+                <div class="ts-label">باقات جديدة</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="today-stat">
+                <i class="bi bi-clipboard2-check-fill ts-icon" style="color: var(--d-blue);"></i>
+                <div class="ts-value" style="color: var(--d-blue);">@ViewBag.TodayChecksCount</div>
+                <div class="ts-label">كشوفات اليوم</div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="today-stat">
+                <i class="bi bi-person-plus-fill ts-icon" style="color: var(--d-orange);"></i>
+                <div class="ts-value" style="color: var(--d-orange);">@ViewBag.TodayNewPatientsCount</div>
+                <div class="ts-label">مرضى جدد</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Today's Tables -->
+    <div class="row g-3 mb-4">
+        <!-- تفاصيل باقات اليوم -->
+        <div class="col-lg-7">
+            <div class="dash-table-card">
+                <div class="table-title"><i class="bi bi-box-seam"></i> تفاصيل باقات اليوم</div>
+                <div class="table-responsive">
+                    <table class="tbl-dash">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>المريض</th>
+                                <th>نوع الباقة</th>
+                                <th>عدد الجلسات</th>
+                                <th>الفحص</th>
+                                <th>المبلغ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (todayPkgList.Count == 0)
+                            {
+                                <tr><td colspan="6" class="text-muted py-4">لم يتم عمل باقات اليوم بعد.</td></tr>
+                            }
+                            else
+                            {
+                                int pkgIdx = 0;
+                                foreach (var pkg in todayPkgList)
+                                {
+                                    pkgIdx++;
+                                    <tr>
+                                        <td>@pkgIdx</td>
+                                        <td class="fw-bold">@pkg.Patient?.FullName</td>
+                                        <td>
+                                            @if (pkg.Type == PackageType.ذهبي) { <span class="pkg-badge pkg-gold">ذهبي</span> }
+                                            else if (pkg.Type == PackageType.فضي) { <span class="pkg-badge pkg-silver">فضي</span> }
+                                            else if (pkg.Type == PackageType.الماسي) { <span class="pkg-badge pkg-diamond">ماسي</span> }
+                                            else if (pkg.Type == PackageType.منزلي) { <span class="pkg-badge pkg-home">منزلي</span> }
+                                            else { <span class="pkg-badge pkg-session">جلسة</span> }
+                                        </td>
+                                        <td>@pkg.NumOfSessions جلسة</td>
+                                        <td>@(pkg.Check != null ? pkg.Check.Diagnosis : "—")</td>
+                                        <td class="fw-bold" style="color: var(--d-green);">@pkg.AmountPaid ج.م</td>
+                                    </tr>
+                                }
+                                <tr class="total-row">
+                                    <td colspan="5" class="text-start">الإجمالي</td>
+                                    <td>@Math.Round((decimal)ViewBag.TodayPackagesSum, 0) ج.م</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- كشوفات اليوم -->
+        <div class="col-lg-5">
+            <div class="dash-table-card">
+                <div class="table-title"><i class="bi bi-file-earmark-medical"></i> كشوفات اليوم</div>
+                <div class="table-responsive" style="max-height: 380px; overflow-y:auto;">
+                    <table class="tbl-dash">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>المريض</th>
+                                <th>التشخيص</th>
+                                <th>الوقت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (todayChkList.Count == 0)
+                            {
+                                <tr><td colspan="4" class="text-muted py-4">لم يتم عمل كشوفات اليوم بعد.</td></tr>
+                            }
+                            else
+                            {
+                                int chkIdx = 0;
+                                foreach (var chk in todayChkList)
+                                {
+                                    chkIdx++;
+                                    <tr>
+                                        <td>@chkIdx</td>
+                                        <td class="fw-bold">@chk.Patient?.FullName</td>
+                                        <td><span class="text-truncate d-inline-block" style="max-width:140px;" title="@chk.Diagnosis">@chk.Diagnosis</span></td>
+                                        <td class="text-muted">@chk.CreatedAt.ToString("hh:mm tt")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ القسم 3: الرسوم البيانية ═══════════════ -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-7">
+            <div class="chart-card">
+                <div class="chart-title"><i class="bi bi-bar-chart-line-fill"></i> مواعيد الأسبوع الحالي</div>
+                <div style="height: 280px;">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="chart-card">
+                <div class="chart-title"><i class="bi bi-pie-chart-fill"></i> توزيع أنواع الباقات</div>
+                <div style="height: 280px;">
+                    <canvas id="packagesChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ القسم 4: الإيرادات الشهرية ═══════════════ -->
+    <div class="dash-table-card mb-4">
+        <div class="table-title fs-5"><i class="bi bi-receipt-cutoff"></i> الإيرادات الشهرية — سنة @currentYear</div>
+        <div class="table-responsive">
+            <table class="rev-table">
+                <thead>
+                    <tr>
+                        <th>الشهر</th>
+                        <th>عدد الباقات</th>
+                        <th>الإيرادات (ج.م)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        decimal yearTotal = 0;
+                        for (int i = 0; i < 12; i++)
+                        {
+                            yearTotal += monthlyRevs[i];
+                            var isActive = (i == curMonthIdx) ? "active-month" : "";
+                            <tr class="@isActive">
+                                <td>
+                                    @if (i == curMonthIdx)
+                                    {
+                                        <i class="bi bi-circle-fill text-primary me-1" style="font-size:.5rem; vertical-align: middle;"></i>
+                                    }
+                                    @monthsAr[i]
+                                </td>
+                                <td>
+                                    @if (monthlyCounts[i] > 0)
+                                    {
+                                        <span class="badge bg-info rounded-pill">@monthlyCounts[i]</span>
+                                    }
+                                    else
+                                    {
+                                        <span>0</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (monthlyRevs[i] > 0)
+                                    {
+                                        <span class="fw-bold" style="color: var(--d-teal-dark);">@Math.Round(monthlyRevs[i], 0) ج.م</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td class="text-start">
+                            <i class="bi bi-calendar-range me-1" style="color: var(--d-green);"></i> الإجمالي السنوي
+                        </td>
+                        <td></td>
+                        <td class="fw-bold fs-5">@Math.Round(yearTotal, 0) ج.م</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+
+    <!-- ═══════════════ القسم 5: إحصائيات التشغيل ═══════════════ -->
+    <div class="sec-title"><i class="bi bi-gear-wide-connected"></i> إحصائيات التشغيل والموارد</div>
+    <div class="row g-3 mb-4">
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="ops-card ops-cyan">
+                <i class="bi bi-heart-pulse-fill ops-icon" style="color: var(--d-red);"></i>
+                <div class="ops-num" style="color: var(--d-teal);">
+                    <span class="counter" data-target="@ViewBag.ActiveDoctors">0</span>
+                </div>
+                <div class="ops-label">أطباء نشطين</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="ops-card ops-orange">
+                <i class="bi bi-building-fill ops-icon" style="color: var(--d-orange);"></i>
+                <div class="ops-num" style="color: var(--d-orange);">
+                    <span class="counter" data-target="@ViewBag.ActiveOrganizations">0</span>
+                </div>
+                <div class="ops-label">شركات تأمين</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="ops-card ops-purple">
+                <i class="bi bi-person-badge-fill ops-icon" style="color: var(--d-purple);"></i>
+                <div class="ops-num" style="color: var(--d-purple);">
+                    <span class="counter" data-target="@ViewBag.ActiveReceptionists">0</span>
+                </div>
+                <div class="ops-label">موظفي استقبال</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="ops-card ops-green">
+                <i class="bi bi-box-arrow-in-down-left ops-icon" style="color: var(--d-green);"></i>
+                <div class="ops-num" style="color: var(--d-green);">
+                    <span class="counter" data-target="@ViewBag.ActivePackagesCountStat">0</span>
+                </div>
+                <div class="ops-label">باقات نشطة</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="ops-card ops-red">
+                <i class="bi bi-flag-fill ops-icon" style="color: var(--d-red);"></i>
+                <div class="ops-num" style="color: var(--d-red);">
+                    <span class="counter" data-target="@ViewBag.ExpiredPackagesCount">0</span>
+                </div>
+                <div class="ops-label">باقات منتهية</div>
+            </div>
+        </div>
+        <div class="col-xl-2 col-lg-4 col-md-4 col-6">
+            <div class="ops-card ops-blue">
+                <i class="bi bi-arrow-repeat ops-icon" style="color: var(--d-blue);"></i>
+                <div class="ops-num" style="color: var(--d-blue);">
+                    <span class="counter" data-target="@ViewBag.RemainingSessionsOverall">0</span>
+                </div>
+                <div class="ops-label">جلسات متبقية</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ القسم 6: جداول عامة ═══════════════ -->
+    <div class="row g-3">
+        <!-- أحدث 10 مرضى -->
+        <div class="col-lg-6">
+            <div class="dash-table-card">
+                <div class="table-title"><i class="bi bi-person-plus-fill"></i> أحدث 10 مرضى مسجلين</div>
+                <div class="table-responsive">
+                    <table class="tbl-dash">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>الاسم</th>
+                                <th>الهاتف</th>
+                                <th>النوع</th>
+                                <th>العمر</th>
+                                <th>تاريخ التسجيل</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{
+                                int pIdx = 0;
+                                foreach (var p in recentPatients)
+                                {
+                                    pIdx++;
+                                    <tr>
+                                        <td>@pIdx</td>
+                                        <td class="fw-bold">@p.FullName</td>
+                                        <td>@p.Phone</td>
+                                        <td>
+                                            @if (p.Gender == Gender.ذكر)
+                                            {
+                                                <span class="gender-badge gender-male"><i class="bi bi-gender-male"></i> ذكر</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="gender-badge gender-female"><i class="bi bi-gender-female"></i> أنثى</span>
+                                            }
+                                        </td>
+                                        <td>@p.Age</td>
+                                        <td>@p.CreateAt.ToString("yyyy/MM/dd")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- مواعيد اليوم -->
+        <div class="col-lg-6">
+            <div class="dash-table-card">
+                <div class="table-title"><i class="bi bi-calendar-week"></i> مواعيد اليوم</div>
+                <div class="table-responsive">
+                    <table class="tbl-dash">
+                        <thead>
+                            <tr>
+                                <th>المريض</th>
+                                <th>البداية</th>
+                                <th>النهاية</th>
+                                <th>الحالة</th>
+                                <th>السكرتيرة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (todayAppts.Count == 0)
+                            {
+                                <tr><td colspan="5" class="text-muted py-3">لا توجد مواعيد اليوم.</td></tr>
+                            }
+                            else
+                            {
+                                foreach (var appt in todayAppts)
+                                {
+                                    <tr>
+                                        <td class="fw-bold">@appt.Patient?.FullName</td>
+                                        <td>@appt.StartTime.ToString("hh:mm tt")</td>
+                                        <td>@appt.EndTime.ToString("hh:mm tt")</td>
+                                        <td>
+                                            @if (appt.IsAttended)
+                                            {
+                                                <span class="status-badge status-attended"><i class="bi bi-check-lg"></i> حضر</span>
+                                            }
+                                            else if (appt.IsCanceled)
+                                            {
+                                                <span class="status-badge status-canceled"><i class="bi bi-x-lg"></i> غاب</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="status-badge status-pending"><i class="bi bi-hourglass-split"></i> قيد الانتظار</span>
+                                            }
+                                        </td>
+                                        <td class="text-muted">@appt.Receptionist?.FullName</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        // ─── Counter Animation ──────
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.counter').forEach(el => {
+                const target = +el.dataset.target;
+                if (isNaN(target)) return;
+                const speed = 100;
+                const inc = Math.max(1, Math.ceil(target / speed));
+                let cur = 0;
+                const step = () => {
+                    cur += inc;
+                    if (cur >= target) {
+                        el.textContent = target.toLocaleString('en-US');
+                    } else {
+                        el.textContent = cur.toLocaleString('en-US');
+                        requestAnimationFrame(step);
+                    }
+                };
+                step();
+            });
+        });
+
+        // ─── Weekly Appointments Bar Chart ──────
+        const weeklyData = @Html.Raw(Json.Serialize(ViewBag.WeeklyAppointments));
+        new Chart(document.getElementById('weeklyChart'), {
+            type: 'bar',
+            data: {
+                labels: ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'],
+                datasets: [{
+                    label: 'عدد المواعيد',
+                    data: weeklyData,
+                    backgroundColor: [
+                        'rgba(78, 115, 223, 0.75)',
+                        'rgba(28, 200, 138, 0.75)',
+                        'rgba(54, 185, 204, 0.75)',
+                        'rgba(246, 194, 62, 0.75)',
+                        'rgba(231, 74, 59, 0.75)',
+                        'rgba(111, 66, 193, 0.75)',
+                        'rgba(232, 62, 140, 0.75)'
+                    ],
+                    borderColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#6f42c1', '#e83e8c'],
+                    borderWidth: 1,
+                    borderRadius: 8,
+                    maxBarThickness: 50
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+
+        // ─── Packages Distribution Doughnut ──────
+        const pkgData = @Html.Raw(Json.Serialize(ViewBag.PackageDistribution));
+        new Chart(document.getElementById('packagesChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['ذهبي', 'فضي', 'الماسي', 'منزلي', 'جلسة'],
+                datasets: [{
+                    data: pkgData,
+                    backgroundColor: ['#f6c23e', '#858796', '#36b9cc', '#1cc88a', '#4e73df'],
+                    hoverOffset: 8,
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { padding: 18, font: { size: 13, family: 'Cairo' } }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
+    </script>
+}
