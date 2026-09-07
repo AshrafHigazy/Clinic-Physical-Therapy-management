@@ -25,7 +25,7 @@ namespace Clinic_Management_System.Controllers
             if (!string.IsNullOrEmpty(search))
                 doctors = doctors.Where(d => d.FullName.Contains(search) || d.Phone.Contains(search));
 
-            // ✅ النشطين في الأول
+          
             doctors = doctors.OrderByDescending(d => d.IsActive).ThenBy(d => d.FullName);
 
             return View(await doctors.ToListAsync());
