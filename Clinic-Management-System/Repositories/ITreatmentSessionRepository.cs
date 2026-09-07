@@ -8,14 +8,12 @@ namespace Clinic_Management_System.Repositories
         Task<Patient?> FindPatientAsync(int patientId);
         Task<Package?> GetActivePackageByPatientAsync(int patientId);
         void AddTreatmentSession(TreatmentSession session);
-        Task SaveChangesAsync();
         Task<TreatmentSession?> GetSessionByIdAsync(int id);
         Task<TreatmentSession?> FindSessionAsync(int id);
-        Task UpdateSessionAsync(TreatmentSession session);
+        void UpdateSession(TreatmentSession session);
         Task<TreatmentSession?> GetSessionWithPackageAsync(int id);
         Task<Package?> FindPackageAsync(int id);
         void UpdatePackage(Package package);
         void RemoveSession(TreatmentSession session);
-        Task SaveChangesForDeleteAsync();
     }
 }

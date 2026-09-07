@@ -7,10 +7,10 @@ namespace Clinic_Management_System.Repositories
     {
         Task<System.Collections.Generic.List<Receptionist>> GetReceptionistsAsync();
         Task<Receptionist?> GetReceptionistByIdAsync(int? id);
-        Task AddReceptionistAsync(Receptionist receptionist);
+        void AddReceptionist(Receptionist receptionist);
         Task<Receptionist?> FindReceptionistAsync(int id);
-        Task UpdateReceptionistAsync(Receptionist receptionist);
+        void UpdateReceptionist(Receptionist receptionist);
         bool ReceptionistExists(int id);
-        Task RemoveReceptionistAsync(Receptionist receptionist);
+        void RemoveReceptionist(Receptionist receptionist);
     }
 }

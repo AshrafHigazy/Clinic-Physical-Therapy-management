@@ -9,16 +9,16 @@ namespace Clinic_Management_System.Controllers
     [Authorize(Roles = "AdminDoctor,Secretary")]
     public class InternDoctorsController : Controller
     {
-        private readonly IInternDoctorRepository _internDoctorRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public InternDoctorsController(IInternDoctorRepository internDoctorRepository)
+        public InternDoctorsController(IUnitOfWork unitOfWork)
         {
-            _internDoctorRepository = internDoctorRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IActionResult> Index(string? search)
         {
-            var doctors = await _internDoctorRepository.GetDoctorsAsync(search);
+            var doctors = await _unitOfWork.InternDoctors.GetDoctorsAsync(search);
 
             return View(doctors);
         }
@@ -34,7 +34,8 @@ namespace Clinic_Management_System.Controllers
         {
             if (ModelState.IsValid)
             {
-                await _internDoctorRepository.AddDoctorAsync(doctor);
+                _unitOfWork.InternDoctors.AddDoctor(doctor);
+                await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(doctor);
@@ -42,7 +43,7 @@ namespace Clinic_Management_System.Controllers
 
         public IActionResult GetById(int id)
         {
-            var doctor = _internDoctorRepository.GetDoctorWithAttendances(id);
+            var doctor = _unitOfWork.InternDoctors.GetDoctorWithAttendances(id);
 
             if (doctor == null)
                 return NotFound();
@@ -52,7 +53,7 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var doctor = await _internDoctorRepository.FindDoctorAsync(id);
+            var doctor = await _unitOfWork.InternDoctors.FindDoctorAsync(id);
             if (doctor == null)
                 return NotFound();
 
@@ -68,7 +69,8 @@ namespace Clinic_Management_System.Controllers
 
             if (ModelState.IsValid)
             {
-                await _internDoctorRepository.UpdateDoctorAsync(doctor);
+                _unitOfWork.InternDoctors.UpdateDoctor(doctor);
+                await _unitOfWork.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             return View(doctor);
@@ -76,7 +78,7 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            var doctor = await _internDoctorRepository.GetDoctorByFilterAsync(id);
+            var doctor = await _unitOfWork.InternDoctors.GetDoctorByFilterAsync(id);
 
             if (doctor == null)
                 return NotFound();
@@ -88,11 +90,12 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var doctor = await _internDoctorRepository.FindDoctorAsync(id);
+            var doctor = await _unitOfWork.InternDoctors.FindDoctorAsync(id);
             if (doctor == null)
                 return NotFound();
 
-            await _internDoctorRepository.RemoveDoctorAsync(doctor);
+            _unitOfWork.InternDoctors.RemoveDoctor(doctor);
+            await _unitOfWork.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -100,12 +103,13 @@ namespace Clinic_Management_System.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleActive(int id)
         {
-            var doctor = await _internDoctorRepository.FindDoctorAsync(id);
+            var doctor = await _unitOfWork.InternDoctors.FindDoctorAsync(id);
             if (doctor == null)
                 return NotFound();
 
             doctor.IsActive = !doctor.IsActive;
-            await _internDoctorRepository.UpdateDoctorAsync(doctor);
+            _unitOfWork.InternDoctors.UpdateDoctor(doctor);
+            await _unitOfWork.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -114,7 +118,7 @@ namespace Clinic_Management_System.Controllers
         public IActionResult QuickCheckOut(int doctorId)
         {
 
-            var doctor = _internDoctorRepository.GetActiveInternDoctor(doctorId);
+            var doctor = _unitOfWork.InternDoctors.GetActiveInternDoctor(doctorId);
 
             if (doctor == null)
                 return NotFound("Doctor not found or inactive.");
@@ -122,7 +126,7 @@ namespace Clinic_Management_System.Controllers
             var today = System.DateTime.Today;
             var tomorrow = today.AddDays(1);
 
-            var todayAttendance = _internDoctorRepository.GetTodayAttendance(doctorId, today, tomorrow);
+            var todayAttendance = _unitOfWork.InternDoctors.GetTodayAttendance(doctorId, today, tomorrow);
 
             if (todayAttendance == null)
             {
@@ -144,7 +148,7 @@ namespace Clinic_Management_System.Controllers
                 todayAttendance.Hours = Math.Round(duration, 2);
             }
 
-            _internDoctorRepository.SaveChanges();
+            _unitOfWork.SaveChanges();
 
             TempData["Message"] = $"👋 تم تسجيل انصراف {doctor.FullName} في {System.DateTime.Now:HH:mm}";
             return RedirectToAction("Index", "InternDoctors");

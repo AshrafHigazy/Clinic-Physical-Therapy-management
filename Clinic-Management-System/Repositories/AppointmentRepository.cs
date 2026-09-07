@@ -69,10 +69,9 @@ namespace Clinic_Management_System.Repositories
             );
         }
 
-        public async Task AddAppointmentAsync(Appointment appointment)
+        public void AddAppointment(Appointment appointment)
         {
             _context.Appointment.Add(appointment);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Appointment?> GetAppointmentDetailsAsync(int id)
@@ -88,16 +87,14 @@ namespace Clinic_Management_System.Repositories
             return await _context.Appointment.FindAsync(id);
         }
 
-        public async Task UpdateAppointmentAsync(Appointment appointment)
+        public void UpdateAppointment(Appointment appointment)
         {
             _context.Appointment.Update(appointment);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task RemoveAppointmentAsync(Appointment appointment)
+        public void RemoveAppointment(Appointment appointment)
         {
             _context.Appointment.Remove(appointment);
-            await _context.SaveChangesAsync();
         }
     }
 }

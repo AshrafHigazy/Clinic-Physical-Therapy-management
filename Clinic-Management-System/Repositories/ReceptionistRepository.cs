@@ -30,10 +30,9 @@ namespace Clinic_Management_System.Repositories
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public async Task AddReceptionistAsync(Receptionist receptionist)
+        public void AddReceptionist(Receptionist receptionist)
         {
             _context.Add(receptionist);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Receptionist?> FindReceptionistAsync(int id)
@@ -41,10 +40,9 @@ namespace Clinic_Management_System.Repositories
             return await _context.Receptionist.FindAsync(id);
         }
 
-        public async Task UpdateReceptionistAsync(Receptionist receptionist)
+        public void UpdateReceptionist(Receptionist receptionist)
         {
             _context.Update(receptionist);
-            await _context.SaveChangesAsync();
         }
 
         public bool ReceptionistExists(int id)
@@ -52,10 +50,9 @@ namespace Clinic_Management_System.Repositories
             return _context.Receptionist.Any(e => e.Id == id);
         }
 
-        public async Task RemoveReceptionistAsync(Receptionist receptionist)
+        public void RemoveReceptionist(Receptionist receptionist)
         {
             _context.Receptionist.Remove(receptionist);
-            await _context.SaveChangesAsync();
         }
     }
 }

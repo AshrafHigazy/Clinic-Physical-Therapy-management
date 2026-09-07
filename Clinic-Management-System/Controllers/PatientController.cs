@@ -11,11 +11,11 @@ namespace Clinic_Management_System.Controllers
 
     public class PatientController : Controller
     {
-        private readonly IPatientRepository _patientRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PatientController(IPatientRepository patientRepository)
+        public PatientController(IUnitOfWork unitOfWork)
         {
-            _patientRepository = patientRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult GetAll(string searchString, string sortOrder, string date)
@@ -29,7 +29,7 @@ namespace Clinic_Management_System.Controllers
             ViewData["AgeSortParm"] = sortOrder == "Age" ? "Age_desc" : "Age";
             ViewData["DateSortParm"] = System.String.IsNullOrEmpty(sortOrder) ? "Date_desc" : "";
 
-            var patients = _patientRepository.GetPatients(searchString, sortOrder);
+            var patients = _unitOfWork.Patients.GetPatients(searchString, sortOrder);
 
             return View("GetAll", patients);
         }
@@ -40,7 +40,7 @@ namespace Clinic_Management_System.Controllers
             {
                 return NotFound();
             }
-            Patient patient = _patientRepository.GetPatientById(id);
+            Patient patient = _unitOfWork.Patients.GetPatientById(id);
             if (patient == null)
                 return NotFound();
 
@@ -61,7 +61,8 @@ namespace Clinic_Management_System.Controllers
                 return View("Create", patient);
             }
             patient.CreateAt = System.DateTime.Now;
-            _patientRepository.AddPatient(patient);
+            _unitOfWork.Patients.AddPatient(patient);
+            _unitOfWork.SaveChanges();
 
             TempData["SuccessMessage"] = "تمت إضافة المريض بنجاح!";
 
@@ -72,7 +73,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (id == null || id == 0) return NotFound();
 
-            Patient patient = _patientRepository.FindPatient(id);
+            Patient patient = _unitOfWork.Patients.FindPatient(id);
             if (patient == null) return NotFound();
 
             return View("Edit", patient);
@@ -88,7 +89,7 @@ namespace Clinic_Management_System.Controllers
             {
                 try
                 {
-                    Patient patientDB = _patientRepository.GetPatientById(id);
+                    Patient patientDB = _unitOfWork.Patients.GetPatientById(id);
                     patientDB.FullName = patientFromRq.FullName;
                     patientDB.Address = patientFromRq.Address;
                     patientDB.Age = patientFromRq.Age;
@@ -96,13 +97,14 @@ namespace Clinic_Management_System.Controllers
                     patientDB.Phone = patientFromRq.Phone;
                     patientDB.Gender = patientFromRq.Gender;
                     patientDB.MedicalRecords = patientFromRq.MedicalRecords;
-                    _patientRepository.UpdatePatient(patientDB);
+                    _unitOfWork.Patients.UpdatePatient(patientDB);
+                    _unitOfWork.SaveChanges();
                     TempData["EditMessage"] = "تم تعديل بيانات المريض بنجاح!";
                     return RedirectToAction("GetAll");
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_patientRepository.PatientExists(id))
+                    if (!_unitOfWork.Patients.PatientExists(id))
                         return NotFound();
                     throw;
                 }
@@ -116,10 +118,11 @@ namespace Clinic_Management_System.Controllers
         {
             if (id == null || id == 0) return NotFound();
 
-            Patient patient = _patientRepository.GetPatientById(id);
+            Patient patient = _unitOfWork.Patients.GetPatientById(id);
             if (patient != null)
             {
-                _patientRepository.RemovePatient(patient);
+                _unitOfWork.Patients.RemovePatient(patient);
+                _unitOfWork.SaveChanges();
                 return RedirectToAction("GetAll");
             }
             else

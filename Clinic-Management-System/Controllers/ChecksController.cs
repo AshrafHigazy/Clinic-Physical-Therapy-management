@@ -13,16 +13,16 @@ namespace Clinic_Management_System.Controllers
 
     public class ChecksController : Controller
     {
-        private readonly ICheckRepository _checkRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ChecksController(ICheckRepository checkRepository)
+        public ChecksController(IUnitOfWork unitOfWork)
         {
-            _checkRepository = checkRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IActionResult> Index()
         {
-            var checks = await _checkRepository.GetChecksAsync();
+            var checks = await _unitOfWork.Checks.GetChecksAsync();
 
             return View(checks);
         }
@@ -32,7 +32,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _checkRepository.GetCheckDetailsAsync(id);
+            var check = await _unitOfWork.Checks.GetCheckDetailsAsync(id);
 
             if (check == null)
                 return NotFound();
@@ -44,7 +44,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (patientId.HasValue)
             {
-                var patient = _checkRepository.GetPatientById(patientId.Value);
+                var patient = _unitOfWork.Checks.GetPatientById(patientId.Value);
                 ViewBag.PatientName = patient?.FullName;
 
                 var check = new Check
@@ -55,7 +55,7 @@ namespace Clinic_Management_System.Controllers
                 return View(check);
             }
 
-            ViewData["PatientId"] = new SelectList(_checkRepository.GetPatientsForSelect(), "Id", "FullName");
+            ViewData["PatientId"] = new SelectList(_unitOfWork.Checks.GetPatientsForSelect(), "Id", "FullName");
             return View();
         }
 
@@ -71,12 +71,13 @@ namespace Clinic_Management_System.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewData["PatientId"] = new SelectList(_checkRepository.GetPatientsForSelect(), "Id", "FullName", check.PatientId);
+                ViewData["PatientId"] = new SelectList(_unitOfWork.Checks.GetPatientsForSelect(), "Id", "FullName", check.PatientId);
                 return View(check);
             }
 
             check.CreatedAt = System.DateTime.Now;
-            await _checkRepository.AddCheckAsync(check);
+            _unitOfWork.Checks.AddCheck(check);
+            await _unitOfWork.SaveChangesAsync();
 
             return RedirectToAction(nameof(Index));
         }
@@ -86,7 +87,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _checkRepository.GetCheckForEditAsync(id);
+            var check = await _unitOfWork.Checks.GetCheckForEditAsync(id);
 
             if (check == null)
                 return NotFound();
@@ -107,11 +108,12 @@ namespace Clinic_Management_System.Controllers
 
             try
             {
-                await _checkRepository.UpdateCheckAsync(check);
+                _unitOfWork.Checks.UpdateCheck(check);
+                await _unitOfWork.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_checkRepository.CheckExists(check.CheckId))
+                if (!_unitOfWork.Checks.CheckExists(check.CheckId))
                     return NotFound();
                 throw;
             }
@@ -125,7 +127,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _checkRepository.GetCheckForEditAsync(id);
+            var check = await _unitOfWork.Checks.GetCheckForEditAsync(id);
 
             if (check == null)
                 return NotFound();
@@ -138,10 +140,11 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var check = await _checkRepository.FindCheckAsync(id);
+            var check = await _unitOfWork.Checks.FindCheckAsync(id);
             if (check != null)
             {
-                await _checkRepository.RemoveCheckAsync(check);
+                _unitOfWork.Checks.RemoveCheck(check);
+                await _unitOfWork.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index));

@@ -10,11 +10,11 @@ namespace Clinic_Management_System.Repositories
         List<Check> GetChecksByPatient(int patientId);
         List<Organization> GetAllOrganizations();
         List<DoctorSearchDto> SearchDoctors(string term);
-        Task AddPackageAsync(Package package);
+        void AddPackage(Package package);
         Task<Package?> GetPackageWithPatientAndOrgAsync(int id);
         List<InternDoctor> GetActiveInternDoctors();
         Task<Package?> GetPackageAsNoTrackingAsync(int id);
-        Task UpdatePackageAsync(Package package);
+        void UpdatePackage(Package package);
         Task<Package?> GetPackageDetailsAsync(int id);
         Task<List<Package>> GetAllPackagesWithIncludesAsync();
         Task<List<Package>> GetPatientPackagesAsync(int patientId);

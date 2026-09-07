@@ -11,17 +11,17 @@ namespace Clinic_Management_System.Controllers
 
     public class OrganizationsController : Controller
     {
-        private readonly IOrganizationRepository _organizationRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public OrganizationsController(IOrganizationRepository organizationRepository)
+        public OrganizationsController(IUnitOfWork unitOfWork)
         {
-            _organizationRepository = organizationRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<IActionResult> Index()
         {
 
-            var organizations = await _organizationRepository.GetOrganizationsAsync();
+            var organizations = await _unitOfWork.Organizations.GetOrganizationsAsync();
 
             return View(organizations);
         }
@@ -30,7 +30,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (id == null) return NotFound();
 
-            var organization = await _organizationRepository.GetOrganizationDetailsAsync(id);
+            var organization = await _unitOfWork.Organizations.GetOrganizationDetailsAsync(id);
             if (organization == null) return NotFound();
 
             return View(organization);
@@ -51,7 +51,8 @@ namespace Clinic_Management_System.Controllers
                 if (organization.TyppeOfContract != null)
                     organization.TyppeOfContractSerialized = string.Join(",", organization.TyppeOfContract);
 
-                await _organizationRepository.AddOrganizationAsync(organization);
+                _unitOfWork.Organizations.AddOrganization(organization);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["SuccessMessage"] = "تمت إضافة الشركة بنجاح!";
                 return RedirectToAction(nameof(Index));
@@ -63,13 +64,14 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var organization = await _organizationRepository.FindOrganizationAsync(id);
+            var organization = await _unitOfWork.Organizations.FindOrganizationAsync(id);
             if (organization == null)
                 return NotFound();
 
             organization.IsActive = !organization.IsActive;
 
-            await _organizationRepository.UpdateOrganizationAsync(organization);
+            _unitOfWork.Organizations.UpdateOrganization(organization);
+            await _unitOfWork.SaveChangesAsync();
 
             TempData["EditMessage"] = organization.IsActive
                 ? "تم تفعيل التعاقد بنجاح!"
@@ -82,7 +84,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (id == null) return NotFound();
 
-            var organization = await _organizationRepository.FindOrganizationAsync(id.Value);
+            var organization = await _unitOfWork.Organizations.FindOrganizationAsync(id.Value);
             if (organization == null) return NotFound();
 
             return View(organization);
@@ -102,13 +104,14 @@ namespace Clinic_Management_System.Controllers
                     if (organization.TyppeOfContract != null)
                         organization.TyppeOfContractSerialized = string.Join(",", organization.TyppeOfContract);
 
-                    await _organizationRepository.UpdateOrganizationAsync(organization);
+                    _unitOfWork.Organizations.UpdateOrganization(organization);
+                    await _unitOfWork.SaveChangesAsync();
 
                     TempData["EditMessage"] = "تم تعديل بيانات الشركة بنجاح!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_organizationRepository.OrganizationExists(organization.Id)) return NotFound();
+                    if (!_unitOfWork.Organizations.OrganizationExists(organization.Id)) return NotFound();
                     else throw;
                 }
                 return RedirectToAction(nameof(Index));
@@ -121,7 +124,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (id == null) return NotFound();
 
-            var organization = await _organizationRepository.GetOrganizationForDeleteAsync(id);
+            var organization = await _unitOfWork.Organizations.GetOrganizationForDeleteAsync(id);
             if (organization == null) return NotFound();
 
             return View(organization);
@@ -132,10 +135,11 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var organization = await _organizationRepository.FindOrganizationAsync(id);
+            var organization = await _unitOfWork.Organizations.FindOrganizationAsync(id);
             if (organization != null)
             {
-                await _organizationRepository.RemoveOrganizationAsync(organization);
+                _unitOfWork.Organizations.RemoveOrganization(organization);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["DeleteMessage"] = "تم حذف الشركة بنجاح!";
             }

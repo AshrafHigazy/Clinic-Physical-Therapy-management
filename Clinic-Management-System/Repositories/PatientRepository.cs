@@ -54,7 +54,6 @@ namespace Clinic_Management_System.Repositories
         public void AddPatient(Patient patient)
         {
             _context.Patient.Add(patient);
-            _context.SaveChanges();
         }
 
         public Patient? FindPatient(int? id)
@@ -65,7 +64,6 @@ namespace Clinic_Management_System.Repositories
         public void UpdatePatient(Patient patient)
         {
             _context.Update(patient);
-            _context.SaveChanges();
         }
 
         public bool PatientExists(int id)
@@ -76,7 +74,6 @@ namespace Clinic_Management_System.Repositories
         public void RemovePatient(Patient patient)
         {
             _context.Patient.Remove(patient);
-            _context.SaveChanges();
         }
     }
 }

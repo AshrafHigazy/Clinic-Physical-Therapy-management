@@ -11,10 +11,10 @@ namespace Clinic_Management_System.Repositories
         List<ReceptionistCurrentShift> GetCurrentShifts();
         Task<ReceptionistCurrentShift?> GetCurrentShiftByReceptionistAsync(int receptionistId);
         Task<ReceptionistAttendance?> GetAttendanceByReceptionistAndDateAsync(int receptionistId, DateTime date);
-        Task AddCurrentShiftAsync(ReceptionistCurrentShift shift);
+        void AddCurrentShift(ReceptionistCurrentShift shift);
         Task<ReceptionistCurrentShift?> GetCurrentShiftWithReceptionistAsync(int receptionistId);
         Task<bool> AttendanceAlreadyEndedAsync(int receptionistId, DateTime date);
-        Task AddAttendanceAndRemoveShiftAsync(ReceptionistAttendance attendance, ReceptionistCurrentShift shift);
+        void AddAttendanceAndRemoveShift(ReceptionistAttendance attendance, ReceptionistCurrentShift shift);
         Task<List<ReceptionistAttendance>> GetAttendanceHistoryAsync(int? receptionistId);
         Task<List<ReceptionistAttendance>> GetAllAttendancesAsync();
     }

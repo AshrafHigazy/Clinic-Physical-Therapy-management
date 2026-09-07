@@ -11,6 +11,5 @@ namespace Clinic_Management_System.Repositories
         void AddAttendance(InternDoctorAttendance attendance);
         InternDoctor? GetInternDoctorWithAttendances(int id);
         InternDoctorAttendance? GetTodayAttendance(int doctorId, System.DateTime today, System.DateTime tomorrow);
-        void SaveChanges();
     }
 }

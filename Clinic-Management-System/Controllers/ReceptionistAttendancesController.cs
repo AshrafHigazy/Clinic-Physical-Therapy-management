@@ -12,18 +12,18 @@ namespace Clinic_Management_System.Controllers
 
     public class ReceptionistAttendancesController : Controller
     {
-        private readonly IReceptionistAttendanceRepository _receptionistAttendanceRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ReceptionistAttendancesController(IReceptionistAttendanceRepository receptionistAttendanceRepository)
+        public ReceptionistAttendancesController(IUnitOfWork unitOfWork)
         {
-            _receptionistAttendanceRepository = receptionistAttendanceRepository;
+            _unitOfWork = unitOfWork;
         }
 
         public IActionResult StartShift()
         {
-            ViewData["ReceptionistId"] = new SelectList(_receptionistAttendanceRepository.GetReceptionistsForSelect(), "Id", "FullName");
+            ViewData["ReceptionistId"] = new SelectList(_unitOfWork.ReceptionistAttendances.GetReceptionistsForSelect(), "Id", "FullName");
 
-            var currentShifts = _receptionistAttendanceRepository.GetCurrentShifts();
+            var currentShifts = _unitOfWork.ReceptionistAttendances.GetCurrentShifts();
             ViewData["CurrentShifts"] = currentShifts;
 
             ViewBag.Message = TempData["Message"];
@@ -39,7 +39,7 @@ namespace Clinic_Management_System.Controllers
             if (receptionistId == 0)
                 return BadRequest();
 
-            var existingShift = await _receptionistAttendanceRepository.GetCurrentShiftByReceptionistAsync(receptionistId);
+            var existingShift = await _unitOfWork.ReceptionistAttendances.GetCurrentShiftByReceptionistAsync(receptionistId);
             if (existingShift != null)
             {
                 TempData["Message"] = "❌ هذا الموظف بدأ عمله بالفعل.";
@@ -48,7 +48,7 @@ namespace Clinic_Management_System.Controllers
             }
 
             var today = DateTime.Today;
-            var attendanceToday = await _receptionistAttendanceRepository.GetAttendanceByReceptionistAndDateAsync(receptionistId, today);
+            var attendanceToday = await _unitOfWork.ReceptionistAttendances.GetAttendanceByReceptionistAndDateAsync(receptionistId, today);
 
             if (attendanceToday != null)
             {
@@ -63,7 +63,8 @@ namespace Clinic_Management_System.Controllers
                 StartTime = DateTime.Now
             };
 
-            await _receptionistAttendanceRepository.AddCurrentShiftAsync(shift);
+            _unitOfWork.ReceptionistAttendances.AddCurrentShift(shift);
+            await _unitOfWork.SaveChangesAsync();
 
             TempData["Message"] = "✅ تم تسجيل بداية العمل بنجاح.";
             TempData["MessageType"] = "success";
@@ -74,7 +75,7 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EndShift(int receptionistId)
         {
-            var shift = await _receptionistAttendanceRepository.GetCurrentShiftWithReceptionistAsync(receptionistId);
+            var shift = await _unitOfWork.ReceptionistAttendances.GetCurrentShiftWithReceptionistAsync(receptionistId);
 
             if (shift == null)
             {
@@ -84,7 +85,7 @@ namespace Clinic_Management_System.Controllers
             }
 
             var today = DateTime.Today;
-            var alreadyEnded = await _receptionistAttendanceRepository.AttendanceAlreadyEndedAsync(receptionistId, today);
+            var alreadyEnded = await _unitOfWork.ReceptionistAttendances.AttendanceAlreadyEndedAsync(receptionistId, today);
 
             if (alreadyEnded)
             {
@@ -102,7 +103,8 @@ namespace Clinic_Management_System.Controllers
                 Hours = (int)(DateTime.Now - shift.StartTime).TotalHours
             };
 
-            await _receptionistAttendanceRepository.AddAttendanceAndRemoveShiftAsync(attendance, shift);
+            _unitOfWork.ReceptionistAttendances.AddAttendanceAndRemoveShift(attendance, shift);
+            await _unitOfWork.SaveChangesAsync();
 
             TempData["Message"] = "✅ تم تسجيل إنهاء العمل بنجاح.";
             TempData["MessageType"] = "success";
@@ -114,14 +116,14 @@ namespace Clinic_Management_System.Controllers
             if (receptionistId == null)
                 return BadRequest();
 
-            var history = await _receptionistAttendanceRepository.GetAttendanceHistoryAsync(receptionistId);
+            var history = await _unitOfWork.ReceptionistAttendances.GetAttendanceHistoryAsync(receptionistId);
 
             return View("AttendanceHistory", history);
         }
 
         public async Task<IActionResult> Index()
         {
-            var attendances = await _receptionistAttendanceRepository.GetAllAttendancesAsync();
+            var attendances = await _unitOfWork.ReceptionistAttendances.GetAllAttendancesAsync();
 
             return View(attendances);
         }

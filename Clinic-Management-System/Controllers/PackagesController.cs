@@ -10,25 +10,25 @@ namespace Clinic_Management_System.Controllers
     [Authorize(Roles = "AdminDoctor,Secretary")]
     public class PackagesController : Controller
     {
-        private readonly IPackageRepository _packageRepository;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public PackagesController(IPackageRepository packageRepository)
+        public PackagesController(IUnitOfWork unitOfWork)
         {
-            _packageRepository = packageRepository;
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
         public IActionResult Create(int patientId)
         {
-            var patient = _packageRepository.GetPatientWithPackages(patientId);
+            var patient = _unitOfWork.Packages.GetPatientWithPackages(patientId);
 
             if (patient == null)
                 return NotFound("المريض غير موجود");
 
             ViewBag.PatientId = patient.Id;
             ViewBag.PatientName = patient.FullName;
-            ViewBag.Checks = _packageRepository.GetChecksByPatient(patientId);
-            ViewBag.Organizations = _packageRepository.GetAllOrganizations();
+            ViewBag.Checks = _unitOfWork.Packages.GetChecksByPatient(patientId);
+            ViewBag.Organizations = _unitOfWork.Packages.GetAllOrganizations();
 
             var packages = patient.Packages.ToList();
             if (!packages.Any())
@@ -47,7 +47,7 @@ namespace Clinic_Management_System.Controllers
         [HttpGet]
         public IActionResult SearchDoctors(string term)
         {
-            var doctors = _packageRepository.SearchDoctors(term);
+            var doctors = _unitOfWork.Packages.SearchDoctors(term);
 
             return Json(doctors);
         }
@@ -66,8 +66,8 @@ namespace Clinic_Management_System.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Organizations = _packageRepository.GetAllOrganizations();
-                ViewBag.Checks = _packageRepository.GetChecksByPatient(patientId);
+                ViewBag.Organizations = _unitOfWork.Packages.GetAllOrganizations();
+                ViewBag.Checks = _unitOfWork.Packages.GetChecksByPatient(patientId);
                 TempData["Error"] = string.Join(" | ",
                     ModelState.Values.SelectMany(v => v.Errors)
                                      .Select(e => e.ErrorMessage));
@@ -77,12 +77,13 @@ namespace Clinic_Management_System.Controllers
             if (package.NumOfSessions <= 0)
             {
                 ModelState.AddModelError(nameof(package.NumOfSessions), "عدد الجلسات يجب أن يكون أكبر من صفر.");
-                ViewBag.Organizations = _packageRepository.GetAllOrganizations();
-                ViewBag.Checks = _packageRepository.GetChecksByPatient(patientId);
+                ViewBag.Organizations = _unitOfWork.Packages.GetAllOrganizations();
+                ViewBag.Checks = _unitOfWork.Packages.GetChecksByPatient(patientId);
                 return View(package);
             }
 
-            await _packageRepository.AddPackageAsync(package);
+            _unitOfWork.Packages.AddPackage(package);
+            await _unitOfWork.SaveChangesAsync();
 
             TempData["Success"] = "تمت إضافة الباقة بنجاح.";
 
@@ -91,13 +92,13 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var package = await _packageRepository.GetPackageWithPatientAndOrgAsync(id);
+            var package = await _unitOfWork.Packages.GetPackageWithPatientAndOrgAsync(id);
 
             if (package == null) return NotFound();
 
-            ViewBag.Doctors = _packageRepository.GetActiveInternDoctors();
-            ViewBag.Organizations = _packageRepository.GetAllOrganizations();
-            ViewBag.Checks = _packageRepository.GetChecksByPatient(package.PatientId);
+            ViewBag.Doctors = _unitOfWork.Packages.GetActiveInternDoctors();
+            ViewBag.Organizations = _unitOfWork.Packages.GetAllOrganizations();
+            ViewBag.Checks = _unitOfWork.Packages.GetChecksByPatient(package.PatientId);
 
             return View(package);
         }
@@ -108,7 +109,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (id != package.Id) return NotFound();
 
-            var existing = await _packageRepository.GetPackageAsNoTrackingAsync(id);
+            var existing = await _unitOfWork.Packages.GetPackageAsNoTrackingAsync(id);
             if (existing == null) return NotFound();
 
             package.PatientId = existing.PatientId;
@@ -126,9 +127,9 @@ namespace Clinic_Management_System.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Doctors = _packageRepository.GetActiveInternDoctors();
-                ViewBag.Organizations = _packageRepository.GetAllOrganizations();
-                ViewBag.Checks = _packageRepository.GetChecksByPatient(package.PatientId);
+                ViewBag.Doctors = _unitOfWork.Packages.GetActiveInternDoctors();
+                ViewBag.Organizations = _unitOfWork.Packages.GetAllOrganizations();
+                ViewBag.Checks = _unitOfWork.Packages.GetChecksByPatient(package.PatientId);
                 return View(package);
             }
 
@@ -146,7 +147,8 @@ namespace Clinic_Management_System.Controllers
 
             try
             {
-                await _packageRepository.UpdatePackageAsync(package);
+                _unitOfWork.Packages.UpdatePackage(package);
+                await _unitOfWork.SaveChangesAsync();
 
                 TempData["Success"] = "تم تعديل الباقة بنجاح.";
 
@@ -155,16 +157,16 @@ namespace Clinic_Management_System.Controllers
             catch (System.Exception ex)
             {
                 TempData["Error"] = "حدث خطأ أثناء الحفظ: " + ex.Message;
-                ViewBag.Doctors = _packageRepository.GetActiveInternDoctors();
-                ViewBag.Organizations = _packageRepository.GetAllOrganizations();
-                ViewBag.Checks = _packageRepository.GetChecksByPatient(package.PatientId);
+                ViewBag.Doctors = _unitOfWork.Packages.GetActiveInternDoctors();
+                ViewBag.Organizations = _unitOfWork.Packages.GetAllOrganizations();
+                ViewBag.Checks = _unitOfWork.Packages.GetChecksByPatient(package.PatientId);
                 return View(package);
             }
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var package = await _packageRepository.GetPackageDetailsAsync(id);
+            var package = await _unitOfWork.Packages.GetPackageDetailsAsync(id);
 
             if (package == null) return NotFound();
 
@@ -176,7 +178,7 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var packages = await _packageRepository.GetAllPackagesWithIncludesAsync();
+            var packages = await _unitOfWork.Packages.GetAllPackagesWithIncludesAsync();
 
             packages = packages
                 .OrderBy(p => p.Status == "Ended")
@@ -188,9 +190,9 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> PatientPackages(int patientId)
         {
-            var packages = await _packageRepository.GetPatientPackagesAsync(patientId);
+            var packages = await _unitOfWork.Packages.GetPatientPackagesAsync(patientId);
 
-            var patient = await _packageRepository.FindPatientAsync(patientId);
+            var patient = await _unitOfWork.Packages.FindPatientAsync(patientId);
 
             ViewBag.PatientName = patient?.FullName;
             ViewBag.PatientId = patientId;

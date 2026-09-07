@@ -29,10 +29,9 @@ namespace Clinic_Management_System.Repositories
             return await doctors.ToListAsync();
         }
 
-        public async Task AddDoctorAsync(InternDoctor doctor)
+        public void AddDoctor(InternDoctor doctor)
         {
             _context.Add(doctor);
-            await _context.SaveChangesAsync();
         }
 
         public InternDoctor? GetDoctorWithAttendances(int id)
@@ -53,16 +52,14 @@ namespace Clinic_Management_System.Repositories
             return await _context.InternDoctors.FindAsync(id);
         }
 
-        public async Task UpdateDoctorAsync(InternDoctor doctor)
+        public void UpdateDoctor(InternDoctor doctor)
         {
             _context.Update(doctor);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task RemoveDoctorAsync(InternDoctor doctor)
+        public void RemoveDoctor(InternDoctor doctor)
         {
             _context.InternDoctors.Remove(doctor);
-            await _context.SaveChangesAsync();
         }
 
         public InternDoctor? GetActiveInternDoctor(int id)
@@ -75,11 +72,6 @@ namespace Clinic_Management_System.Repositories
         {
             return _context.InternDoctorAttendances
                 .FirstOrDefault(a => a.InternDoctorId == doctorId && a.Date >= today && a.Date < tomorrow);
-        }
-
-        public void SaveChanges()
-        {
-            _context.SaveChanges();
         }
     }
 }

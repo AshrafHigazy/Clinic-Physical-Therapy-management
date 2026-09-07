@@ -46,6 +46,7 @@ namespace Clinic_Management_System
             builder.Services.AddScoped<IReceptionistRepository, ReceptionistRepository>();
             builder.Services.AddScoped<IReceptionistAttendanceRepository, ReceptionistAttendanceRepository>();
             builder.Services.AddScoped<ITreatmentSessionRepository, TreatmentSessionRepository>();
+            builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             var app = builder.Build();
 

@@ -47,10 +47,9 @@ namespace Clinic_Management_System.Repositories
             return doctors;
         }
 
-        public async Task AddPackageAsync(Package package)
+        public void AddPackage(Package package)
         {
             _context.Packages.Add(package);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Package?> GetPackageWithPatientAndOrgAsync(int id)
@@ -71,10 +70,9 @@ namespace Clinic_Management_System.Repositories
             return await _context.Packages.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
         }
 
-        public async Task UpdatePackageAsync(Package package)
+        public void UpdatePackage(Package package)
         {
             _context.Update(package);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Package?> GetPackageDetailsAsync(int id)

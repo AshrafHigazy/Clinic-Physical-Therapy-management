@@ -40,10 +40,9 @@ namespace Clinic_Management_System.Repositories
             return _context.Patient.ToList();
         }
 
-        public async Task AddCheckAsync(Check check)
+        public void AddCheck(Check check)
         {
             _context.Checks.Add(check);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Check?> GetCheckForEditAsync(int? id)
@@ -53,10 +52,9 @@ namespace Clinic_Management_System.Repositories
                 .FirstOrDefaultAsync(c => c.CheckId == id);
         }
 
-        public async Task UpdateCheckAsync(Check check)
+        public void UpdateCheck(Check check)
         {
             _context.Update(check);
-            await _context.SaveChangesAsync();
         }
 
         public bool CheckExists(int id)
@@ -69,10 +67,9 @@ namespace Clinic_Management_System.Repositories
             return await _context.Checks.FindAsync(id);
         }
 
-        public async Task RemoveCheckAsync(Check check)
+        public void RemoveCheck(Check check)
         {
             _context.Checks.Remove(check);
-            await _context.SaveChangesAsync();
         }
     }
 }

@@ -9,11 +9,11 @@ namespace Clinic_Management_System.Repositories
         Task<Check?> GetCheckDetailsAsync(int? id);
         Patient? GetPatientById(int id);
         List<Patient> GetPatientsForSelect();
-        Task AddCheckAsync(Check check);
+        void AddCheck(Check check);
         Task<Check?> GetCheckForEditAsync(int? id);
-        Task UpdateCheckAsync(Check check);
+        void UpdateCheck(Check check);
         bool CheckExists(int id);
         Task<Check?> FindCheckAsync(int id);
-        Task RemoveCheckAsync(Check check);
+        void RemoveCheck(Check check);
     }
 }

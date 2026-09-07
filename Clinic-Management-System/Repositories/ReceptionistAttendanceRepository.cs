@@ -41,10 +41,9 @@ namespace Clinic_Management_System.Repositories
                 .FirstOrDefaultAsync(a => a.ReceptionistId == receptionistId && a.Date == date);
         }
 
-        public async Task AddCurrentShiftAsync(ReceptionistCurrentShift shift)
+        public void AddCurrentShift(ReceptionistCurrentShift shift)
         {
             _context.ReceptionistCurrentShifts.Add(shift);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<ReceptionistCurrentShift?> GetCurrentShiftWithReceptionistAsync(int receptionistId)
@@ -60,12 +59,10 @@ namespace Clinic_Management_System.Repositories
                 .AnyAsync(a => a.ReceptionistId == receptionistId && a.Date == date);
         }
 
-        public async Task AddAttendanceAndRemoveShiftAsync(ReceptionistAttendance attendance, ReceptionistCurrentShift shift)
+        public void AddAttendanceAndRemoveShift(ReceptionistAttendance attendance, ReceptionistCurrentShift shift)
         {
             _context.ReceptionistAttendance.Add(attendance);
             _context.ReceptionistCurrentShifts.Remove(shift);
-
-            await _context.SaveChangesAsync();
         }
 
         public async Task<List<ReceptionistAttendance>> GetAttendanceHistoryAsync(int? receptionistId)

@@ -45,7 +45,6 @@ namespace Clinic_Management_System.Repositories
         public void AddAttendance(InternDoctorAttendance attendance)
         {
             _context.InternDoctorAttendances.Add(attendance);
-            _context.SaveChanges();
         }
 
         public InternDoctor? GetInternDoctorWithAttendances(int id)
@@ -59,11 +58,6 @@ namespace Clinic_Management_System.Repositories
         {
             return _context.InternDoctorAttendances
                 .FirstOrDefault(a => a.InternDoctorId == doctorId && a.Date >= today && a.Date < tomorrow);
-        }
-
-        public void SaveChanges()
-        {
-            _context.SaveChanges();
         }
     }
 }

@@ -7,10 +7,10 @@ namespace Clinic_Management_System.Repositories
     {
         Task<System.Collections.Generic.List<Organization>> GetOrganizationsAsync();
         Task<Organization?> GetOrganizationDetailsAsync(int? id);
-        Task AddOrganizationAsync(Organization organization);
+        void AddOrganization(Organization organization);
         Task<Organization?> FindOrganizationAsync(int id);
-        Task UpdateOrganizationAsync(Organization organization);
-        Task RemoveOrganizationAsync(Organization organization);
+        void UpdateOrganization(Organization organization);
+        void RemoveOrganization(Organization organization);
         bool OrganizationExists(int id);
         Task<Organization?> GetOrganizationForDeleteAsync(int? id);
     }

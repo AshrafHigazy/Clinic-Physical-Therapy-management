@@ -30,10 +30,9 @@ namespace Clinic_Management_System.Repositories
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public async Task AddOrganizationAsync(Organization organization)
+        public void AddOrganization(Organization organization)
         {
             _context.Add(organization);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<Organization?> FindOrganizationAsync(int id)
@@ -41,16 +40,14 @@ namespace Clinic_Management_System.Repositories
             return await _context.Organizations.FindAsync(id);
         }
 
-        public async Task UpdateOrganizationAsync(Organization organization)
+        public void UpdateOrganization(Organization organization)
         {
             _context.Update(organization);
-            await _context.SaveChangesAsync();
         }
 
-        public async Task RemoveOrganizationAsync(Organization organization)
+        public void RemoveOrganization(Organization organization)
         {
             _context.Organizations.Remove(organization);
-            await _context.SaveChangesAsync();
         }
 
         public bool OrganizationExists(int id)

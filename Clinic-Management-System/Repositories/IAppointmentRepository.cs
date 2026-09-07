@@ -10,10 +10,10 @@ namespace Clinic_Management_System.Repositories
         Task<Receptionist?> FindReceptionistAsync(int id);
         Task<bool> PatientHasOverlappingAppointmentAsync(int patientId, System.DateTime startTime, System.DateTime endTime);
         Task<int> CountOverlappingAppointmentsAsync(System.DateTime startTime, System.DateTime endTime);
-        Task AddAppointmentAsync(Appointment appointment);
+        void AddAppointment(Appointment appointment);
         Task<Appointment?> GetAppointmentDetailsAsync(int id);
         Task<Appointment?> FindAppointmentAsync(int id);
-        Task UpdateAppointmentAsync(Appointment appointment);
-        Task RemoveAppointmentAsync(Appointment appointment);
+        void UpdateAppointment(Appointment appointment);
+        void RemoveAppointment(Appointment appointment);
     }
 }

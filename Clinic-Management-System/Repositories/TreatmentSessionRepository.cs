@@ -33,11 +33,6 @@ namespace Clinic_Management_System.Repositories
             _context.treatmentSessions.Add(session);
         }
 
-        public async Task SaveChangesAsync()
-        {
-            await _context.SaveChangesAsync();
-        }
-
         public async Task<TreatmentSession?> GetSessionByIdAsync(int id)
         {
             return await _context.treatmentSessions
@@ -49,10 +44,9 @@ namespace Clinic_Management_System.Repositories
             return await _context.treatmentSessions.FindAsync(id);
         }
 
-        public async Task UpdateSessionAsync(TreatmentSession session)
+        public void UpdateSession(TreatmentSession session)
         {
             _context.treatmentSessions.Update(session);
-            await _context.SaveChangesAsync();
         }
 
         public async Task<TreatmentSession?> GetSessionWithPackageAsync(int id)
@@ -75,11 +69,6 @@ namespace Clinic_Management_System.Repositories
         public void RemoveSession(TreatmentSession session)
         {
             _context.treatmentSessions.Remove(session);
-        }
-
-        public async Task SaveChangesForDeleteAsync()
-        {
-            await _context.SaveChangesAsync();
         }
     }
 }
