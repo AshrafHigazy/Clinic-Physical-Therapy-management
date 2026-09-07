@@ -13,17 +13,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - مركز ابو عجيزة</title>
 
-    <!-- Bootstrap & Libs -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
 
-    <!-- jQuery & Bootstrap JS -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- FullCalendar -->
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
@@ -49,7 +46,6 @@
             overflow-x: hidden;
         }
 
-        /* Sidebar */
         .sidebar {
             width: 210px;
             background: var(--gradient);
@@ -163,7 +159,6 @@
             transform: rotate(-90deg);
         }
 
-        /* Topbar */
         .topbar {
             background: #ffffff;
             height: 65px;
@@ -205,7 +200,6 @@
             cursor: pointer;
         }
 
-        /* Main content */
         .main-content {
             flex-grow: 1;
             margin-right: 250px;
@@ -248,7 +242,6 @@
             }
         }
 
-        /************** 🔵 إضافة شاشة التحميل الجديدة **************/
         .startup-screen {
             position: fixed;
             top: 0;
@@ -306,14 +299,12 @@
 
 <body>
 
-    <!-- 🔵 شاشة التحميل الجديدة -->
     <div id="startup-screen" class="startup-screen">
         <div class="startup-content">
             <img src="~/images/logo4.png" alt="Loading..." />
         </div>
     </div>
 
-    <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <a asp-controller="Home" asp-action="Index">
@@ -323,7 +314,6 @@
 
         <div class="nav flex-column">
 
-            <!-- المرضى -->
             <a class="nav-link" data-bs-toggle="collapse" href="#patientsMenu" role="button">
                 المرضى <span class="arrow bi bi-chevron-left"></span>
             </a>
@@ -332,13 +322,10 @@
                 <a class="nav-link" asp-controller="Patient" asp-action="Create">إضافة مريض جديد</a>
             </div>
 
-            <!-- الفحوصات -->
             <a class="nav-link" asp-controller="Checks" asp-action="Index"> الفحوصات</a>
 
-            <!-- الباقات -->
             <a class="nav-link" asp-controller="Packages" asp-action="Index">الباقات</a>
 
-            <!-- الأطباء المتدربين -->
             <a class="nav-link" data-bs-toggle="collapse" href="#InternDoctorsMenu" role="button">
                 الأطباء المتدربين <span class="arrow bi bi-chevron-left"></span>
             </a>
@@ -347,7 +334,6 @@
                 <a class="nav-link" asp-controller="InternDoctors" asp-action="Create">إضافة طبيب</a>
             </div>
 
-            <!-- شركات التأمين -->
             <a class="nav-link" data-bs-toggle="collapse" href="#insuranceMenu" role="button">
                 شركات التأمين <span class="arrow bi bi-chevron-left"></span>
             </a>
@@ -356,7 +342,6 @@
                 <a class="nav-link" asp-controller="Organizations" asp-action="Create">إضافة شركة</a>
             </div>
 
-            <!-- موظفي الاستقبال -->
             <a class="nav-link" data-bs-toggle="collapse" href="#receptionMenu" role="button">
                 موظفي الاستقبال <span class="arrow bi bi-chevron-left"></span>
             </a>
@@ -365,7 +350,6 @@
                 <a class="nav-link" asp-controller="ReceptionistAttendances" asp-action="StartShift">تسجيل الحضور</a>
             </div>
 
-            <!-- Dashboard: تظهر للدكتور فقط -->
             @if (User.IsInRole("AdminDoctor"))
             {
                 <a class="nav-link" asp-controller="Dashboard" asp-action="Index"><i class="bi bi-speedometer2 me-1"></i> لوحة التحكم</a>
@@ -373,7 +357,7 @@
 
         </div>
     </nav>
-    <!-- Topbar -->
+
     <header class="topbar d-flex align-items-center justify-content-between">
         <i class="bi bi-list toggle-btn" id="toggleSidebar"></i>
 
@@ -388,7 +372,6 @@
                     <li><a class="dropdown-item" asp-area="Identity" asp-page="/Account/Manage/Index">الملف الشخصي</a></li>
                     <li><hr class="dropdown-divider" /></li>
 
-                    <!-- زر تسجيل الخروج الحقيقي -->
                     <li>
                         <form method="post" asp-controller="Account" asp-action="Logout">
                             <button type="submit" class="dropdown-item text-danger">
@@ -408,7 +391,6 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="main-content">
         @RenderBody()
         <footer>
@@ -417,12 +399,11 @@
     </main>
 
     <script>
-        // Sidebar toggle for mobile
+
         document.getElementById('toggleSidebar').addEventListener('click', function () {
             document.getElementById('sidebar').classList.toggle('active');
         });
 
-        // Close other collapses when opening one
         document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(function (trigger) {
             trigger.addEventListener('click', function () {
                 const target = document.querySelector(this.getAttribute('href'));
@@ -437,7 +418,6 @@
         });
     </script>
 
-    <!-- 🔵 سكربت إخفاء شاشة التحميل -->
     <script>
         window.onload = function () {
 

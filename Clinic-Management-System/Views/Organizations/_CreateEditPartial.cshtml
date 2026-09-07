@@ -17,21 +17,18 @@
          بيانات الشركة
     </h5>
 
-    <!-- ✅ اسم الشركة -->
     <div class="mb-3">
         <label asp-for="Name" class="form-label fw-semibold">اسم الشركة</label>
         <input asp-for="Name" class="form-control input-modern" placeholder="اكتب اسم الشركة" />
         <span asp-validation-for="Name" class="text-danger small"></span>
     </div>
 
-    <!-- ✅ تاريخ التعاقد -->
     <div class="mb-3">
         <label asp-for="CreateAt" class="form-label fw-semibold">تاريخ التعاقد</label>
         <input asp-for="CreateAt" type="date" class="form-control input-modern" />
         <span asp-validation-for="CreateAt" class="text-danger small"></span>
     </div>
 
-    <!-- ✅ نوع التعاقد -->
     <div class="mb-3">
         <label asp-for="TyppeOfContract" class="form-label fw-semibold">نوع التعاقد</label>
         <select asp-for="TyppeOfContract" class="form-select select2 input-modern" multiple="multiple"
@@ -44,7 +41,6 @@
         <span asp-validation-for="TyppeOfContract" class="text-danger small"></span>
     </div>
 
-    <!-- ✅ حالة الشركة -->
     <div class="mb-3">
         <label class="form-label fw-semibold d-block">هل الشركة متعاقدة حالياً؟</label>
         <div class="btn-group d-flex" role="group" aria-label="حالة الشركة">
@@ -60,12 +56,11 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
-    <!-- ✅ مكتبة Select2 -->
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <style>
-        /* 🎨 النمط العام */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -90,7 +85,6 @@
                 box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
             }
 
-        /* 🎯 Select2 تحسين الشكل */
         .select2-container--default .select2-selection--multiple {
             min-height: 45px;
             padding: 6px 10px;

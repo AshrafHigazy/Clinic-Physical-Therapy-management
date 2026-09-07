@@ -43,7 +43,6 @@ namespace Clinic_Management_System.Controllers
             if (receptionistId == 0)
                 return BadRequest();
 
-            // تحقق هل الموظف بدأ عمله بالفعل ولم ينتهِ
             var existingShift = await _context.ReceptionistCurrentShifts
                 .FirstOrDefaultAsync(c => c.ReceptionistId == receptionistId);
             if (existingShift != null)
@@ -53,7 +52,6 @@ namespace Clinic_Management_System.Controllers
                 return RedirectToAction(nameof(StartShift));
             }
 
-            // تحقق هل الموظف أنهى عمله اليوم بالفعل
             var today = DateTime.Today;
             var attendanceToday = await _context.ReceptionistAttendance
                 .FirstOrDefaultAsync(a => a.ReceptionistId == receptionistId && a.Date == today);
@@ -94,7 +92,6 @@ namespace Clinic_Management_System.Controllers
                 return RedirectToAction(nameof(StartShift));
             }
 
-            // تحقق لو أنهى العمل اليوم بالفعل
             var today = DateTime.Today;
             var alreadyEnded = await _context.ReceptionistAttendance
                 .AnyAsync(a => a.ReceptionistId == receptionistId && a.Date == today);

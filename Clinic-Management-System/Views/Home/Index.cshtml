@@ -2,16 +2,14 @@
     ViewData["Title"] = "الصفحة الرئيسية";
 }
 
-<!-- Bootstrap modal لعرض تفاصيل الموعد -->
 <div class="modal fade" id="appointmentDetailsModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md">
         <div class="modal-content" id="appointmentDetailsContent">
-            <!-- content يملأه AJAX -->
+
         </div>
     </div>
 </div>
 
-<!-- modal تأكيد إضافة حجز جديد -->
 <div class="modal fade" id="confirmAddModal" tabindex="-1">
     <div class="modal-dialog modal-sm">
         <div class="modal-content">
@@ -35,11 +33,11 @@
 </div>
 
 @section Scripts {
-    <!-- jQuery -->
+
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <!-- Bootstrap JS -->
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- FullCalendar -->
+
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 
     <script>
@@ -69,14 +67,11 @@
                 selectable: true,
                 nowIndicator: true,
 
-                // ✅ 1. إعدادات منع التداخل والسماح بالتكديس (Stacking)
                 eventOverlap: false,
                 slotEventOverlap: false,
 
-                // جلب الأحداث من السيرفر
                 events: '/Appointment/GetAppointments',
 
-                // عند الضغط على اليوم
                 dateClick: function (info) {
                     var dateOnly = info.dateStr.split('T')[0];
                     var modalEl = document.getElementById('confirmAddModal');
@@ -88,16 +83,14 @@
                     };
                 },
 
-        // شكل الحجز
         eventContent: function (info) {
             var isAttended = info.event.extendedProps.isAttended;
             var isCanceled = info.event.extendedProps.isCanceled;
             var desc = info.event.extendedProps.description || '';
 
-            // لون اسم المريض والوقت
-            var color = "#0077B6"; // أزرق افتراضي
-            if (isAttended === true) color = "#28a745"; // أخضر
-            if (isCanceled === true) color = "#dc3545"; // أحمر
+            var color = "#0077B6";
+            if (isAttended === true) color = "#28a745";
+            if (isCanceled === true) color = "#dc3545";
 
             var startTime = new Date(info.event.start);
             var timeStr = startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -139,7 +132,7 @@
             };
 
             if (isAttended === true || isCanceled === true) {
-                // تلوين كلمة حضر / غاب داخل الوصف أيضاً
+
                 var coloredDesc = desc
                     .replace("حضر", "<span style='color:#28a745; font-weight:bold;'>حضر</span>")
                     .replace("غاب", "<span style='color:#dc3545; font-weight:bold;'>غاب</span>");
@@ -158,8 +151,6 @@
             return { domNodes: [container] };
         },
 
-
-                // عند الضغط على الحجز
                 eventClick: function (info) {
                     info.jsEvent.preventDefault();
                     var id = info.event.id;
@@ -175,7 +166,7 @@
             });
 
             window.calendar.render();
-                    // تفعيل الضغط على عمود الساعات الجانبي
+
         setTimeout(() => {
 
             document.querySelectorAll(".fc-timegrid-slot-label").forEach(label => {
@@ -184,10 +175,9 @@
 
                 label.addEventListener("click", () => {
 
-                    const time = label.getAttribute("data-time");   // مثال: "14:00"
+                    const time = label.getAttribute("data-time");
 
-                    // تحويل الوقت إلى تاريخ اليوم الظاهر في التقويم
-                    const currentDate = window.calendar.getDate();  // يوم معروض
+                    const currentDate = window.calendar.getDate();
 
                     const year = currentDate.getFullYear();
                     const month = currentDate.getMonth() + 1;
@@ -195,7 +185,6 @@
 
                     const fullDate = `${year}-${month}-${day}T${time}`;
 
-                    // فتح صفحة الاختيار (نفس اللي بيحصل عند dateClick)
                     window.location.href = '/Patient/GetAll?date=' + fullDate.split("T")[0] + '&time=' + time;
                 });
             });
@@ -204,7 +193,6 @@
 
         });
 
-        // AJAX: تحديث الحالة حضر/غاب
         function updateStatus(id, attended, canceled) {
             $.ajax({
                 url: '/Appointment/UpdateStatus',
@@ -219,7 +207,6 @@
             });
         }
 
-        // AJAX: إلغاء الموعد
         function cancelAppointment(id) {
             if (!confirm('هل تريد تأكيد إلغاء هذا الموعد؟')) return;
             $.ajax({
@@ -238,7 +225,6 @@
             });
         }
 
-        // AJAX: حذف نهائي
         function deleteAppointment(id) {
             if (!confirm('هل تريد حذف الموعد نهائياً؟')) return;
             $.ajax({
@@ -259,7 +245,7 @@
     </script>
 
     <style>
-        /* تصميم التقويم لصفحة Dashboard */
+
         .calendar-container {
             background: #fff;
             border-radius: 20px;
@@ -344,7 +330,6 @@
             z-index: 19900 !important;
         }
 
-        /* إخفاء الأزرار داخل عرض الأسبوع */
         .fc-timeGridWeek-view .btn-success,
         .fc-timeGridWeek-view .btn-danger {
             display: none !important;
@@ -353,7 +338,6 @@
         .fc-event {
             font-weight: bold;
         }
-
 
     </style>
     }

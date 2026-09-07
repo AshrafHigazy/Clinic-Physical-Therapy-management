@@ -56,17 +56,14 @@
     <script>
         $(document).ready(function () {
 
-            // زر الحضور
             $('#btnAttend').click(function () {
                 updateStatus(@Model.Id, true, false);
             });
 
-            // زر الغياب
             $('#btnAbsent').click(function () {
                 updateStatus(@Model.Id, false, true);
             });
 
-            // زر حذف الحجز نهائياً
             $('#btnDelete').click(function () {
                 if (!confirm("هل أنت متأكد من حذف هذا الحجز نهائياً؟")) return;
 
@@ -75,7 +72,6 @@
 
         });
 
-        // تحديث حالة الحضور والغياب
         function updateStatus(id, isAttended, isCanceled) {
             $.ajax({
                 url: '/Appointment/UpdateStatus',
@@ -91,7 +87,6 @@
             });
         }
 
-        // حذف الموعد نهائياً
         function deleteAppointment(id) {
             $.ajax({
                 url: '/Appointment/Delete',
@@ -109,7 +104,7 @@
     </script>
 
     <style>
-        /* 🌟 الكارد المودرن الموحد */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -119,7 +114,6 @@
             animation: fadeIn 0.4s ease;
         }
 
-        /* 🧾 تفاصيل الموعد */
         .details-grid label {
             font-weight: 700;
             color: #0077B6;
@@ -135,7 +129,6 @@
             color: #1B3A4B;
         }
 
-        /* 🎯 أزرار الحركة */
         .btn-appointment-action {
             min-width: 140px;
             font-weight: 600;

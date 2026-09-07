@@ -8,7 +8,6 @@
 <form asp-action="Create" method="post">
     <input type="hidden" asp-for="PatientId" id="PatientId" />
 
-    <!-- 🔹 Patient Search -->
     <div class="mb-3">
         <label class="form-label fw-bold">👤 المريض</label>
         @if (ViewBag.PatientId != null)
@@ -23,7 +22,6 @@
         <span asp-validation-for="PatientId" class="text-danger"></span>
     </div>
 
-    <!-- 🔹 Doctor (with search) -->
     <div class="mb-3">
         <label class="form-label fw-bold">🩺 الطبيب المشرف</label>
         <input type="text" id="doctorSearch" class="form-control" placeholder="ابحث عن الطبيب..." autocomplete="off" />
@@ -32,7 +30,6 @@
         <span asp-validation-for="InternDoctorId" class="text-danger"></span>
     </div>
 
-    <!-- 🔹 Organization -->
     <div class="mb-3">
         <label asp-for="OrganizationId" class="form-label fw-bold">🏢 المؤسسة</label>
         <select asp-for="OrganizationId" class="form-select" asp-items="@(new SelectList(ViewBag.Organizations, "OrganizationId", "Name"))">
@@ -41,7 +38,6 @@
         <span asp-validation-for="OrganizationId" class="text-danger"></span>
     </div>
 
-    <!-- 🔹 Check -->
     <div class="mb-3">
         <label asp-for="CheckId" class="form-label fw-bold">🩻 الفحص الطبي</label>
         <select asp-for="CheckId" class="form-select" asp-items="@(new SelectList(ViewBag.Checks, "CheckId", "ClinicAssessment"))">
@@ -50,14 +46,11 @@
         <span asp-validation-for="CheckId" class="text-danger"></span>
     </div>
 
-    <!-- 🔹 Package Info -->
     <div class="mb-3">
         <label asp-for="NumOfSessions" class="form-label fw-bold">📅 عدد الجلسات</label>
         <input asp-for="NumOfSessions" class="form-control" />
         <span asp-validation-for="NumOfSessions" class="text-danger"></span>
     </div>
-
-
 
     <button type="submit" class="btn btn-success mt-3">💾 حفظ الباكدج</button>
 </form>
@@ -66,7 +59,7 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        // 🔎 Doctor Search
+
         $("#doctorSearch").on("input", function () {
             let term = $(this).val();
             if (term.length < 2) {
@@ -88,7 +81,6 @@
             $("#doctorResults").hide();
         });
 
-        // 🔎 Patient Search
         $("#patientSearch").on("input", function () {
             let term = $(this).val();
             if (term.length < 2) {
@@ -110,7 +102,6 @@
             $("#patientResults").hide();
         });
 
-        // إخفاء القايمه لما تخرج من الفوكس
         $(document).click(function (e) {
             if (!$(e.target).closest('#doctorSearch, #doctorResults').length) $("#doctorResults").hide();
             if (!$(e.target).closest('#patientSearch, #patientResults').length) $("#patientResults").hide();

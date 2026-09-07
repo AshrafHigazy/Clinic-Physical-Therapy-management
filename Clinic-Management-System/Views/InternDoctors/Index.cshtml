@@ -6,10 +6,8 @@
 
 <div class="container py-4">
 
-    <!-- 🔷 الكارد -->
     <div class="card card-modern">
 
-        <!-- العنوان + الأزرار -->
         <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
             <h3 class="text-primary fw-bold m-0">
                 <i class="bi bi-people-fill"></i> قائمة الأطباء المتدربين
@@ -28,7 +26,6 @@
             </div>
         </div>
 
-        <!-- رسالة الإشعار -->
         @if (TempData["Message"] != null)
         {
             <div class="alert alert-info text-center fw-bold mb-3 rounded-3 shadow-sm">
@@ -36,7 +33,6 @@
             </div>
         }
 
-        <!-- 🔍 البحث -->
         <form method="get" class="mb-4">
             <div class="input-group">
                 <input type="text"
@@ -51,7 +47,6 @@
             </div>
         </form>
 
-        <!-- 🔷 الجدول -->
         <div class="table-responsive">
             <table class="table table-modern table-hover text-center align-middle">
                 <thead>
@@ -86,28 +81,24 @@
                             <td>
                                 <div class="d-flex justify-content-center flex-wrap gap-2">
 
-                                    <!-- تفاصيل -->
                                     <a asp-action="GetById"
                                        asp-route-id="@doctor.InternDoctorId"
                                        class="btn btn-outline-info btn-sm rounded-pill">
                                         تفاصيل
                                     </a>
 
-                                    <!-- تعديل -->
                                     <a asp-action="Edit"
                                        asp-route-id="@doctor.InternDoctorId"
                                        class="btn btn-outline-warning btn-sm rounded-pill">
                                         تعديل
                                     </a>
 
-                                    <!-- حذف → يفتح صفحة التأكيد -->
                                     <a asp-action="Delete"
                                        asp-route-id="@doctor.InternDoctorId"
                                        class="btn btn-outline-danger btn-sm rounded-pill">
                                         حذف
                                     </a>
 
-                                    <!-- تفعيل/تعطيل -->
                                     <form asp-action="ToggleActive"
                                           asp-route-id="@doctor.InternDoctorId"
                                           method="post">
@@ -117,10 +108,9 @@
                                         </button>
                                     </form>
 
-                                    <!-- Check In / Check Out -->
                                     @if (doctor.IsActive)
                                     {
-                                        <!-- Check In -->
+
                                         <form asp-controller="InternDoctorAttendance"
                                               asp-action="QuickCheckIn"
                                               method="post">
@@ -131,7 +121,6 @@
                                             </button>
                                         </form>
 
-                                        <!-- Check Out -->
                                         <form asp-controller="InternDoctorAttendance"
                                               asp-action="QuickCheckOut"
                                               method="post">
@@ -154,7 +143,7 @@
 
 @section Scripts {
     <style>
-        /* 🌟 الكارد الأزرق الموحد */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -164,7 +153,6 @@
             animation: fadeIn .4s ease;
         }
 
-        /* 🌟 الجدول الموحد */
         .table-modern {
             border-radius: 12px;
             overflow: hidden;

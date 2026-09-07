@@ -10,7 +10,6 @@
             <i class="bi bi-calendar-check"></i> تسجيل حضور موظفي الاستقبال
         </h3>
 
-        <!-- ✅ رسائل النظام -->
         @if (ViewBag.Message != null)
         {
             <div id="autoHideAlert" class="alert alert-@ViewBag.MessageType text-center fw-bold rounded-3 shadow-sm fade show">
@@ -18,7 +17,6 @@
             </div>
         }
 
-        <!-- ✅ نموذج بدء العمل -->
         <div class="card card-section border-info p-4 mb-4">
             <form id="startShiftForm" asp-action="StartShift" method="post">
                 <div class="row align-items-end">
@@ -41,7 +39,6 @@
             </form>
         </div>
 
-        <!-- ✅ قائمة الموظفين الحاليين -->
         @if (currentShifts != null && currentShifts.Any())
         {
             <div class="card card-section border-success p-4">
@@ -84,7 +81,6 @@
     </div>
 </div>
 
-<!-- ✅ نافذة تأكيد بدء العمل -->
 <div class="modal fade" id="startConfirmModal" tabindex="-1" aria-labelledby="startConfirmLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg border-0 rounded-3">
@@ -103,7 +99,6 @@
     </div>
 </div>
 
-<!-- ✅ نافذة تأكيد إنهاء العمل -->
 <div class="modal fade" id="endConfirmModal" tabindex="-1" aria-labelledby="endConfirmLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content shadow-lg border-0 rounded-3">
@@ -125,7 +120,6 @@
     </div>
 </div>
 
-<!-- ✅ السكريبت -->
 <script>
     function openStartConfirmModal() {
         const select = document.getElementById('receptionistId');
@@ -148,7 +142,6 @@
         new bootstrap.Modal(document.getElementById('endConfirmModal')).show();
     }
 
-    // ✅ إخفاء الرسائل بعد 5 ثوانٍ
     document.addEventListener("DOMContentLoaded", function () {
         const alertBox = document.getElementById("autoHideAlert");
         if (alertBox) {
@@ -162,7 +155,7 @@
 </script>
 
 <style>
-    /* 🌟 تصميم موحّد مع باقي صفحات النظام */
+
     .card-modern {
         background: #fff;
         border: 2px solid #0077B6;

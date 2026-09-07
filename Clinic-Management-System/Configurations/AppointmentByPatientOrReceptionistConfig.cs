@@ -24,12 +24,12 @@ namespace Clinic_Management_System.Configurations
             builder.HasOne(a => a.Patient)
                 .WithMany()
                 .HasForeignKey(a => a.PatientId)
-                .OnDelete(DeleteBehavior.Restrict); // <== يمنع التكرار في المسارات
+                .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasOne(a => a.Receptionist)
                 .WithMany()
                 .HasForeignKey(a => a.ReceptionistId)
-                .OnDelete(DeleteBehavior.Restrict); // <== نفس الشيء هنا
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

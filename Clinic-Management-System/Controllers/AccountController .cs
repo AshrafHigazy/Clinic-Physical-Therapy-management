@@ -15,18 +15,12 @@ namespace Clinic_Management_System.Controllers
             _userManager = userManager;
         }
 
-        // ============================
-        // شاشة تسجيل الدخول
-        // ============================
         [HttpGet]
         public IActionResult Login()
         {
             return View();
         }
 
-        // ============================
-        // تنفيذ تسجيل الدخول
-        // ============================
         [HttpPost]
         public async Task<IActionResult> Login(string email, string password)
         {
@@ -51,22 +45,15 @@ namespace Clinic_Management_System.Controllers
                 return View();
             }
 
-            // ============================
-            // تحويل حسب الدور
-            // ============================
             if (await _userManager.IsInRoleAsync(user, "AdminDoctor"))
-                return RedirectToAction("Index", "Home");  // Dashboard
+                return RedirectToAction("Index", "Home");
 
             if (await _userManager.IsInRoleAsync(user, "Secretary"))
-                return RedirectToAction("GetAll", "Patient"); // صفحة السكرتيرة
+                return RedirectToAction("GetAll", "Patient");
 
-            // لو دور غير معروف
             return RedirectToAction("Index", "Home");
         }
 
-        // ============================
-        // تسجيل الخروج
-        // ============================
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();

@@ -10,7 +10,6 @@ namespace Clinic_Management_System.Models
         public DateTime? CheckOut { get; set; }
         public double? Hours { get; set; }
 
-        // Navigation
         [Required]
         public InternDoctor InternDoctor { get; set; } = null!;
     }

@@ -16,7 +16,6 @@ namespace Clinic_Management_System.Controllers
             _context = context;
         }
 
-        // GET: Create package page
         [HttpGet]
         public IActionResult Create(int patientId)
         {
@@ -32,7 +31,6 @@ namespace Clinic_Management_System.Controllers
             ViewBag.Checks = _context.Checks.Where(c => c.PatientId == patientId).ToList();
             ViewBag.Organizations = _context.Organizations.ToList();
 
-            // ممكن نعرض رسالة info بس بدون Redirect
             var packages = patient.Packages.ToList();
             if (!packages.Any())
             {
@@ -44,7 +42,7 @@ namespace Clinic_Management_System.Controllers
                 TempData["Info"] = $"المريض لديه {totalRemaining} جلسات متبقية.";
             }
 
-            return View(); // مهم ترجع View() هنا بدون Redirect
+            return View();
         }
 
         [HttpGet]
@@ -62,15 +60,13 @@ namespace Clinic_Management_System.Controllers
             return Json(doctors);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(int patientId, Package package)
         {
-            // force patient id
+
             package.PatientId = patientId;
 
-            // SessionsCount must start at 0 for new package
             package.SessionsCount = 0;
             package.StartDate = DateTime.Now;
             package.EndDate = null;
@@ -86,7 +82,6 @@ namespace Clinic_Management_System.Controllers
                 return View(package);
             }
 
-            // Extra business validations (NumOfSessions must be >=1 handled by annotation).
             if (package.NumOfSessions <= 0)
             {
                 ModelState.AddModelError(nameof(package.NumOfSessions), "عدد الجلسات يجب أن يكون أكبر من صفر.");
@@ -99,21 +94,18 @@ namespace Clinic_Management_System.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "تمت إضافة الباقة بنجاح.";
-            // بعد الإضافة نرجع لصفحة المريض (مش قايمة الباقات)
+
             return RedirectToAction("GetAll", "Patient");
         }
 
-        // GET: Edit
         public async Task<IActionResult> Edit(int id)
         {
             var package = await _context.Packages
            .Include(p => p.Patient)
-           .Include(p => p.Organization)   
+           .Include(p => p.Organization)
            .FirstOrDefaultAsync(p => p.Id == id);
 
             if (package == null) return NotFound();
-           
-
 
             ViewBag.Doctors = _context.InternDoctors.Where(d => d.IsActive).ToList();
             ViewBag.Organizations = _context.Organizations.ToList();
@@ -122,7 +114,6 @@ namespace Clinic_Management_System.Controllers
             return View(package);
         }
 
-        // POST: Edit
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, Package package)
@@ -132,16 +123,13 @@ namespace Clinic_Management_System.Controllers
             var existing = await _context.Packages.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
             if (existing == null) return NotFound();
 
-            // نضمن عدم تغيير PatientId
             package.PatientId = existing.PatientId;
 
-            // Validation: NumOfSessions must be >= 1
             if (package.NumOfSessions <= 0)
             {
                 ModelState.AddModelError(nameof(package.NumOfSessions), "عدد الجلسات يجب أن يكون أكبر من صفر.");
             }
 
-            // Validation: cannot set total less than already used sessions
             if (package.NumOfSessions < existing.SessionsCount)
             {
                 ModelState.AddModelError(nameof(package.NumOfSessions),
@@ -156,14 +144,11 @@ namespace Clinic_Management_System.Controllers
                 return View(package);
             }
 
-            // نحافظ على SessionsCount (UsedSessions) من النسخة السابقة
             package.SessionsCount = existing.SessionsCount;
 
-            // إعادة الحالة للنشيط دائماً بعد التعديل (حسب طلبك)
             package.Status = "Active";
             package.EndDate = null;
 
-            // لو الجلسات المستخدمة تساوي أو أكتر من الكلي (عادة مش هتحصل لأن سبقنا الفحص)
             if (package.SessionsCount >= package.NumOfSessions)
             {
                 package.SessionsCount = package.NumOfSessions;
@@ -177,7 +162,7 @@ namespace Clinic_Management_System.Controllers
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = "تم تعديل الباقة بنجاح.";
-                // بعد التعديل نرجع لصفحة المريض
+
                 return RedirectToAction("GetAll", "Patient");
             }
             catch (Exception ex)
@@ -190,7 +175,6 @@ namespace Clinic_Management_System.Controllers
             }
         }
 
-        // Details
         public async Task<IActionResult> Details(int id)
         {
             var package = await _context.Packages
@@ -198,7 +182,7 @@ namespace Clinic_Management_System.Controllers
                 .Include(p => p.Patient)
                 .Include(p => p.InternDoctor)
                 .Include(p => p.Check)
-                .Include(p => p.Organization)   
+                .Include(p => p.Organization)
                 .Include(p => p.TreatmentSessions)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -210,8 +194,6 @@ namespace Clinic_Management_System.Controllers
             return View(package);
         }
 
-
-        // Index - (قائمة عامة إن احتجت)
         public async Task<IActionResult> Index()
         {
             var packages = await _context.Packages
@@ -229,7 +211,6 @@ namespace Clinic_Management_System.Controllers
             return View(packages);
         }
 
-        // Packages by Patient (عرض باقات المريض) — صفحة المريض نفسها ممكن تستخدم هذا الجزء
         public async Task<IActionResult> PatientPackages(int patientId)
         {
             var packages = await _context.Packages

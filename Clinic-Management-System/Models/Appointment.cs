@@ -13,7 +13,6 @@ namespace Clinic_Management_System.Models
         [ForeignKey(nameof(Patient))]
         public int PatientId { get; set; }
 
-
         [Required]
         [ForeignKey(nameof(Receptionist))]
         public int ReceptionistId { get; set; }
@@ -23,13 +22,11 @@ namespace Clinic_Management_System.Models
         [Required]
         public DateTime EndTime { get; set; }
 
-        public bool IsAttended { get; set; } = false;  // حضر
-        public bool IsCanceled { get; set; } = false;  // غاب
+        public bool IsAttended { get; set; } = false;
+        public bool IsCanceled { get; set; } = false;
 
         public bool IsWithMainDoctor { get; set; }
 
-
-        // 🔹 Navigation Properties
         [Required]
         public Patient Patient { get; set; } = null!;
         [Required]

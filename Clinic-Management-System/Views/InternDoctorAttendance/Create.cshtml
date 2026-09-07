@@ -9,7 +9,6 @@
 <div class="container py-4">
     <div class="card card-modern">
 
-        <!-- 🔷 العنوان -->
         <h3 class="text-center text-primary fw-bold mb-4">
             <i class="bi bi-person-check-fill"></i> تسجيل حضور الطبيب المتدرب
         </h3>
@@ -18,7 +17,6 @@
 
             <div asp-validation-summary="All" class="text-danger mb-3"></div>
 
-            <!-- 🔹 اختيار الدكتور -->
             <div class="mb-3">
                 <label class="form-label fw-semibold text-primary">اسم الطبيب</label>
                 <select asp-for="InternDoctorId" class="form-select border-2 rounded-3" required>
@@ -34,7 +32,6 @@
                 <span asp-validation-for="InternDoctorId" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 تاريخ الحضور -->
             <div class="mb-3">
                 <label asp-for="Date" class="form-label fw-semibold text-primary">التاريخ</label>
                 <input asp-for="Date" type="date" class="form-control border-2 rounded-3"
@@ -42,21 +39,18 @@
                 <span asp-validation-for="Date" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 وقت الدخول -->
             <div class="mb-3">
                 <label asp-for="CheckIn" class="form-label fw-semibold text-primary">وقت الدخول</label>
                 <input asp-for="CheckIn" type="time" class="form-control border-2 rounded-3" required />
                 <span asp-validation-for="CheckIn" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 وقت الخروج -->
             <div class="mb-3">
                 <label asp-for="CheckOut" class="form-label fw-semibold text-primary">وقت الخروج</label>
                 <input asp-for="CheckOut" type="time" class="form-control border-2 rounded-3" />
                 <span asp-validation-for="CheckOut" class="text-danger small"></span>
             </div>
 
-            <!-- 🔘 الأزرار -->
             <div class="text-center mt-4">
                 <button type="submit" class="btn btn-success px-4 rounded-pill">
                     <i class="bi bi-check-circle"></i> حفظ
@@ -75,7 +69,7 @@
     <partial name="_ValidationScriptsPartial" />
 
     <style>
-        /* 🌟 الكارد الموحد */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;

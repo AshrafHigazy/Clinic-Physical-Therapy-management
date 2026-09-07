@@ -7,7 +7,6 @@
 <div class="container py-4">
     <div class="card card-modern">
 
-        <!-- 🔷 العنوان -->
         <h3 class="text-center text-primary fw-bold mb-4">
             <i class="bi bi-person-plus-fill"></i> إضافة طبيب متدرب جديد
         </h3>
@@ -15,7 +14,6 @@
         <form asp-action="Create" method="post" class="row g-3 w-75 mx-auto">
             @Html.AntiForgeryToken()
 
-            <!-- 🔹 الاسم الكامل -->
             <div class="col-md-6">
                 <label asp-for="FullName" class="form-label fw-semibold text-primary">الاسم الكامل</label>
                 <input asp-for="FullName" class="form-control border-2 rounded-3"
@@ -23,7 +21,6 @@
                 <span asp-validation-for="FullName" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 رقم الهاتف -->
             <div class="col-md-6">
                 <label asp-for="Phone" class="form-label fw-semibold text-primary">رقم الهاتف</label>
                 <input asp-for="Phone" class="form-control border-2 rounded-3"
@@ -31,7 +28,6 @@
                 <span asp-validation-for="Phone" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 الملاحظات -->
             <div class="col-md-12">
                 <label asp-for="Notes" class="form-label fw-semibold text-primary">ملاحظات</label>
                 <textarea asp-for="Notes" class="form-control border-2 rounded-3" rows="3"
@@ -39,7 +35,6 @@
                 <span asp-validation-for="Notes" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 الحالة -->
             <div class="col-md-6">
                 <div class="form-check mt-4 ms-2">
                     <input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
@@ -47,7 +42,6 @@
                 </div>
             </div>
 
-            <!-- 🔘 الأزرار -->
             <div class="col-12 mt-4 text-center">
                 <button type="submit" class="btn btn-success px-4 rounded-pill">
                     <i class="bi bi-check-circle"></i> حفظ الطبيب
@@ -66,7 +60,6 @@
 
     <style>
 
-        /* 🌟 الكارد الموحد */
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -76,7 +69,6 @@
             animation: fadeIn .4s ease;
         }
 
-        /* 🌟 تنسيق الحقول */
         .form-label {
             color: #0077B6;
             font-weight: 600;
@@ -93,7 +85,6 @@
                 box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
             }
 
-        /* 🌟 زر الحفظ */
         .btn-success {
             background-color: #06d6a0;
             border-color: #06d6a0;

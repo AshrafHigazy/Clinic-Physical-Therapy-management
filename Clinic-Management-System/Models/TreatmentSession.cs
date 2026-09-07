@@ -9,7 +9,6 @@ namespace Clinic_Management_System.Models
 
         public DateTime SessionDate { get; set; }
 
-        // Prognosis for this session only
         public string Prognosis { get; set; } = null!;
 
         public Package Package { get; set; } = null!;

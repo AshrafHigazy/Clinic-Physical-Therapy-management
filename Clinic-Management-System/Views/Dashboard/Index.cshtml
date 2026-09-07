@@ -15,11 +15,10 @@
     var todayAppts = (List<Appointment>)ViewBag.TodayAppointmentsList;
 }
 
-<!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-    /* ============ DASHBOARD PREMIUM DESIGN ============ */
+
     :root {
         --d-teal: #00B4D8;
         --d-teal-dark: #0077B6;
@@ -38,7 +37,6 @@
         padding: 1.5rem 1.5rem 3rem;
     }
 
-    /* === Section Title === */
     .sec-title {
         font-weight: 800;
         font-size: 1.2rem;
@@ -54,7 +52,6 @@
         color: var(--d-teal);
     }
 
-    /* ============ SECTION 1: Summary Cards ============ */
     .stat-card {
         border-radius: 14px;
         padding: 1.25rem 1rem;
@@ -92,7 +89,6 @@
         opacity: 0.92;
     }
 
-    /* gradient backgrounds */
     .bg-grad-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
     .bg-grad-green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
     .bg-grad-teal { background: linear-gradient(135deg, #00B4D8, #0096c7); }
@@ -100,7 +96,6 @@
     .bg-grad-orange { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); }
     .bg-grad-purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
 
-    /* ============ SECTION 2: Today Earnings ============ */
     .today-header {
         display: flex;
         align-items: center;
@@ -154,7 +149,6 @@
         margin-top: 0.35rem;
     }
 
-    /* ============ TABLE STYLES ============ */
     .dash-table-card {
         background: #fff;
         border-radius: 14px;
@@ -176,7 +170,6 @@
 
     .dash-table-card .table-title i { color: var(--d-teal); }
 
-    /* Teal header table */
     .tbl-dash {
         width: 100%;
         border-collapse: collapse;
@@ -213,11 +206,10 @@
         border-bottom: none;
     }
 
-    /* total row */
     .total-row {
         background: linear-gradient(90deg, #e3f2fd, #bbdefb) !important;
     }
-    
+
     .total-row td {
         font-weight: 800 !important;
         font-size: 0.95rem !important;
@@ -225,7 +217,6 @@
         border-bottom: none !important;
     }
 
-    /* ============ CHART CARDS ============ */
     .chart-card {
         background: #fff;
         border-radius: 14px;
@@ -246,7 +237,6 @@
 
     .chart-card .chart-title i { color: var(--d-teal); }
 
-    /* ============ REVENUE TABLE ============ */
     .rev-table {
         width: 100%;
         border-collapse: collapse;
@@ -299,7 +289,6 @@
         text-align: center;
     }
 
-    /* ============ OPERATIONS CARDS ============ */
     .ops-card {
         background: #fff;
         border-radius: 14px;
@@ -341,7 +330,6 @@
     .ops-red { border-color: var(--d-red); }
     .ops-blue { border-color: var(--d-blue); }
 
-    /* badges */
     .pkg-badge {
         display: inline-block;
         padding: 3px 10px;
@@ -369,7 +357,6 @@
     .status-canceled { background: #f8d7da; color: #721c24; }
     .status-pending { background: #fff3cd; color: #856404; }
 
-    /* Gender badge */
     .gender-badge {
         display: inline-flex;
         align-items: center;
@@ -383,7 +370,6 @@
     .gender-male { background: #d6eaf8; color: #2471a3; }
     .gender-female { background: #f9ebea; color: #c0392b; }
 
-    /* ============ RESPONSIVE ============ */
     @@media (max-width: 767px) {
         .dash-container { padding: 1rem 0.5rem; }
         .stat-card .stat-num { font-size: 1.5rem; }
@@ -395,7 +381,6 @@
 
 <div class="dash-container">
 
-    <!-- ═══════════════ القسم 1: ملخص سريع ═══════════════ -->
     <div class="sec-title"><i class="bi bi-grid-3x3-gap-fill"></i> ملخص سريع</div>
     <div class="row g-3 mb-4">
         <div class="col-xl-2 col-lg-4 col-md-4 col-6">
@@ -442,14 +427,12 @@
         </div>
     </div>
 
-    <!-- ═══════════════ القسم 2: مكسب اليوم ═══════════════ -->
     <div class="today-header">
         <i class="bi bi-calendar3 fs-5"></i>
         <span>مكسب اليوم —</span>
         <span class="date-badge">@DateTime.Today.ToString("yyyy/MM/dd")</span>
     </div>
 
-    <!-- 4 small cards -->
     <div class="row g-3 mb-4">
         <div class="col-xl-3 col-md-6">
             <div class="today-stat">
@@ -481,9 +464,8 @@
         </div>
     </div>
 
-    <!-- Today's Tables -->
     <div class="row g-3 mb-4">
-        <!-- تفاصيل باقات اليوم -->
+
         <div class="col-lg-7">
             <div class="dash-table-card">
                 <div class="table-title"><i class="bi bi-box-seam"></i> تفاصيل باقات اليوم</div>
@@ -536,7 +518,6 @@
             </div>
         </div>
 
-        <!-- كشوفات اليوم -->
         <div class="col-lg-5">
             <div class="dash-table-card">
                 <div class="table-title"><i class="bi bi-file-earmark-medical"></i> كشوفات اليوم</div>
@@ -576,7 +557,6 @@
         </div>
     </div>
 
-    <!-- ═══════════════ القسم 3: الرسوم البيانية ═══════════════ -->
     <div class="row g-3 mb-4">
         <div class="col-lg-7">
             <div class="chart-card">
@@ -596,7 +576,6 @@
         </div>
     </div>
 
-    <!-- ═══════════════ القسم 4: الإيرادات الشهرية ═══════════════ -->
     <div class="dash-table-card mb-4">
         <div class="table-title fs-5"><i class="bi bi-receipt-cutoff"></i> الإيرادات الشهرية — سنة @currentYear</div>
         <div class="table-responsive">
@@ -660,7 +639,6 @@
         </div>
     </div>
 
-    <!-- ═══════════════ القسم 5: إحصائيات التشغيل ═══════════════ -->
     <div class="sec-title"><i class="bi bi-gear-wide-connected"></i> إحصائيات التشغيل والموارد</div>
     <div class="row g-3 mb-4">
         <div class="col-xl-2 col-lg-4 col-md-4 col-6">
@@ -719,9 +697,8 @@
         </div>
     </div>
 
-    <!-- ═══════════════ القسم 6: جداول عامة ═══════════════ -->
     <div class="row g-3">
-        <!-- أحدث 10 مرضى -->
+
         <div class="col-lg-6">
             <div class="dash-table-card">
                 <div class="table-title"><i class="bi bi-person-plus-fill"></i> أحدث 10 مرضى مسجلين</div>
@@ -768,7 +745,6 @@
             </div>
         </div>
 
-        <!-- مواعيد اليوم -->
         <div class="col-lg-6">
             <div class="dash-table-card">
                 <div class="table-title"><i class="bi bi-calendar-week"></i> مواعيد اليوم</div>
@@ -825,7 +801,7 @@
 
 @section Scripts {
     <script>
-        // ─── Counter Animation ──────
+
         document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.counter').forEach(el => {
                 const target = +el.dataset.target;
@@ -846,7 +822,6 @@
             });
         });
 
-        // ─── Weekly Appointments Bar Chart ──────
         const weeklyData = @Html.Raw(Json.Serialize(ViewBag.WeeklyAppointments));
         new Chart(document.getElementById('weeklyChart'), {
             type: 'bar',
@@ -880,7 +855,6 @@
             }
         });
 
-        // ─── Packages Distribution Doughnut ──────
         const pkgData = @Html.Raw(Json.Serialize(ViewBag.PackageDistribution));
         new Chart(document.getElementById('packagesChart'), {
             type: 'doughnut',

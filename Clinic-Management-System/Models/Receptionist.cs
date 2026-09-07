@@ -37,21 +37,10 @@ namespace Clinic_Management_System.Models
 
         public bool IsActive { get; set; } = true;
 
-        //[Required(ErrorMessage = "Password is required")]
-        //[StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be at least 6 characters")]
-        //[DataType(DataType.Password)]
-        //public string Password { get; set; }
-
-
         [Required(ErrorMessage = "Role is required")]
         [StringLength(50)]
         public string Role { get; set; }
 
-        //[EmailAddress(ErrorMessage = "Invalid email format")]
-        //[StringLength(100)]
-        //public string Email { get; set; }
-
-        // 🔹 Navigation Properties
         public ICollection<ReceptionistAttendance>? Attendances { get; set; }
         public ICollection<Appointment>? Appointments { get; set; }
         [Required]

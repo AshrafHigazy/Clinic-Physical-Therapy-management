@@ -12,7 +12,6 @@
         <form asp-action="Edit" method="post" class="w-75 mx-auto">
             <input type="hidden" asp-for="CheckId" />
 
-            <!-- نفس الـ Partial المستخدم سابقاً -->
             <partial name="_CheckFormPartial" model="Model" />
 
             <div class="text-center mt-4">
@@ -32,7 +31,6 @@
     <partial name="_ValidationScriptsPartial" />
 
     <style>
-        /* 🎨 نفس تنسيق صفحة "تعديل شركة التأمين" بالكامل */
 
         .card-modern {
             background: #fff;

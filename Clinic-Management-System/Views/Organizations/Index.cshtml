@@ -6,7 +6,6 @@
 
 <div class="container py-4">
 
-    <!-- ✅ رسائل التنبيه -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success text-center fw-semibold rounded-3 shadow-sm fade show" id="alertBox">
@@ -26,7 +25,6 @@
         </div>
     }
 
-    <!-- ✅ كارد رئيسي -->
     <div class="card card-modern mt-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="text-primary fw-bold m-0">
@@ -37,7 +35,6 @@
             </a>
         </div>
 
-        <!-- ✅ جدول الشركات -->
         <table class="table table-hover table-modern align-middle text-center">
             <thead class="table-primary text-dark">
                 <tr>
@@ -88,7 +85,7 @@
 
 @section Scripts {
     <script>
-        // ✅ إخفاء الرسائل بعد 5 ثوانٍ
+
         setTimeout(() => {
             const alertBox = document.getElementById("alertBox");
             if (alertBox) {
@@ -102,7 +99,7 @@
     </script>
 
     <style>
-        /* 🎨 النمط المودرن الموحد */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;

@@ -8,14 +8,12 @@
 
     <div class="card card-modern text-center" style="max-width: 650px; margin: auto;">
 
-        <!-- 🔴 العنوان -->
         <h3 class="text-danger fw-bold mb-3">
             <i class="bi bi-trash3"></i> تأكيد حذف الطبيب المتدرب
         </h3>
 
         <h5 class="fw-semibold text-dark mb-4">@Model.FullName</h5>
 
-        <!-- 🔷 تفاصيل الطبيب -->
         <div class="table-responsive mb-4">
             <table class="table table-modern text-center align-middle">
                 <tbody>
@@ -44,7 +42,6 @@
             </table>
         </div>
 
-        <!-- 🔴 فورم الحذف -->
         <form asp-action="Delete"
               asp-route-id="@Model.InternDoctorId"
               method="post"
@@ -63,10 +60,9 @@
     </div>
 </div>
 
-
 @section Scripts {
     <script>
-        // نافذة تأكيد حذف
+
         function confirmDelete(name) {
             return confirm(`⚠ هل أنت متأكد من حذف الطبيب: "${name}"؟\nسيتم إزالة جميع سجلاته نهائيًا.`);
         }
@@ -74,7 +70,6 @@
 
     <style>
 
-        /* 🌟 الكارد الأحمر الموحد */
         .card-modern {
             background: #fff;
             border-radius: 20px;

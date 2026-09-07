@@ -7,7 +7,6 @@
 
 <div class="container py-4">
 
-    <!-- 🔷 العنوان -->
     <div class="card card-modern mb-4 text-center">
         <h3 class="text-primary fw-bold mb-2">
             <i class="bi bi-clipboard-data"></i> تقرير الحضور للطبيب
@@ -15,7 +14,6 @@
         <h4 class="fw-bold">@ViewBag.DoctorName</h4>
     </div>
 
-    <!-- 🔷 ملخص الحضور -->
     <div class="row g-3 mb-4">
 
         <div class="col-md-3">
@@ -47,7 +45,6 @@
         </div>
     </div>
 
-    <!-- 🔷 جدول الحضور -->
     @if (Model != null && Model.Any())
     {
         <div class="card card-modern">
@@ -81,7 +78,6 @@
         </div>
     }
 
-    <!-- 🔘 زر الرجوع -->
     <div class="text-center mt-4">
         <a asp-controller="InternDoctors" asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">
             <i class="bi bi-arrow-return-left"></i> رجوع لقائمة الأطباء
@@ -92,7 +88,6 @@
 @section Scripts {
     <style>
 
-        /* 🌟 الكارد الموحد */
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -102,7 +97,6 @@
             animation: fadeIn 0.4s ease;
         }
 
-        /* 🌟 بطاقات الإحصائيات */
         .stats-card {
             background: #ffffff;
             border: 2px solid #00B4D8;
@@ -122,7 +116,6 @@
                 margin-top: 8px;
             }
 
-        /* 🌟 الجدول */
         .table-modern {
             border-radius: 12px;
             overflow: hidden;
@@ -142,7 +135,6 @@
                 transition: 0.2s ease;
             }
 
-        /* 🌟 الأنيميشن */
         @@keyframes fadeIn {
             from {
                 opacity: 0;

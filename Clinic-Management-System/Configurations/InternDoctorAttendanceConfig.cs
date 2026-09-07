@@ -10,8 +10,6 @@
             {
                 builder.HasKey(a => new { a.InternDoctorId, a.Date });
 
-                // نخلي Hours تتحسب أوتوماتيك داخل SQL Server
-                
             }
         }
     }

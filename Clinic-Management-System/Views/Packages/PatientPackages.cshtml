@@ -20,14 +20,12 @@
         </div>
     }
 
-    <!-- ✅ الكارد الرئيسي -->
     <div class="card card-modern">
 
-        <!-- 🔹 العنوان + زر رجوع للمريض -->
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="text-primary fw-bold m-0">
                 <i class="bi bi-box-seam"></i> باقات المريض:
-                <span style="color: black;">@ViewBag.PatientName</span>   <!-- ✔ أصبح بالأسود -->
+                <span style="color: black;">@ViewBag.PatientName</span>
             </h3>
 
             <a asp-controller="Patient" asp-action="Details" asp-route-id="@ViewBag.PatientId"
@@ -36,8 +34,6 @@
             </a>
         </div>
 
-
-        <!-- 🔹 الأزرار -->
         <div class="d-flex gap-2 mb-3">
             <a asp-controller="Packages" asp-action="Create" asp-route-patientId="@ViewBag.PatientId"
                class="btn btn-success rounded-pill px-3">
@@ -50,8 +46,6 @@
             </a>
         </div>
 
-
-        <!-- 🔹 الجدول -->
         @if (!Model.Any())
         {
             <div class="alert alert-warning text-center fw-semibold rounded-3 shadow-sm">
@@ -95,12 +89,11 @@
                                     }
                                 </td>
 
-                                <!-- ✔ إجمالي / مستخدم / متبقي -->
                                 <td>
                                     <div class="fw-bold text-primary">
                                         إجمالي: @pkg.NumOfSessions جلسات
                                     </div>
-                                 
+
                                     <div class="text-success">
                                         المتبقي: <b>@pkg.RemainingSessions</b> جلسات
                                     </div>
@@ -127,19 +120,18 @@
 @section Scripts {
     <style>
         .attendance-btn {
-            background-color: #023E8A; /* أزرق غامق شيك */
+            background-color: #023E8A;
             border-color: #023E8A;
             color: #fff;
             font-weight: 600;
         }
 
             .attendance-btn:hover {
-                background-color: #0353A4; /* درجة أفتح عند الـ hover */
+                background-color: #0353A4;
                 border-color: #0353A4;
                 color: #fff !important;
             }
 
-        /* 🌟 الكارد المودرن الموحد */
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -149,7 +141,6 @@
             animation: fadeIn 0.4s ease;
         }
 
-        /* 📋 الجدول الموحد */
         .table-modern {
             border-radius: 12px;
             overflow: hidden;

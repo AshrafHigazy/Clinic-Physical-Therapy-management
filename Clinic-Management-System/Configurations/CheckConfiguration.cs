@@ -44,11 +44,10 @@ namespace Clinic_Management_System.Configurations
                    .IsRequired()
                    .OnDelete(DeleteBehavior.Cascade);
 
-            // ✅ هنا التعديل المهم
             builder.Property(c => c.CreatedAt)
-                   .HasColumnType("datetime2") // أكثر دقة من datetime
-                   .HasDefaultValueSql("GETDATE()") // يُنشأ تلقائيًا في SQL
-                   .ValueGeneratedOnAdd(); // يتولد تلقائيًا عند الإنشاء
+                   .HasColumnType("datetime2")
+                   .HasDefaultValueSql("GETDATE()")
+                   .ValueGeneratedOnAdd();
         }
     }
 }

@@ -23,9 +23,7 @@ namespace Clinic_Management_System.Data
 
         public DbSet<ReceptionistCurrentShift> ReceptionistCurrentShifts { get; set; }
 
-
         public DbSet<TreatmentSession> treatmentSessions { get; set; }
-
 
         public DbSet<Check> Checks { get; set; }
 

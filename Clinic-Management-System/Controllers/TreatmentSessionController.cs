@@ -36,7 +36,6 @@ namespace Clinic_Management_System.Controllers
                 return RedirectToAction("PatientPackages", "Packages", new { patientId });
             }
 
-            // إنشاء جلسة
             var session = new TreatmentSession
             {
                 PackageId = package.Id,
@@ -60,7 +59,6 @@ namespace Clinic_Management_System.Controllers
             return RedirectToAction("PatientPackages", "Packages", new { patientId });
         }
 
-        // Edit session GET
         public async Task<IActionResult> Edit(int id)
         {
             var session = await _context.treatmentSessions
@@ -72,8 +70,6 @@ namespace Clinic_Management_System.Controllers
             return View(session);
         }
 
-
-        // Edit session POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, string prognosis)
@@ -92,8 +88,6 @@ namespace Clinic_Management_System.Controllers
             return RedirectToAction("Details", "Packages", new { id = session.PackageId });
         }
 
-
-        // Delete confirm GET
         public async Task<IActionResult> Delete(int id)
         {
             var session = await _context.treatmentSessions
@@ -105,7 +99,6 @@ namespace Clinic_Management_System.Controllers
             return View(session);
         }
 
-        // Delete POST
         [HttpPost]
         [ValidateAntiForgeryToken]
         [HttpPost]
@@ -114,16 +107,14 @@ namespace Clinic_Management_System.Controllers
             var session = await _context.treatmentSessions.FindAsync(id);
             if (session == null) return NotFound();
 
-            // قبل الحذف: نطرح من SessionsCount بحيث نرجع الباقة لو كانت Ended
             var package = await _context.Packages.FindAsync(session.PackageId);
             if (package != null)
             {
-                // guard: SessionsCount should be >0
+
                 if (package.SessionsCount > 0)
                 {
                     package.SessionsCount -= 1;
 
-                    // لو الباقة كانت Ended و دلوقتي بقت فيها جلسات متبقية -> نعيدها Active
                     if (package.SessionsCount < package.NumOfSessions)
                     {
                         package.Status = "Active";
@@ -138,7 +129,7 @@ namespace Clinic_Management_System.Controllers
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "تم حذف الجلسة بنجاح.";
-            // نرجع لصفحة المريض عبر باكدج (إذا عايز ترجع لـ GetAll استخدمه)
+
             return RedirectToAction("Details", "Packages", new { id = session.PackageId });
         }
     }

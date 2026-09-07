@@ -18,7 +18,6 @@ namespace Clinic_Management_System.Models
         [ForeignKey(nameof(Receptionist))]
         public int ReceptionistId { get; set; }
 
-        // Navigation Properties
         [Required]
         public Appointment Appointment { get; set; } = null!;
         [Required]

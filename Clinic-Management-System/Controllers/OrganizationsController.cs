@@ -21,19 +21,17 @@ namespace Clinic_Management_System.Controllers
             _context = context;
         }
 
-        // GET: Organizations
         public async Task<IActionResult> Index()
         {
-            // ✅ الترتيب: الشركات المتعاقدة أولاً ثم حسب التاريخ الأحدث
+
             var organizations = await _context.Organizations
-                .OrderByDescending(o => o.IsActive)       // المتعاقدة حالياً أولاً
-                .ThenByDescending(o => o.CreateAt)        // الأحدث في التاريخ
+                .OrderByDescending(o => o.IsActive)
+                .ThenByDescending(o => o.CreateAt)
                 .ToListAsync();
 
             return View(organizations);
         }
 
-        // GET: Organizations/Details/5
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null) return NotFound();
@@ -45,34 +43,30 @@ namespace Clinic_Management_System.Controllers
             return View(organization);
         }
 
-        // GET: Organizations/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Organizations/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name,CreateAt,TyppeOfContract,IsActive")] Organization organization)
         {
             if (ModelState.IsValid)
             {
-                // تحويل القائمة إلى string للتخزين
+
                 if (organization.TyppeOfContract != null)
                     organization.TyppeOfContractSerialized = string.Join(",", organization.TyppeOfContract);
 
                 _context.Add(organization);
                 await _context.SaveChangesAsync();
 
-                // ✅ رسالة نجاح الإضافة
                 TempData["SuccessMessage"] = "تمت إضافة الشركة بنجاح!";
                 return RedirectToAction(nameof(Index));
             }
             return View(organization);
         }
 
-        // POST: Organizations/ToggleStatus/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ToggleStatus(int id)
@@ -81,13 +75,11 @@ namespace Clinic_Management_System.Controllers
             if (organization == null)
                 return NotFound();
 
-            // عكس حالة التعاقد
             organization.IsActive = !organization.IsActive;
 
             _context.Update(organization);
             await _context.SaveChangesAsync();
 
-            // ✅ رسالة حالة التفعيل/الإلغاء
             TempData["EditMessage"] = organization.IsActive
                 ? "تم تفعيل التعاقد بنجاح!"
                 : "تم إلغاء التعاقد بنجاح!";
@@ -95,7 +87,6 @@ namespace Clinic_Management_System.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Organizations/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null) return NotFound();
@@ -106,7 +97,6 @@ namespace Clinic_Management_System.Controllers
             return View(organization);
         }
 
-        // POST: Organizations/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Name,CreateAt,TyppeOfContract,IsActive")] Organization organization)
@@ -117,14 +107,13 @@ namespace Clinic_Management_System.Controllers
             {
                 try
                 {
-                    // تحويل القائمة إلى string للتخزين
+
                     if (organization.TyppeOfContract != null)
                         organization.TyppeOfContractSerialized = string.Join(",", organization.TyppeOfContract);
 
                     _context.Update(organization);
                     await _context.SaveChangesAsync();
 
-                    // ✅ رسالة نجاح التعديل
                     TempData["EditMessage"] = "تم تعديل بيانات الشركة بنجاح!";
                 }
                 catch (DbUpdateConcurrencyException)
@@ -138,7 +127,6 @@ namespace Clinic_Management_System.Controllers
         }
         [Authorize(Roles = "AdminDoctor")]
 
-        // GET: Organizations/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null) return NotFound();
@@ -151,7 +139,6 @@ namespace Clinic_Management_System.Controllers
         }
         [Authorize(Roles = "AdminDoctor")]
 
-        // POST: Organizations/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -162,7 +149,6 @@ namespace Clinic_Management_System.Controllers
                 _context.Organizations.Remove(organization);
                 await _context.SaveChangesAsync();
 
-                // ✅ رسالة نجاح الحذف
                 TempData["DeleteMessage"] = "تم حذف الشركة بنجاح!";
             }
             return RedirectToAction(nameof(Index));

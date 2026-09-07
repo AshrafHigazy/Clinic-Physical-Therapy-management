@@ -7,7 +7,6 @@
 
 <div class="container py-4">
 
-    <!-- 🔷 العنوان -->
     <div class="card card-modern mb-4 text-center">
         <h3 class="text-primary fw-bold">
             <i class="bi bi-calendar-day"></i>
@@ -15,7 +14,6 @@
         </h3>
     </div>
 
-    <!-- 🔷 اختيار التاريخ -->
     <div class="card card-modern mb-4 w-75 mx-auto">
         <form method="get" class="d-flex justify-content-center align-items-center gap-2">
             <input type="date"
@@ -30,8 +28,6 @@
         </form>
     </div>
 
-
-    <!-- 🔷 جدول الحضور -->
     @if (Model != null && Model.Any())
     {
         <div class="card card-modern">
@@ -71,7 +67,6 @@
                             <td>
                                 <div class="d-flex justify-content-center gap-2">
 
-                                    <!-- زر تسجيل انصراف -->
                                     @if (record.CheckOut == null)
                                     {
                                         <form asp-controller="InternDoctorAttendance"
@@ -89,7 +84,6 @@
                                         <span class="badge bg-success px-3 py-2">تم الخروج</span>
                                     }
 
-                                    <!-- زر تفاصيل -->
                                     <a asp-controller="InternDoctorAttendance"
                                        asp-action="GetByDoctor"
                                        asp-route-id="@record.InternDoctorId"
@@ -111,7 +105,6 @@
         </div>
     }
 
-    <!-- 🔘 زر الرجوع -->
     <div class="text-center mt-4">
         <a asp-controller="InternDoctors"
            asp-action="Index"
@@ -121,10 +114,9 @@
     </div>
 </div>
 
-
 @section Scripts {
     <style>
-        /* 🌟 الكارد الموحد */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -134,7 +126,6 @@
             animation: fadeIn .4s ease;
         }
 
-        /* 🌟 الجدول */
         .table-modern {
             border-radius: 12px;
             overflow: hidden;

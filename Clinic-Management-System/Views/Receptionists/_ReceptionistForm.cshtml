@@ -6,21 +6,19 @@
     </h5>
 
     <div class="row g-3">
-        <!-- الاسم الكامل -->
+
         <div class="col-md-6">
             <label asp-for="FullName" class="form-label fw-semibold">الاسم الكامل</label>
             <input asp-for="FullName" class="form-control input-modern" placeholder="اكتب اسم الموظف" />
             <span asp-validation-for="FullName" class="text-danger small"></span>
         </div>
 
-        <!-- المرتب -->
         <div class="col-md-6">
             <label asp-for="Salary" class="form-label fw-semibold">المرتب</label>
             <input asp-for="Salary" class="form-control input-modern" placeholder="ادخل المرتب الشهري" />
             <span asp-validation-for="Salary" class="text-danger small"></span>
         </div>
 
-        <!-- الوردية -->
         <div class="col-md-6">
             <label asp-for="Shift" class="form-label fw-semibold">الوردية</label>
             <select asp-for="Shift" class="form-select input-modern">
@@ -31,21 +29,12 @@
             <span asp-validation-for="Shift" class="text-danger small"></span>
         </div>
 
-        <!-- الهاتف -->
         <div class="col-md-6">
             <label asp-for="Phone" class="form-label fw-semibold">رقم الهاتف</label>
             <input asp-for="Phone" class="form-control input-modern" placeholder="01XXXXXXXXX" />
             <span asp-validation-for="Phone" class="text-danger small"></span>
         </div>
 
-  @*       <!-- البريد -->
-        <div class="col-md-6">
-            <label asp-for="Email" class="form-label fw-semibold">البريد الإلكتروني</label>
-            <input asp-for="Email" class="form-control input-modern" placeholder="example@email.com" />
-            <span asp-validation-for="Email" class="text-danger small"></span>
-        </div> *@
-
-        <!-- الدور -->
         <div class="col-md-6">
             <label asp-for="Role" class="form-label fw-semibold">الدور</label>
             <select asp-for="Role" class="form-select input-modern">
@@ -55,19 +44,13 @@
             </select>
             <span asp-validation-for="Role" class="text-danger small"></span>
         </div>
-@* 
-        <!-- كلمة المرور -->
-        <div class="col-md-6">
-            <label asp-for="Password" class="form-label fw-semibold">كلمة المرور</label>
-            <input asp-for="Password" type="password" class="form-control input-modern" placeholder="••••••••" />
-            <span asp-validation-for="Password" class="text-danger small"></span>
-        </div> *@
+
     </div>
 </div>
 
 @section Scripts {
     <style>
-        /* 🌟 النمط المودرن統一 */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;

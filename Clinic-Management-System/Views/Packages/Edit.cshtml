@@ -12,7 +12,6 @@
         <form asp-action="Edit" method="post" class="w-75 mx-auto">
             <input type="hidden" asp-for="Id" />
 
-            <!-- 🔹 المريض -->
             <div class="mb-3">
                 <label class="form-label fw-semibold text-primary">المريض</label>
                 <input type="text"
@@ -23,7 +22,6 @@
                 <input type="hidden" asp-for="PatientId" />
             </div>
 
-            <!-- 🔹 الطبيب المتدرب -->
             <div class="mb-3">
                 <label asp-for="InternDoctorId" class="form-label fw-semibold text-primary">الطبيب المتدرب</label>
                 <select asp-for="InternDoctorId"
@@ -42,7 +40,6 @@
                 <span asp-validation-for="InternDoctorId" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 المؤسسة -->
             <div class="mb-3">
                 <label asp-for="OrganizationId" class="form-label fw-semibold text-primary">المؤسسة</label>
                 <select asp-for="OrganizationId"
@@ -60,7 +57,6 @@
                 <span asp-validation-for="OrganizationId" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 الفحص -->
             <div class="mb-3">
                 <label asp-for="CheckId" class="form-label fw-semibold text-primary">الفحص</label>
                 <select asp-for="CheckId"
@@ -78,7 +74,6 @@
                 <span asp-validation-for="CheckId" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 نوع الباقة -->
             <div class="mb-3">
                 <label asp-for="Type" class="form-label fw-semibold text-primary">نوع الباقة</label>
                 <select asp-for="Type"
@@ -93,7 +88,6 @@
                 <span asp-validation-for="Type" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 عدد الجلسات -->
             <div class="mb-3">
                 <label asp-for="NumOfSessions" class="form-label fw-semibold text-primary">عدد الجلسات</label>
                 <input asp-for="NumOfSessions"
@@ -102,7 +96,6 @@
                 <span asp-validation-for="NumOfSessions" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 المبلغ المدفوع -->
             <div class="mb-3">
                 <label asp-for="AmountPaid" class="form-label fw-semibold text-primary">المبلغ المدفوع</label>
                 <input asp-for="AmountPaid"
@@ -112,7 +105,6 @@
                 <span asp-validation-for="AmountPaid" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 الحالة -->
             <div class="mb-3">
                 <label asp-for="Status" class="form-label fw-semibold text-primary">الحالة</label>
                 <select asp-for="Status"
@@ -125,7 +117,6 @@
                 <span asp-validation-for="Status" class="text-danger small"></span>
             </div>
 
-            <!-- 🔘 الأزرار -->
             <div class="text-center mt-4">
                 <button type="submit" class="btn btn-warning text-white px-4 rounded-pill">
                     <i class="bi bi-save"></i> حفظ التعديلات
@@ -142,7 +133,7 @@
     <partial name="_ValidationScriptsPartial" />
 
     <style>
-        /* 🎨 النمط الموحد لجميع صفحات التعديل */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;

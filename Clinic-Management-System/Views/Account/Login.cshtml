@@ -24,7 +24,6 @@
             overflow: hidden;
         }
 
-        /* 🔵 خلفية الصفحة بالكامل */
         .login-bg {
             position: absolute;
             top: 0;
@@ -32,9 +31,9 @@
             width: 100%;
             height: 100%;
             background: url('/images/Login2.png') no-repeat center center;
-            background-size: contain; /* يظهر الصورة بالكامل */
+            background-size: contain;
             background-repeat: no-repeat;
-            background-color: #00051A; /* لون خلفية مناسب */
+            background-color: #00051A;
             z-index: 0;
         }
 
@@ -47,7 +46,7 @@
             box-shadow: 0 10px 25px rgba(0, 119, 182, 0.35);
             animation: popIn 0.5s ease;
             position: relative;
-            z-index: 10; /* 🔵 الكارت فوق الخلفية */
+            z-index: 10;
         }
 
         h4 {
@@ -97,10 +96,8 @@
 
 <body class="d-flex justify-content-center align-items-center" style="height:100vh">
 
-    <!-- 🔵 الخلفية -->
     <div class="login-bg"></div>
 
-    <!-- 🔵 الكارت فوق الخلفية بدون تغيير داخله -->
     <div class="login-card">
 
         <h4 class="text-center mb-4">تسجيل الدخول</h4>

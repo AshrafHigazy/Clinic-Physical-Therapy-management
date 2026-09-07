@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Clinic_Management_System.Models;
 
-
 namespace Clinic_Management_System.Configurations
 {
     public class PackageConfig : IEntityTypeConfiguration<Package>
@@ -10,7 +9,6 @@ namespace Clinic_Management_System.Configurations
         public void Configure(EntityTypeBuilder<Package> builder)
         {
             builder.ToTable("Packages");
-
 
             builder.HasKey(p => p.Id);
             builder.HasOne(p => p.Patient)
@@ -22,7 +20,6 @@ namespace Clinic_Management_System.Configurations
             builder.HasOne(p => p.Organization)
                    .WithMany()
                    .HasForeignKey(p => p.OrganizationId)
-
 
                    .OnDelete(DeleteBehavior.Restrict);
 

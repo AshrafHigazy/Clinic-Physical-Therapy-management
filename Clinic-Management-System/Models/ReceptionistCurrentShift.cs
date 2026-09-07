@@ -8,10 +8,10 @@ namespace Clinic_Management_System.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int Id { get; set; }  // PK جديد بخصائص Identity
+        public int Id { get; set; }
 
         [Required]
-        public int ReceptionistId { get; set; }  // FK فقط
+        public int ReceptionistId { get; set; }
 
         [DataType(DataType.DateTime)]
         public DateTime StartTime { get; set; }

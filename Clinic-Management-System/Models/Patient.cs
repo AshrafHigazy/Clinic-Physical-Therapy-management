@@ -28,7 +28,6 @@ public class Patient
     [Required(ErrorMessage = "العمر مطلوب")]
     public int Age { get; set; }
 
-    // Navigation Properties
     public List<MedicalRecord> MedicalRecords { get; set; } = new List<MedicalRecord>();
     public ICollection<Appointment>? Appointments { get; set; }
     public ICollection<Package>? Packages { get; set; }

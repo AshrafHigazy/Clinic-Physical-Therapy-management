@@ -21,7 +21,6 @@ namespace Clinic_Management_System.Controllers
             _context = context;
         }
 
-        // ✅ عرض كل الفحوصات
         public async Task<IActionResult> Index()
         {
             var checks = await _context.Checks
@@ -32,7 +31,6 @@ namespace Clinic_Management_System.Controllers
             return View(checks);
         }
 
-        // ✅ تفاصيل فحص محدد
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -48,7 +46,6 @@ namespace Clinic_Management_System.Controllers
             return View(check);
         }
 
-        // ✅ إنشاء فحص جديد (GET)
         public IActionResult Create(int? patientId)
         {
             if (patientId.HasValue)
@@ -68,12 +65,11 @@ namespace Clinic_Management_System.Controllers
             return View();
         }
 
-        // ✅ إنشاء فحص جديد (POST)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CheckId,PatientId,Sugestion,ClinicAssessment,Diagnosis,PlaneOfTreatment,MethodsOfTreatment")] Check check)
         {
-            // تأكد أن المريض تم تمريره
+
             if (check.PatientId == 0)
             {
                 ModelState.AddModelError("PatientId", "يجب اختيار المريض قبل إنشاء الكشف.");
@@ -92,7 +88,6 @@ namespace Clinic_Management_System.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ✅ تعديل فحص موجود
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -134,7 +129,6 @@ namespace Clinic_Management_System.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // ✅ حذف فحص
         [Authorize(Roles = "AdminDoctor")]
         public async Task<IActionResult> Delete(int? id)
         {

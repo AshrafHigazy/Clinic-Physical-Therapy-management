@@ -13,7 +13,6 @@
             فحص بتاريخ: @Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")
         </h5>
 
-        <!-- جدول البيانات بنفس ستايل شركة التأمين -->
         <div class="table-responsive mb-4">
             <table class="table table-modern text-center align-middle">
                 <tbody>
@@ -21,25 +20,14 @@
                         <th>الاقتراح</th>
                         <td>@Model.Sugestion</td>
                     </tr>
-                  @*   <tr>
-                        <th>تقييم العيادة</th>
-                        <td>@Model.ClinicAssessment</td>
-                    </tr>
 
-                    <tr>
-                        <th>التشخيص</th>
-                        <td>@Model.Diagnosis</td>
-                    </tr> *@
                     <tr>
                         <th> التشخيص</th>
                         <td class="check-text">
                             @Html.Raw(Model.Diagnosis?.Replace("\n", "<br />"))
                         </td>
                     </tr>
-                  @*   <tr>
-                        <th>تاريخ الفحص</th>
-                        <td>@Model.CreatedAt.ToString("yyyy/MM/dd HH:mm")</td>
-                    </tr> *@
+
                 </tbody>
             </table>
         </div>
@@ -64,14 +52,14 @@
 @section Scripts {
 
     <script>
-        // تأكيد الحذف
+
         function confirmDelete() {
             return confirm("⚠ هل أنت متأكد من حذف هذا الفحص بشكل نهائي؟");
         }
     </script>
 
     <style>
-        /* 🌟 نفس ستايل صفحة حذف شركة التأمين بلون أحمر */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;

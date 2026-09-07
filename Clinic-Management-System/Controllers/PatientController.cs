@@ -30,7 +30,6 @@ namespace Clinic_Management_System.Controllers
 
             var patients = _context.Patient.AsQueryable();
 
-            // البحث
             if (!string.IsNullOrEmpty(searchString))
             {
                 patients = patients.Where(p =>
@@ -39,7 +38,6 @@ namespace Clinic_Management_System.Controllers
 
             }
 
-            // الترتيب
             switch (sortOrder)
             {
                 case "Age":
@@ -93,7 +91,6 @@ namespace Clinic_Management_System.Controllers
 
             return RedirectToAction("GetAll");
         }
-
 
         public IActionResult Edit(int? id)
         {

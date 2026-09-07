@@ -17,7 +17,6 @@ namespace Clinic_Management_System.Controllers
             _context = context;
         }
 
-        // ✅ الترتيب: النشط أولاً ثم الأحدث بالتاريخ
         public async Task<IActionResult> Index()
         {
             var list = await _context.Receptionist
@@ -64,7 +63,6 @@ namespace Clinic_Management_System.Controllers
                 _context.Add(receptionist);
                 await _context.SaveChangesAsync();
 
-                // ✅ رسالة نجاح الإضافة
                 TempData["SuccessMessage"] = "تمت إضافة موظف الاستقبال بنجاح!";
                 return RedirectToAction(nameof(Index));
             }
@@ -97,7 +95,6 @@ namespace Clinic_Management_System.Controllers
                     _context.Update(receptionist);
                     await _context.SaveChangesAsync();
 
-                    // ✅ رسالة نجاح التعديل
                     TempData["EditMessage"] = "تم تعديل بيانات موظف الاستقبال بنجاح!";
                 }
                 catch (DbUpdateConcurrencyException)
@@ -138,7 +135,6 @@ namespace Clinic_Management_System.Controllers
                 _context.Receptionist.Remove(receptionist);
                 await _context.SaveChangesAsync();
 
-                // ✅ رسالة نجاح الحذف
                 TempData["DeleteMessage"] = "تم حذف موظف الاستقبال بنجاح!";
             }
 
@@ -155,7 +151,6 @@ namespace Clinic_Management_System.Controllers
             _context.Update(receptionist);
             await _context.SaveChangesAsync();
 
-            // ✅ رسالة تفعيل أو تعطيل
             TempData["EditMessage"] = receptionist.IsActive
                 ? "تم تفعيل الموظف بنجاح!"
                 : "تم تعطيل الموظف بنجاح!";

@@ -21,7 +21,6 @@ namespace Clinic_Management_System.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
-        // ✅ نعمل Initialize للقوائم عشان مايبقوش null
         public ICollection<InternDoctorAttendance> Attendances { get; set; } = new List<InternDoctorAttendance>();
         public ICollection<Package> Packages { get; set; } = new List<Package>();
     }

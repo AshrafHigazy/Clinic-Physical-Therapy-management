@@ -9,12 +9,10 @@
 <div class="container py-4">
     <div class="card card-modern">
 
-        <!-- 🔷 العنوان -->
         <h3 class="text-primary fw-bold text-center mb-4">
             <i class="bi bi-person-vcard"></i> تفاصيل الطبيب المتدرب
         </h3>
 
-        <!-- 🔷 تفاصيل الطبيب -->
         <div class="details-box mb-4">
             <p><strong>الكود:</strong> @Model.InternDoctorId</p>
             <p><strong>الاسم الكامل:</strong> @Model.FullName</p>
@@ -35,7 +33,6 @@
 
         <hr />
 
-        <!-- 🔷 اختيار الفترة -->
         <form asp-controller="InternDoctorAttendance" asp-action="Dashboard" method="get" class="text-center">
             <input type="hidden" name="id" value="@Model.InternDoctorId" />
 
@@ -62,7 +59,6 @@
 
         <hr />
 
-        <!-- 🔘 الأزرار -->
         <div class="text-center mt-3">
             <a asp-action="Index" class="btn btn-outline-secondary px-4 rounded-pill">
                 <i class="bi bi-arrow-return-left"></i> رجوع
@@ -79,7 +75,6 @@
 @section Scripts {
     <style>
 
-        /* 🌟 الكارد الأزرق الموحد */
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -94,7 +89,6 @@
             margin-bottom: 8px;
         }
 
-        /* 🌟 مدخلات التاريخ */
         .form-control {
             border: 2px solid #00B4D8;
             border-radius: 10px;
@@ -106,7 +100,6 @@
                 box-shadow: 0 0 0 .2rem rgba(0,183,255,0.25);
             }
 
-        /* 🌟 زر التقرير */
         .btn-success {
             background-color: #06d6a0;
             border-color: #06d6a0;

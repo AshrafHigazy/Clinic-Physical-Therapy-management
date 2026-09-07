@@ -2,17 +2,14 @@
     var receptionists = ViewBag.Receptionists as List<Clinic_Management_System.Models.Receptionist>;
     var patientId = ViewBag.PatientId;
 
-    // القيمة الأصلية القادمة من الكنترولر
     string rawDate = ViewBag.Date as string;
 
-    // تحويل التاريخ المرسل
     DateTime baseDate;
     if (!DateTime.TryParse(rawDate, out baseDate))
     {
         baseDate = DateTime.Today;
     }
 
-    // نضبط الساعة دائمًا لتكون 12:00 PM
     DateTime initialDate = new DateTime(
         baseDate.Year,
         baseDate.Month,
@@ -22,7 +19,6 @@
 
     string date = initialDate.ToString("yyyy-MM-ddTHH:mm");
 }
-
 
 <div class="modal-header bg-success text-white justify-content-center position-relative">
     <h5 class="modal-title">تأكيد حجز الموعد</h5>
@@ -68,13 +64,13 @@
             data: $(this).serialize(),
             success: function (response) {
                 if (response.success) {
-                    alert(response.message); // ✅ تم الحجز بنجاح
+                    alert(response.message);
                     var modalEl = document.getElementById('dynamicConfirmModal');
                     var modal = bootstrap.Modal.getInstance(modalEl);
                     if (modal) modal.hide();
                     if (window.calendar) window.calendar.refetchEvents();
                 } else {
-                    alert(response.message); // ⚠ رسالة الخطأ المخصصة
+                    alert(response.message);
                 }
             },
             error: function () {
@@ -82,6 +78,5 @@
             }
         });
     });
-
 
 </script>

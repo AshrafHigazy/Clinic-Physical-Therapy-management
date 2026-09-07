@@ -7,7 +7,6 @@
 <div class="container py-4">
     <div class="card card-modern">
 
-        <!-- 🔷 العنوان -->
         <h3 class="text-center text-warning fw-bold mb-4">
             <i class="bi bi-pencil-square"></i> تعديل بيانات الطبيب المتدرب
         </h3>
@@ -15,31 +14,26 @@
         <form asp-action="Edit" method="post" class="row g-3 w-75 mx-auto">
             @Html.AntiForgeryToken()
 
-            <!-- نخلي الـ ID hidden -->
             <input type="hidden" asp-for="InternDoctorId" />
 
-            <!-- 🔹 الاسم الكامل -->
             <div class="col-md-6">
                 <label asp-for="FullName" class="form-label fw-semibold text-primary">الاسم الكامل</label>
                 <input asp-for="FullName" class="form-control border-2 rounded-3" />
                 <span asp-validation-for="FullName" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 رقم الهاتف -->
             <div class="col-md-6">
                 <label asp-for="Phone" class="form-label fw-semibold text-primary">رقم الهاتف</label>
                 <input asp-for="Phone" maxlength="11" class="form-control border-2 rounded-3" />
                 <span asp-validation-for="Phone" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 الملاحظات -->
             <div class="col-md-12">
                 <label asp-for="Notes" class="form-label fw-semibold text-primary">ملاحظات</label>
                 <textarea asp-for="Notes" rows="3" class="form-control border-2 rounded-3"></textarea>
                 <span asp-validation-for="Notes" class="text-danger small"></span>
             </div>
 
-            <!-- 🔹 حالة الطبيب -->
             <div class="col-md-6">
                 <div class="form-check mt-4 ms-2">
                     <input asp-for="IsActive" type="checkbox" class="form-check-input" />
@@ -47,7 +41,6 @@
                 </div>
             </div>
 
-            <!-- 🔘 الأزرار -->
             <div class="col-12 text-center mt-4">
                 <button type="submit" class="btn btn-warning text-white px-4 rounded-pill">
                     <i class="bi bi-check-circle"></i> حفظ التعديلات
@@ -67,7 +60,6 @@
 
     <style>
 
-        /* 🌟 الكارد الموحد */
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -77,7 +69,6 @@
             animation: fadeIn .4s ease;
         }
 
-        /* 🌟 تنسيق الحقول */
         .form-label {
             color: #0077B6;
             font-weight: 600;
@@ -94,7 +85,6 @@
                 box-shadow: 0 0 0 .2rem rgba(0,183,255,.25);
             }
 
-        /* 🌟 زر التعديل */
         .btn-warning {
             background-color: #ffb703;
             border-color: #ffb703;

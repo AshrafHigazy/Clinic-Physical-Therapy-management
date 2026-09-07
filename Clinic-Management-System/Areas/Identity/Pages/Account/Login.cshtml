@@ -8,7 +8,6 @@
 
     <div class="row justify-content-center align-items-start">
 
-        <!-- 🔵 صندوق تسجيل الدخول -->
         <div class="col-md-5">
             <div class="login-card-modern p-4 rounded-4">
 
@@ -16,15 +15,12 @@
                     <i class="bi bi-box-arrow-in-right"></i> تسجيل الدخول
                 </h3>
 
-                <!-- رسالة الأخطاء -->
                 <div asp-validation-summary="ModelOnly"
                      class="alert alert-danger text-center"
                      role="alert"></div>
 
-                <!-- النموذج -->
                 <form id="account" method="post">
 
-                    <!-- البريد -->
                     <div class="form-floating mb-3">
                         <input asp-for="Input.Email"
                                class="form-control input-modern"
@@ -34,7 +30,6 @@
                         <span asp-validation-for="Input.Email" class="text-danger small"></span>
                     </div>
 
-                    <!-- كلمة المرور -->
                     <div class="form-floating mb-3">
                         <input asp-for="Input.Password"
                                class="form-control input-modern"
@@ -44,20 +39,17 @@
                         <span asp-validation-for="Input.Password" class="text-danger small"></span>
                     </div>
 
-                    <!-- تذكرني -->
                     <div class="form-check mb-3">
                         <input class="form-check-input" asp-for="Input.RememberMe" />
                         <label class="form-check-label" asp-for="Input.RememberMe">تذكّرني</label>
                     </div>
 
-                    <!-- زر الدخول -->
                     <button type="submit"
                             id="login-submit"
                             class="btn btn-login-modern w-100 py-2 fw-bold">
                         <i class="bi bi-door-open"></i> دخول
                     </button>
 
-                    <!-- روابط سفليّة -->
                     <div class="text-center mt-3">
 
                         <p>
@@ -89,9 +81,6 @@
             </div>
         </div>
 
-
-
-        <!-- 🟣 تسجيل الدخول الخارجي -->
         <div class="col-md-5 mt-4 mt-md-0">
             <div class="external-login-card p-4 rounded-4">
 
@@ -135,12 +124,10 @@
 
 </div>
 
-
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
 
-<!-- 🔥 CSS مخصص لجعل التصميم قريب جداً من تصميم البطاقات الحديثة -->
 <style>
 
     :root {
@@ -149,7 +136,6 @@
         --bg-light: #F7FBFC;
     }
 
-    /* بطاقة تسجيل الدخول */
     .login-card-modern {
         background: #ffffff;
         border: 2px solid var(--main-dark);
@@ -157,7 +143,6 @@
         animation: pop 0.5s ease;
     }
 
-    /* بطاقة تسجيل خارجي */
     .external-login-card {
         background: #ffffff;
         border: 2px solid #adb5bd;
@@ -165,7 +150,6 @@
         animation: pop 0.6s ease;
     }
 
-    /* مدخلات حديثة */
     .input-modern {
         border: 2px solid var(--main-color);
         border-radius: 10px;
@@ -177,7 +161,6 @@
             box-shadow: 0 0 0 0.2rem rgba(0, 183, 255, 0.25);
         }
 
-    /* زر الدخول */
     .btn-login-modern {
         background: var(--main-dark);
         color: #fff;
@@ -191,7 +174,6 @@
             transform: translateY(-2px);
         }
 
-    /* أزرار التسجيل الخارجي */
     .external-btn:hover {
         background: var(--main-color);
         color: #fff;
@@ -199,7 +181,6 @@
         transform: translateY(-2px);
     }
 
-    /* حركة لطيفة */
     @@keyframes pop {
         from
 

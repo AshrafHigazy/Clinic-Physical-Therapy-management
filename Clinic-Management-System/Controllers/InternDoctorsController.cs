@@ -16,7 +16,6 @@ namespace Clinic_Management_System.Controllers
             _context = context;
         }
 
-        // GET: InternDoctors
         public async Task<IActionResult> Index(string? search)
         {
             var doctors = from d in _context.InternDoctors
@@ -25,19 +24,16 @@ namespace Clinic_Management_System.Controllers
             if (!string.IsNullOrEmpty(search))
                 doctors = doctors.Where(d => d.FullName.Contains(search) || d.Phone.Contains(search));
 
-          
             doctors = doctors.OrderByDescending(d => d.IsActive).ThenBy(d => d.FullName);
 
             return View(await doctors.ToListAsync());
         }
 
-        // GET: InternDoctors/Create
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: InternDoctors/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(InternDoctor doctor)
@@ -51,7 +47,6 @@ namespace Clinic_Management_System.Controllers
             return View(doctor);
         }
 
-        // GET: InternDoctors/Details/5
         public IActionResult GetById(int id)
         {
             var doctor = _context.InternDoctors
@@ -64,7 +59,6 @@ namespace Clinic_Management_System.Controllers
             return View(doctor);
         }
 
-        // GET: InternDoctors/Edit/5
         public async Task<IActionResult> Edit(int id)
         {
             var doctor = await _context.InternDoctors.FindAsync(id);
@@ -74,7 +68,6 @@ namespace Clinic_Management_System.Controllers
             return View(doctor);
         }
 
-        // POST: InternDoctors/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, InternDoctor doctor)
@@ -91,7 +84,6 @@ namespace Clinic_Management_System.Controllers
             return View(doctor);
         }
 
-        // GET: InternDoctors/Delete/5  ✅ يعرض صفحة التأكيد
         public async Task<IActionResult> Delete(int id)
         {
             var doctor = await _context.InternDoctors
@@ -100,10 +92,9 @@ namespace Clinic_Management_System.Controllers
             if (doctor == null)
                 return NotFound();
 
-            return View(doctor);   // InternDoctors/Delete.cshtml
+            return View(doctor);
         }
 
-        // POST: InternDoctors/Delete/5  ✅ ينفّذ الحذف فعلاً
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -118,7 +109,6 @@ namespace Clinic_Management_System.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        // POST: InternDoctors/ToggleActive
         [HttpPost]
         public async Task<IActionResult> ToggleActive(int id)
         {
@@ -135,7 +125,7 @@ namespace Clinic_Management_System.Controllers
         [HttpPost]
         public IActionResult QuickCheckOut(int doctorId)
         {
-            // نجيب الطبيب ونشوف هل شغال ولا لأ
+
             var doctor = _context.InternDoctors
                 .FirstOrDefault(d => d.InternDoctorId == doctorId && d.IsActive);
 
@@ -145,7 +135,6 @@ namespace Clinic_Management_System.Controllers
             var today = DateTime.Today;
             var tomorrow = today.AddDays(1);
 
-            // نجيب سجل حضور النهارده
             var todayAttendance = _context.InternDoctorAttendances
                 .FirstOrDefault(a => a.InternDoctorId == doctorId && a.Date >= today && a.Date < tomorrow);
 
@@ -161,10 +150,8 @@ namespace Clinic_Management_System.Controllers
                 return RedirectToAction("Index", "InternDoctors");
             }
 
-            // 🔹 تسجيل وقت الانصراف الحالي
             todayAttendance.CheckOut = DateTime.Now;
 
-            // 🔹 نحسب عدد الساعات لو سجل وقت دخول
             if (todayAttendance.CheckIn != null)
             {
                 var duration = (todayAttendance.CheckOut.Value - todayAttendance.CheckIn.Value).TotalHours;

@@ -75,8 +75,7 @@ namespace Clinic_Management_System.Controllers
             _context.SaveChanges();
 
             return RedirectToAction("GetById", "InternDoctors", new { id = attendance.InternDoctorId });
-            //or retern to attendance bage
-            // return RedirectToAction("Index", new { date = attendance.Date });
+
         }
         #endregion
 
@@ -107,13 +106,12 @@ namespace Clinic_Management_System.Controllers
             DateTime startDate;
             DateTime endDate;
 
-            // ✅ لو المستخدم اختار تواريخ من الفورم
             if (from.HasValue && to.HasValue)
             {
                 startDate = from.Value.Date;
                 endDate = to.Value.Date;
             }
-            // ✅ لو ما اختارش، استخدم الشهر الحالي
+
             else
             {
                 startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
@@ -139,7 +137,6 @@ namespace Clinic_Management_System.Controllers
             return View(filteredAttendances);
         }
 
-
         #endregion
 
         [HttpPost]
@@ -149,7 +146,6 @@ namespace Clinic_Management_System.Controllers
             if (doctor == null)
                 return NotFound("Doctor not found or inactive.");
 
-            // لو تم تسجيله النهارده بالفعل
             bool alreadyCheckedIn = _context.InternDoctorAttendances
                 .Any(a => a.InternDoctorId == doctorId && a.Date.Date == DateTime.Today);
 
@@ -188,7 +184,6 @@ namespace Clinic_Management_System.Controllers
             var todayAttendance = _context.InternDoctorAttendances
                 .FirstOrDefault(a => a.InternDoctorId == doctorId && a.Date >= today && a.Date < tomorrow);
 
-
             if (todayAttendance == null)
             {
                 TempData["Message"] = "⚠️ لم يتم تسجيل حضور هذا الطبيب اليوم.";
@@ -201,7 +196,6 @@ namespace Clinic_Management_System.Controllers
                 return RedirectToAction("Index", "InternDoctors");
             }
 
-            // تسجيل الانصراف الآن
             todayAttendance.CheckOut = DateTime.Now;
             if (todayAttendance.CheckIn != null)
             {
@@ -209,15 +203,11 @@ namespace Clinic_Management_System.Controllers
                 todayAttendance.Hours = Math.Round(duration, 2);
             }
 
-
-
-
             _context.SaveChanges();
 
             TempData["Message"] = $"👋 تم تسجيل انصراف {doctor.FullName} في {DateTime.Now:HH:mm}";
             return RedirectToAction("Index", "InternDoctors");
         }
-
 
     }
 }

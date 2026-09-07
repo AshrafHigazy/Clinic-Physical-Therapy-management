@@ -14,9 +14,8 @@ namespace Clinic_Management_System.Controllers
     {
         private readonly ApplicationDbContext _context;
 
-        // ساعات العمل وقيود
-        private readonly int OpeningHour = 12; // 12:00
-        private readonly int LastStartHour = 22; // آخر بداية موعد تكون 22:00 (ينتهي 23:00)
+        private readonly int OpeningHour = 12;
+        private readonly int LastStartHour = 22;
         private readonly int MaxPerHour = 4;
         private readonly TimeSpan AppointmentDuration = TimeSpan.FromHours(1);
 
@@ -25,13 +24,11 @@ namespace Clinic_Management_System.Controllers
             _context = context;
         }
 
-        // صفحة التقويم (إذا أردت view مستقلة — لكن انت قلت Index يعرض الكالندر)
         public IActionResult Calendar()
         {
-            return View(); // إذا تستخدم View بسيط أو Redirect إلى Home/Index حسب مشروعك
+            return View();
         }
 
-        // FullCalendar يستدعي هذا ليجلب الأحداث
         [HttpGet]
         public async Task<IActionResult> GetAppointments()
         {
@@ -48,7 +45,7 @@ namespace Clinic_Management_System.Controllers
                     isCanceled = a.IsCanceled,
                     receptionist = a.Receptionist != null ? (a.Receptionist.FullName ?? a.Receptionist.Id.ToString()) : "غير محدد",
                     description = a.IsCanceled ? " غاب" : (a.IsAttended ? " حضر" : " لم يتأكد"),
-                    // اللون: أخضر افتراضي للحجز الصحيح، أحمر إذا ملغى
+
                     color = a.IsCanceled ? "#dc3545" : "#28a745"
                 })
                 .ToListAsync();
@@ -59,7 +56,7 @@ namespace Clinic_Management_System.Controllers
         [HttpGet]
         public async Task<IActionResult> ConfirmBooking(int patientId, DateTime date)
         {
-            // جلب سكرتيرات (أو أي مستخدِمين بصفتهم receptionists)
+
             var receptionists = await _context.Receptionist
                 .OrderBy(r => r.FullName)
                 .ToListAsync();
@@ -68,11 +65,9 @@ namespace Clinic_Management_System.Controllers
             ViewBag.PatientId = patientId;
             ViewBag.Date = date.ToString("yyyy-MM-ddTHH:mm");
 
-
             return PartialView("_ConfirmBooking", model: null);
         }
 
-        // POST: إنشاء حجز (من نافذة التأكيد - نمرر patientId, start (ISO), receptionistId)
         [HttpPost]
         public async Task<IActionResult> Create(int patientId, string start, int receptionistId)
         {
@@ -95,13 +90,11 @@ namespace Clinic_Management_System.Controllers
             startTime = new DateTime(startTime.Year, startTime.Month, startTime.Day, startTime.Hour, startTime.Minute, 0);
             DateTime endTime = startTime.Add(AppointmentDuration);
 
-            // ساعات العمل
             if (startTime.Hour < OpeningHour || startTime.Hour > LastStartHour)
             {
                 return Json(new { success = false, message = $"⚠ ساعات العمل من {OpeningHour}:00 إلى {LastStartHour + 1}:00" });
             }
 
-            // نفس المريض لا يمكن أن يكون له موعد متداخل
             bool patientOverlap = await _context.Appointment.AnyAsync(a =>
                 a.PatientId == patientId &&
                 a.StartTime < endTime &&
@@ -114,7 +107,6 @@ namespace Clinic_Management_System.Controllers
                 return Json(new { success = false, message = "⚠ المريض لديه موعد متداخل في نفس الفترة." });
             }
 
-            // لا يزيد عدد المرضى المتداخلين عن 4
             int overlappingCount = await _context.Appointment.CountAsync(a =>
                 a.StartTime < endTime &&
                 a.EndTime > startTime &&
@@ -126,7 +118,6 @@ namespace Clinic_Management_System.Controllers
                 return Json(new { success = false, message = "⚠ هذا التوقيت ممتلئ بالفعل (4 مرضى كحد أقصى)." });
             }
 
-            // إنشاء الحجز
             var appointment = new Appointment
             {
                 PatientId = patientId,
@@ -142,9 +133,6 @@ namespace Clinic_Management_System.Controllers
             return Json(new { success = true, message = "✅ تم حجز الموعد بنجاح." });
         }
 
-
-
-        // عرض تفاصيل الموعد (PartialView) عند الضغط على حدث
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
@@ -155,10 +143,9 @@ namespace Clinic_Management_System.Controllers
 
             if (appt == null) return NotFound();
 
-            return PartialView("_AppointmentDetails", appt); // أنشئ PartialView لاحقاً
+            return PartialView("_AppointmentDetails", appt);
         }
 
-        // إلغاء الموعد
         [HttpPost]
         public async Task<IActionResult> Cancel(int id)
         {
@@ -174,7 +161,6 @@ namespace Clinic_Management_System.Controllers
             return Ok(new { success = true });
         }
 
-        // تحديث الحالة (حضر / لم يحضر) — يُستدعى عبر AJAX من FullCalendar buttons
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(int id, bool isAttended, bool isCanceled)
         {
@@ -189,7 +175,6 @@ namespace Clinic_Management_System.Controllers
             return Ok(new { success = true });
         }
 
-        // مسح الموعد (إن احتجت حذفًا دائمًا)
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {

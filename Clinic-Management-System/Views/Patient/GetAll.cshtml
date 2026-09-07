@@ -6,7 +6,7 @@
 }
 
 <div class="container py-4">
-    <!-- ✅ رسائل نجاح / تعديل / حذف -->
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success text-center rounded-3 shadow-sm" id="alertBox">
@@ -26,7 +26,6 @@
         </div>
     }
 
-    <!-- ✅ الكارد المودرن -->
     <div class="card card-modern mt-3">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h3 class="text-primary fw-bold"><i class="bi bi-people"></i> قائمة المرضى</h3>
@@ -35,7 +34,6 @@
             </a>
         </div>
 
-        <!-- ✅ نموذج البحث -->
         <form asp-action="GetAll" method="get" class="row g-2 mb-3 align-items-center">
             <div class="col-md-6">
                 <input type="text" name="searchString" class="form-control border-2 rounded-3"
@@ -57,7 +55,6 @@
             </div>
         </form>
 
-        <!-- ✅ جدول المرضى -->
         <div class="table-responsive">
             <table class="table table-hover text-center align-middle table-modern">
                 <thead class="table-primary">
@@ -136,7 +133,6 @@
     </div>
 </div>
 
-<!-- ✅ نافذة تأكيد الحجز -->
 <div class="modal fade" id="confirmBookingModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -158,7 +154,7 @@
 
 @section Scripts {
     <script>
-        // ✅ إخفاء الرسالة بعد 5 ثوانٍ
+
         setTimeout(() => {
             const alertBox = document.getElementById("alertBox");
             if (alertBox) {
@@ -168,7 +164,6 @@
             }
         }, 5000);
 
-        // ✅ Popup الحجز AJAX
         function openBookingPopupAjax(patientId, date) {
             if (!date) date = new Date().toISOString().split('T')[0];
             $.get('/Appointment/ConfirmBooking', { patientId: patientId, date: date + 'T09:00' })
@@ -192,7 +187,7 @@
     </script>
 
     <style>
-        /* ✅ نفس نمط التقويم */
+
         .card-modern {
             background: #fff;
             border-radius: 20px;
@@ -227,7 +222,7 @@
             }
 
         .modal-dialog {
-            margin-top: 120px !important; /* نزل المودال تحت */
+            margin-top: 120px !important;
         }
 
         @@keyframes fadeIn {

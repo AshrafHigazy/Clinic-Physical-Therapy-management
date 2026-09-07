@@ -13,7 +13,7 @@ namespace Clinic_Management_System.Models
 
         [Key]
         [DataType(DataType.Date)]
-        public DateTime Date { get; set; }  
+        public DateTime Date { get; set; }
 
         [DataType(DataType.DateTime)]
         public DateTime? CheckIn { get; set; }
@@ -24,7 +24,6 @@ namespace Clinic_Management_System.Models
         [Range(0, 24, ErrorMessage = "Hours must be between 0 and 24")]
         public int? Hours { get; set; }
 
-        // 🔹 Navigation Property
         public Receptionist? Receptionist { get; set; }
     }
 }
