@@ -1,34 +1,31 @@
-﻿using Clinic_Management_System.Data;
-using Clinic_Management_System.Models;
+﻿using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Controllers
 {
     [Authorize(Roles = "AdminDoctor,Secretary")]
     public class TreatmentSessionController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ITreatmentSessionRepository _treatmentSessionRepository;
 
-        public TreatmentSessionController(ApplicationDbContext context)
+        public TreatmentSessionController(ITreatmentSessionRepository treatmentSessionRepository)
         {
-            _context = context;
+            _treatmentSessionRepository = treatmentSessionRepository;
         }
 
         public async Task<IActionResult> Create(int patientId)
         {
-            var patient = await _context.Patient.FindAsync(patientId);
+            var patient = await _treatmentSessionRepository.FindPatientAsync(patientId);
             if (patient == null)
             {
                 TempData["Error"] = "المريض غير موجود.";
                 return RedirectToAction("GetAll", "Patient");
             }
 
-            var package = await _context.Packages
-                .Where(p => p.PatientId == patientId && p.Status == "Active" && p.NumOfSessions > p.SessionsCount)
-                .OrderBy(p => p.StartDate)
-                .FirstOrDefaultAsync();
+            var package = await _treatmentSessionRepository.GetActivePackageByPatientAsync(patientId);
 
             if (package == null)
             {
@@ -39,21 +36,21 @@ namespace Clinic_Management_System.Controllers
             var session = new TreatmentSession
             {
                 PackageId = package.Id,
-                SessionDate = DateTime.Now,
+                SessionDate = System.DateTime.Now,
                 Prognosis = "غير محدد حالياً"
             };
 
-            _context.treatmentSessions.Add(session);
+            _treatmentSessionRepository.AddTreatmentSession(session);
 
             package.SessionsCount++;
 
             if (package.SessionsCount >= package.NumOfSessions)
             {
                 package.Status = "Ended";
-                package.EndDate = DateTime.Now;
+                package.EndDate = System.DateTime.Now;
             }
 
-            await _context.SaveChangesAsync();
+            await _treatmentSessionRepository.SaveChangesAsync();
 
             TempData["Success"] = "✔ تم إضافة الجلسة بنجاح.";
             return RedirectToAction("PatientPackages", "Packages", new { patientId });
@@ -61,8 +58,7 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var session = await _context.treatmentSessions
-                .FirstOrDefaultAsync(s => s.Id == id);
+            var session = await _treatmentSessionRepository.GetSessionByIdAsync(id);
 
             if (session == null)
                 return NotFound();
@@ -74,15 +70,14 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, string prognosis)
         {
-            var session = await _context.treatmentSessions.FindAsync(id);
+            var session = await _treatmentSessionRepository.FindSessionAsync(id);
 
             if (session == null)
                 return NotFound();
 
             session.Prognosis = prognosis;
 
-            _context.treatmentSessions.Update(session);
-            await _context.SaveChangesAsync();
+            await _treatmentSessionRepository.UpdateSessionAsync(session);
 
             TempData["Success"] = "✔ تم تعديل التقييم بنجاح.";
             return RedirectToAction("Details", "Packages", new { id = session.PackageId });
@@ -90,9 +85,7 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            var session = await _context.treatmentSessions
-                .Include(s => s.Package)
-                .FirstOrDefaultAsync(s => s.Id == id);
+            var session = await _treatmentSessionRepository.GetSessionWithPackageAsync(id);
 
             if (session == null) return NotFound();
 
@@ -104,10 +97,10 @@ namespace Clinic_Management_System.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var session = await _context.treatmentSessions.FindAsync(id);
+            var session = await _treatmentSessionRepository.FindSessionAsync(id);
             if (session == null) return NotFound();
 
-            var package = await _context.Packages.FindAsync(session.PackageId);
+            var package = await _treatmentSessionRepository.FindPackageAsync(session.PackageId);
             if (package != null)
             {
 
@@ -121,12 +114,12 @@ namespace Clinic_Management_System.Controllers
                         package.EndDate = null;
                     }
 
-                    _context.Packages.Update(package);
+                    _treatmentSessionRepository.UpdatePackage(package);
                 }
             }
 
-            _context.treatmentSessions.Remove(session);
-            await _context.SaveChangesAsync();
+            _treatmentSessionRepository.RemoveSession(session);
+            await _treatmentSessionRepository.SaveChangesForDeleteAsync();
 
             TempData["Success"] = "تم حذف الجلسة بنجاح.";
 

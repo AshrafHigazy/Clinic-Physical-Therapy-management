@@ -1,4 +1,5 @@
 using Clinic_Management_System.Data;
+using Clinic_Management_System.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,6 +34,18 @@ namespace Clinic_Management_System
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+
+            builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+            builder.Services.AddScoped<ICheckRepository, CheckRepository>();
+            builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+            builder.Services.AddScoped<IInternDoctorRepository, InternDoctorRepository>();
+            builder.Services.AddScoped<IInternDoctorAttendanceRepository, InternDoctorAttendanceRepository>();
+            builder.Services.AddScoped<IOrganizationRepository, OrganizationRepository>();
+            builder.Services.AddScoped<IPackageRepository, PackageRepository>();
+            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+            builder.Services.AddScoped<IReceptionistRepository, ReceptionistRepository>();
+            builder.Services.AddScoped<IReceptionistAttendanceRepository, ReceptionistAttendanceRepository>();
+            builder.Services.AddScoped<ITreatmentSessionRepository, TreatmentSessionRepository>();
 
             var app = builder.Build();
 

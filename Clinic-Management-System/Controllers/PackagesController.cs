@@ -1,35 +1,34 @@
-﻿using Clinic_Management_System.Data;
-using Clinic_Management_System.Models;
+﻿using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Controllers
 {
     [Authorize(Roles = "AdminDoctor,Secretary")]
     public class PackagesController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IPackageRepository _packageRepository;
 
-        public PackagesController(ApplicationDbContext context)
+        public PackagesController(IPackageRepository packageRepository)
         {
-            _context = context;
+            _packageRepository = packageRepository;
         }
 
         [HttpGet]
         public IActionResult Create(int patientId)
         {
-            var patient = _context.Patient
-                .Include(p => p.Packages)
-                .FirstOrDefault(p => p.Id == patientId);
+            var patient = _packageRepository.GetPatientWithPackages(patientId);
 
             if (patient == null)
                 return NotFound("المريض غير موجود");
 
             ViewBag.PatientId = patient.Id;
             ViewBag.PatientName = patient.FullName;
-            ViewBag.Checks = _context.Checks.Where(c => c.PatientId == patientId).ToList();
-            ViewBag.Organizations = _context.Organizations.ToList();
+            ViewBag.Checks = _packageRepository.GetChecksByPatient(patientId);
+            ViewBag.Organizations = _packageRepository.GetAllOrganizations();
 
             var packages = patient.Packages.ToList();
             if (!packages.Any())
@@ -48,14 +47,7 @@ namespace Clinic_Management_System.Controllers
         [HttpGet]
         public IActionResult SearchDoctors(string term)
         {
-            var doctors = _context.InternDoctors
-                .Where(d => d.FullName.Contains(term))
-                .Select(d => new
-                {
-                    id = d.InternDoctorId,
-                    name = d.FullName
-                })
-                .ToList();
+            var doctors = _packageRepository.SearchDoctors(term);
 
             return Json(doctors);
         }
@@ -68,14 +60,14 @@ namespace Clinic_Management_System.Controllers
             package.PatientId = patientId;
 
             package.SessionsCount = 0;
-            package.StartDate = DateTime.Now;
+            package.StartDate = System.DateTime.Now;
             package.EndDate = null;
             package.Status = "Active";
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Organizations = _context.Organizations.ToList();
-                ViewBag.Checks = _context.Checks.Where(c => c.PatientId == patientId).ToList();
+                ViewBag.Organizations = _packageRepository.GetAllOrganizations();
+                ViewBag.Checks = _packageRepository.GetChecksByPatient(patientId);
                 TempData["Error"] = string.Join(" | ",
                     ModelState.Values.SelectMany(v => v.Errors)
                                      .Select(e => e.ErrorMessage));
@@ -85,13 +77,12 @@ namespace Clinic_Management_System.Controllers
             if (package.NumOfSessions <= 0)
             {
                 ModelState.AddModelError(nameof(package.NumOfSessions), "عدد الجلسات يجب أن يكون أكبر من صفر.");
-                ViewBag.Organizations = _context.Organizations.ToList();
-                ViewBag.Checks = _context.Checks.Where(c => c.PatientId == patientId).ToList();
+                ViewBag.Organizations = _packageRepository.GetAllOrganizations();
+                ViewBag.Checks = _packageRepository.GetChecksByPatient(patientId);
                 return View(package);
             }
 
-            _context.Packages.Add(package);
-            await _context.SaveChangesAsync();
+            await _packageRepository.AddPackageAsync(package);
 
             TempData["Success"] = "تمت إضافة الباقة بنجاح.";
 
@@ -100,16 +91,13 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var package = await _context.Packages
-           .Include(p => p.Patient)
-           .Include(p => p.Organization)
-           .FirstOrDefaultAsync(p => p.Id == id);
+            var package = await _packageRepository.GetPackageWithPatientAndOrgAsync(id);
 
             if (package == null) return NotFound();
 
-            ViewBag.Doctors = _context.InternDoctors.Where(d => d.IsActive).ToList();
-            ViewBag.Organizations = _context.Organizations.ToList();
-            ViewBag.Checks = _context.Checks.Where(c => c.PatientId == package.PatientId).ToList();
+            ViewBag.Doctors = _packageRepository.GetActiveInternDoctors();
+            ViewBag.Organizations = _packageRepository.GetAllOrganizations();
+            ViewBag.Checks = _packageRepository.GetChecksByPatient(package.PatientId);
 
             return View(package);
         }
@@ -120,7 +108,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (id != package.Id) return NotFound();
 
-            var existing = await _context.Packages.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+            var existing = await _packageRepository.GetPackageAsNoTrackingAsync(id);
             if (existing == null) return NotFound();
 
             package.PatientId = existing.PatientId;
@@ -138,9 +126,9 @@ namespace Clinic_Management_System.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewBag.Doctors = _context.InternDoctors.Where(d => d.IsActive).ToList();
-                ViewBag.Organizations = _context.Organizations.ToList();
-                ViewBag.Checks = _context.Checks.Where(c => c.PatientId == package.PatientId).ToList();
+                ViewBag.Doctors = _packageRepository.GetActiveInternDoctors();
+                ViewBag.Organizations = _packageRepository.GetAllOrganizations();
+                ViewBag.Checks = _packageRepository.GetChecksByPatient(package.PatientId);
                 return View(package);
             }
 
@@ -153,38 +141,30 @@ namespace Clinic_Management_System.Controllers
             {
                 package.SessionsCount = package.NumOfSessions;
                 package.Status = "Ended";
-                package.EndDate = DateTime.Now;
+                package.EndDate = System.DateTime.Now;
             }
 
             try
             {
-                _context.Update(package);
-                await _context.SaveChangesAsync();
+                await _packageRepository.UpdatePackageAsync(package);
 
                 TempData["Success"] = "تم تعديل الباقة بنجاح.";
 
                 return RedirectToAction("GetAll", "Patient");
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 TempData["Error"] = "حدث خطأ أثناء الحفظ: " + ex.Message;
-                ViewBag.Doctors = _context.InternDoctors.Where(d => d.IsActive).ToList();
-                ViewBag.Organizations = _context.Organizations.ToList();
-                ViewBag.Checks = _context.Checks.Where(c => c.PatientId == package.PatientId).ToList();
+                ViewBag.Doctors = _packageRepository.GetActiveInternDoctors();
+                ViewBag.Organizations = _packageRepository.GetAllOrganizations();
+                ViewBag.Checks = _packageRepository.GetChecksByPatient(package.PatientId);
                 return View(package);
             }
         }
 
         public async Task<IActionResult> Details(int id)
         {
-            var package = await _context.Packages
-                .AsNoTracking()
-                .Include(p => p.Patient)
-                .Include(p => p.InternDoctor)
-                .Include(p => p.Check)
-                .Include(p => p.Organization)
-                .Include(p => p.TreatmentSessions)
-                .FirstOrDefaultAsync(p => p.Id == id);
+            var package = await _packageRepository.GetPackageDetailsAsync(id);
 
             if (package == null) return NotFound();
 
@@ -196,12 +176,7 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var packages = await _context.Packages
-                .Include(p => p.Patient)
-                .Include(p => p.InternDoctor)
-                .Include(p => p.Organization)
-                .Include(p => p.TreatmentSessions)
-                .ToListAsync();
+            var packages = await _packageRepository.GetAllPackagesWithIncludesAsync();
 
             packages = packages
                 .OrderBy(p => p.Status == "Ended")
@@ -213,13 +188,9 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> PatientPackages(int patientId)
         {
-            var packages = await _context.Packages
-                .Where(p => p.PatientId == patientId)
-                .Include(p => p.InternDoctor)
-                .Include(p => p.Organization)
-                .ToListAsync();
+            var packages = await _packageRepository.GetPatientPackagesAsync(patientId);
 
-            var patient = await _context.Patient.FindAsync(patientId);
+            var patient = await _packageRepository.FindPatientAsync(patientId);
 
             ViewBag.PatientName = patient?.FullName;
             ViewBag.PatientId = patientId;

@@ -1,32 +1,26 @@
-﻿using Clinic_Management_System.Data;
-using Clinic_Management_System.Models;
+﻿using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Controllers
 {
     [Authorize(Roles = "AdminDoctor,Secretary")]
     public class InternDoctorsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IInternDoctorRepository _internDoctorRepository;
 
-        public InternDoctorsController(ApplicationDbContext context)
+        public InternDoctorsController(IInternDoctorRepository internDoctorRepository)
         {
-            _context = context;
+            _internDoctorRepository = internDoctorRepository;
         }
 
         public async Task<IActionResult> Index(string? search)
         {
-            var doctors = from d in _context.InternDoctors
-                          select d;
+            var doctors = await _internDoctorRepository.GetDoctorsAsync(search);
 
-            if (!string.IsNullOrEmpty(search))
-                doctors = doctors.Where(d => d.FullName.Contains(search) || d.Phone.Contains(search));
-
-            doctors = doctors.OrderByDescending(d => d.IsActive).ThenBy(d => d.FullName);
-
-            return View(await doctors.ToListAsync());
+            return View(doctors);
         }
 
         public IActionResult Create()
@@ -40,8 +34,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(doctor);
-                await _context.SaveChangesAsync();
+                await _internDoctorRepository.AddDoctorAsync(doctor);
                 return RedirectToAction(nameof(Index));
             }
             return View(doctor);
@@ -49,9 +42,7 @@ namespace Clinic_Management_System.Controllers
 
         public IActionResult GetById(int id)
         {
-            var doctor = _context.InternDoctors
-                .Include(d => d.Attendances)
-                .FirstOrDefault(m => m.InternDoctorId == id);
+            var doctor = _internDoctorRepository.GetDoctorWithAttendances(id);
 
             if (doctor == null)
                 return NotFound();
@@ -61,7 +52,7 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var doctor = await _context.InternDoctors.FindAsync(id);
+            var doctor = await _internDoctorRepository.FindDoctorAsync(id);
             if (doctor == null)
                 return NotFound();
 
@@ -77,8 +68,7 @@ namespace Clinic_Management_System.Controllers
 
             if (ModelState.IsValid)
             {
-                _context.Update(doctor);
-                await _context.SaveChangesAsync();
+                await _internDoctorRepository.UpdateDoctorAsync(doctor);
                 return RedirectToAction(nameof(Index));
             }
             return View(doctor);
@@ -86,8 +76,7 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> Delete(int id)
         {
-            var doctor = await _context.InternDoctors
-                .FirstOrDefaultAsync(d => d.InternDoctorId == id);
+            var doctor = await _internDoctorRepository.GetDoctorByFilterAsync(id);
 
             if (doctor == null)
                 return NotFound();
@@ -99,12 +88,11 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var doctor = await _context.InternDoctors.FindAsync(id);
+            var doctor = await _internDoctorRepository.FindDoctorAsync(id);
             if (doctor == null)
                 return NotFound();
 
-            _context.InternDoctors.Remove(doctor);
-            await _context.SaveChangesAsync();
+            await _internDoctorRepository.RemoveDoctorAsync(doctor);
 
             return RedirectToAction(nameof(Index));
         }
@@ -112,12 +100,12 @@ namespace Clinic_Management_System.Controllers
         [HttpPost]
         public async Task<IActionResult> ToggleActive(int id)
         {
-            var doctor = await _context.InternDoctors.FindAsync(id);
+            var doctor = await _internDoctorRepository.FindDoctorAsync(id);
             if (doctor == null)
                 return NotFound();
 
             doctor.IsActive = !doctor.IsActive;
-            await _context.SaveChangesAsync();
+            await _internDoctorRepository.UpdateDoctorAsync(doctor);
 
             return RedirectToAction(nameof(Index));
         }
@@ -126,17 +114,15 @@ namespace Clinic_Management_System.Controllers
         public IActionResult QuickCheckOut(int doctorId)
         {
 
-            var doctor = _context.InternDoctors
-                .FirstOrDefault(d => d.InternDoctorId == doctorId && d.IsActive);
+            var doctor = _internDoctorRepository.GetActiveInternDoctor(doctorId);
 
             if (doctor == null)
                 return NotFound("Doctor not found or inactive.");
 
-            var today = DateTime.Today;
+            var today = System.DateTime.Today;
             var tomorrow = today.AddDays(1);
 
-            var todayAttendance = _context.InternDoctorAttendances
-                .FirstOrDefault(a => a.InternDoctorId == doctorId && a.Date >= today && a.Date < tomorrow);
+            var todayAttendance = _internDoctorRepository.GetTodayAttendance(doctorId, today, tomorrow);
 
             if (todayAttendance == null)
             {
@@ -150,7 +136,7 @@ namespace Clinic_Management_System.Controllers
                 return RedirectToAction("Index", "InternDoctors");
             }
 
-            todayAttendance.CheckOut = DateTime.Now;
+            todayAttendance.CheckOut = System.DateTime.Now;
 
             if (todayAttendance.CheckIn != null)
             {
@@ -158,9 +144,9 @@ namespace Clinic_Management_System.Controllers
                 todayAttendance.Hours = Math.Round(duration, 2);
             }
 
-            _context.SaveChanges();
+            _internDoctorRepository.SaveChanges();
 
-            TempData["Message"] = $"👋 تم تسجيل انصراف {doctor.FullName} في {DateTime.Now:HH:mm}";
+            TempData["Message"] = $"👋 تم تسجيل انصراف {doctor.FullName} في {System.DateTime.Now:HH:mm}";
             return RedirectToAction("Index", "InternDoctors");
         }
     }

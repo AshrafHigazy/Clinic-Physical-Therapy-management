@@ -1,10 +1,9 @@
-﻿using Clinic_Management_System.Data;
-using Clinic_Management_System.Models;
+﻿using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,19 +13,16 @@ namespace Clinic_Management_System.Controllers
 
     public class ChecksController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly ICheckRepository _checkRepository;
 
-        public ChecksController(ApplicationDbContext context)
+        public ChecksController(ICheckRepository checkRepository)
         {
-            _context = context;
+            _checkRepository = checkRepository;
         }
 
         public async Task<IActionResult> Index()
         {
-            var checks = await _context.Checks
-                .Include(c => c.Patient)
-                .OrderByDescending(c => c.CreatedAt)
-                .ToListAsync();
+            var checks = await _checkRepository.GetChecksAsync();
 
             return View(checks);
         }
@@ -36,9 +32,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _context.Checks
-                .Include(c => c.Patient)
-                .FirstOrDefaultAsync(c => c.CheckId == id);
+            var check = await _checkRepository.GetCheckDetailsAsync(id);
 
             if (check == null)
                 return NotFound();
@@ -50,18 +44,18 @@ namespace Clinic_Management_System.Controllers
         {
             if (patientId.HasValue)
             {
-                var patient = _context.Patient.FirstOrDefault(p => p.Id == patientId.Value);
+                var patient = _checkRepository.GetPatientById(patientId.Value);
                 ViewBag.PatientName = patient?.FullName;
 
                 var check = new Check
                 {
                     PatientId = patientId.Value,
-                    CreatedAt = DateTime.Now
+                    CreatedAt = System.DateTime.Now
                 };
                 return View(check);
             }
 
-            ViewData["PatientId"] = new SelectList(_context.Patient, "Id", "FullName");
+            ViewData["PatientId"] = new SelectList(_checkRepository.GetPatientsForSelect(), "Id", "FullName");
             return View();
         }
 
@@ -77,13 +71,12 @@ namespace Clinic_Management_System.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewData["PatientId"] = new SelectList(_context.Patient, "Id", "FullName", check.PatientId);
+                ViewData["PatientId"] = new SelectList(_checkRepository.GetPatientsForSelect(), "Id", "FullName", check.PatientId);
                 return View(check);
             }
 
-            check.CreatedAt = DateTime.Now;
-            _context.Checks.Add(check);
-            await _context.SaveChangesAsync();
+            check.CreatedAt = System.DateTime.Now;
+            await _checkRepository.AddCheckAsync(check);
 
             return RedirectToAction(nameof(Index));
         }
@@ -93,9 +86,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _context.Checks
-                .Include(c => c.Patient)
-                .FirstOrDefaultAsync(c => c.CheckId == id);
+            var check = await _checkRepository.GetCheckForEditAsync(id);
 
             if (check == null)
                 return NotFound();
@@ -116,12 +107,11 @@ namespace Clinic_Management_System.Controllers
 
             try
             {
-                _context.Update(check);
-                await _context.SaveChangesAsync();
+                await _checkRepository.UpdateCheckAsync(check);
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!_context.Checks.Any(e => e.CheckId == check.CheckId))
+                if (!_checkRepository.CheckExists(check.CheckId))
                     return NotFound();
                 throw;
             }
@@ -135,9 +125,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _context.Checks
-                .Include(c => c.Patient)
-                .FirstOrDefaultAsync(m => m.CheckId == id);
+            var check = await _checkRepository.GetCheckForEditAsync(id);
 
             if (check == null)
                 return NotFound();
@@ -150,11 +138,10 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var check = await _context.Checks.FindAsync(id);
+            var check = await _checkRepository.FindCheckAsync(id);
             if (check != null)
             {
-                _context.Checks.Remove(check);
-                await _context.SaveChangesAsync();
+                await _checkRepository.RemoveCheckAsync(check);
             }
 
             return RedirectToAction(nameof(Index));

@@ -1,9 +1,7 @@
+using Clinic_Management_System.Models.Enums;
+using Clinic_Management_System.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Clinic_Management_System.Data;
-using Clinic_Management_System.Models;
-using Clinic_Management_System.Models.Enums;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,11 +11,11 @@ namespace Clinic_Management_System.Controllers
     [Authorize(Roles = "AdminDoctor")]
     public class DashboardController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IDashboardRepository _dashboardRepository;
 
-        public DashboardController(ApplicationDbContext context)
+        public DashboardController(IDashboardRepository dashboardRepository)
         {
-            _context = context;
+            _dashboardRepository = dashboardRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -27,44 +25,36 @@ namespace Clinic_Management_System.Controllers
             var saturday = today.AddDays(-1 * diff).Date;
             var currentYear = today.Year;
 
-            ViewBag.TotalPatients = await _context.Patient.CountAsync();
+            ViewBag.TotalPatients = await _dashboardRepository.CountPatientsAsync();
 
-            var appointmentsToday = await _context.Appointment
-                .Include(a => a.Patient)
-                .Include(a => a.Receptionist)
-                .Where(a => a.StartTime.Date == today)
-                .ToListAsync();
+            var appointmentsToday = await _dashboardRepository.GetAppointmentsForDateAsync(today);
 
             ViewBag.TodayAppointmentsCount = appointmentsToday.Count;
             ViewBag.TodayAttended = appointmentsToday.Count(a => a.IsAttended);
             ViewBag.TodayCanceled = appointmentsToday.Count(a => a.IsCanceled);
 
-            var activePackages = await _context.Packages.Where(p => p.Status == "Active").ToListAsync();
+            var activePackages = await _dashboardRepository.GetActivePackagesAsync();
             ViewBag.ActivePackagesCount = activePackages.Count;
-            ViewBag.TotalRevenue = await _context.Packages.SumAsync(p => p.AmountPaid);
+            ViewBag.TotalRevenue = await _dashboardRepository.SumPackagesAmountPaidAsync();
 
             var weeklyAppointments = new int[7];
             for (int i = 0; i < 7; i++)
             {
                 var targetDate = saturday.AddDays(i);
-                weeklyAppointments[i] = await _context.Appointment
-                    .Where(a => a.StartTime.Date == targetDate.Date)
-                    .CountAsync();
+                weeklyAppointments[i] = await _dashboardRepository.CountAppointmentsOnDateAsync(targetDate);
             }
             ViewBag.WeeklyAppointments = weeklyAppointments;
 
             var distribution = new int[5];
-            distribution[0] = await _context.Packages.CountAsync(p => p.Type == PackageType.ذهبي);
-            distribution[1] = await _context.Packages.CountAsync(p => p.Type == PackageType.فضي);
-            distribution[2] = await _context.Packages.CountAsync(p => p.Type == PackageType.الماسي);
-            distribution[3] = await _context.Packages.CountAsync(p => p.Type == PackageType.منزلي);
-            distribution[4] = await _context.Packages.CountAsync(p => p.Type == PackageType.جلسة);
+            distribution[0] = await _dashboardRepository.CountPackagesByTypeAsync(PackageType.ذهبي);
+            distribution[1] = await _dashboardRepository.CountPackagesByTypeAsync(PackageType.فضي);
+            distribution[2] = await _dashboardRepository.CountPackagesByTypeAsync(PackageType.الماسي);
+            distribution[3] = await _dashboardRepository.CountPackagesByTypeAsync(PackageType.منزلي);
+            distribution[4] = await _dashboardRepository.CountPackagesByTypeAsync(PackageType.جلسة);
             ViewBag.PackageDistribution = distribution;
 
             var monthlyData = new { Counts = new int[12], Revenues = new decimal[12] };
-            var yearPackages = await _context.Packages
-                .Where(p => p.StartDate.Year == currentYear)
-                .ToListAsync();
+            var yearPackages = await _dashboardRepository.GetCurrentYearPackagesAsync(currentYear);
 
             for (int month = 1; month <= 12; month++)
             {
@@ -76,18 +66,9 @@ namespace Clinic_Management_System.Controllers
             ViewBag.MonthlyDataRevenues = monthlyData.Revenues;
             ViewBag.CurrentMonthIndex = today.Month - 1;
 
-            var todayPackages = await _context.Packages
-                .Include(p => p.Patient)
-                .Include(p => p.Check)
-                .Where(p => p.StartDate.Date == today)
-                .ToListAsync();
-            var todayChecks = await _context.Checks
-                .Include(c => c.Patient)
-                .Where(c => c.CreatedAt.Date == today)
-                .ToListAsync();
-            var newPatientsToday = await _context.Patient
-                .Where(p => p.CreateAt.Date == today)
-                .CountAsync();
+            var todayPackages = await _dashboardRepository.GetTodayPackagesAsync(today);
+            var todayChecks = await _dashboardRepository.GetTodayChecksAsync(today);
+            var newPatientsToday = await _dashboardRepository.CountNewPatientsTodayAsync(today);
 
             ViewBag.TodayPackagesSum = todayPackages.Sum(p => p.AmountPaid);
             ViewBag.TodayPackagesCount = todayPackages.Count;
@@ -97,17 +78,14 @@ namespace Clinic_Management_System.Controllers
             ViewBag.TodayChecksList = todayChecks;
             ViewBag.TodayTotalEarnings = todayPackages.Sum(p => p.AmountPaid);
 
-            ViewBag.RecentPatients = await _context.Patient
-                .OrderByDescending(p => p.CreateAt)
-                .Take(10)
-                .ToListAsync();
+            ViewBag.RecentPatients = await _dashboardRepository.GetRecentPatientsAsync();
             ViewBag.TodayAppointmentsList = appointmentsToday.OrderBy(a => a.StartTime).ToList();
 
-            ViewBag.ActiveDoctors = await _context.InternDoctors.CountAsync(d => d.IsActive);
-            ViewBag.ActiveOrganizations = await _context.Organizations.CountAsync(o => o.IsActive);
-            ViewBag.ActiveReceptionists = await _context.Receptionist.CountAsync(r => r.IsActive);
+            ViewBag.ActiveDoctors = await _dashboardRepository.CountActiveInternDoctorsAsync();
+            ViewBag.ActiveOrganizations = await _dashboardRepository.CountActiveOrganizationsAsync();
+            ViewBag.ActiveReceptionists = await _dashboardRepository.CountActiveReceptionistsAsync();
 
-            var allPackages = await _context.Packages.ToListAsync();
+            var allPackages = await _dashboardRepository.GetAllPackagesAsync();
             ViewBag.ActivePackagesCountStat = allPackages.Count(p => p.Status == "Active");
             ViewBag.ExpiredPackagesCount = allPackages.Count(p => p.Status == "Ended" || string.Equals(p.Status, "Ended", StringComparison.OrdinalIgnoreCase) || p.SessionsCount >= p.NumOfSessions);
             ViewBag.RemainingSessionsOverall = allPackages.Sum(p => Math.Max(0, p.NumOfSessions - p.SessionsCount));
