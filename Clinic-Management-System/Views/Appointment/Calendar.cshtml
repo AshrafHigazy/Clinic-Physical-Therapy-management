@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "الحجوزات";
 }
 
@@ -31,12 +31,13 @@
                     left: 'prev,next today',
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                },
+
+                dateClick: function (info) {
+                    var selectedDate = info.dateStr;
+                    window.location.href = '/Patient/GetAll?date=' + selectedDate;
                 }
             });
-                    dateClick: function (info) {
-            var selectedDate = info.dateStr;
-            window.location.href = '/Patient/GetAll?date=' + selectedDate;
-        }
 
             calendar.render();
         });

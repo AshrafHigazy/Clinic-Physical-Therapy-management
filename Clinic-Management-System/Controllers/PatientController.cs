@@ -1,21 +1,21 @@
-﻿using Clinic_Management_System.Models;
+using Clinic_Management_System.Models;
 using Clinic_Management_System.Models.Enums;
-using Clinic_Management_System.Repositories;
+using Clinic_Management_System.Services.Patients;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
 
 namespace Clinic_Management_System.Controllers
 {
     [Authorize(Roles = "AdminDoctor,Secretary")]
-
     public class PatientController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IPatientService _patientService;
 
-        public PatientController(IUnitOfWork unitOfWork)
+        public PatientController(IPatientService patientService)
         {
-            _unitOfWork = unitOfWork;
+            _patientService = patientService;
         }
 
         public IActionResult GetAll(string searchString, string sortOrder, string date)
@@ -27,9 +27,9 @@ namespace Clinic_Management_System.Controllers
 
             ViewData["CurrentFilter"] = searchString;
             ViewData["AgeSortParm"] = sortOrder == "Age" ? "Age_desc" : "Age";
-            ViewData["DateSortParm"] = System.String.IsNullOrEmpty(sortOrder) ? "Date_desc" : "";
+            ViewData["DateSortParm"] = string.IsNullOrEmpty(sortOrder) ? "Date_desc" : "";
 
-            var patients = _unitOfWork.Patients.GetPatients(searchString, sortOrder);
+            var patients = _patientService.GetPatients(searchString, sortOrder);
 
             return View("GetAll", patients);
         }
@@ -40,7 +40,8 @@ namespace Clinic_Management_System.Controllers
             {
                 return NotFound();
             }
-            Patient patient = _unitOfWork.Patients.GetPatientById(id);
+
+            var patient = _patientService.GetPatientById(id);
             if (patient == null)
                 return NotFound();
 
@@ -60,11 +61,9 @@ namespace Clinic_Management_System.Controllers
             {
                 return View("Create", patient);
             }
-            patient.CreateAt = System.DateTime.Now;
-            _unitOfWork.Patients.AddPatient(patient);
-            _unitOfWork.SaveChanges();
 
-            TempData["SuccessMessage"] = "تمت إضافة المريض بنجاح!";
+            var result = _patientService.CreatePatient(patient);
+            TempData["SuccessMessage"] = result.Message;
 
             return RedirectToAction("GetAll");
         }
@@ -73,12 +72,13 @@ namespace Clinic_Management_System.Controllers
         {
             if (id == null || id == 0) return NotFound();
 
-            Patient patient = _unitOfWork.Patients.FindPatient(id);
+            var patient = _patientService.FindPatient(id);
             if (patient == null) return NotFound();
 
             return View("Edit", patient);
         }
-        #region Edit Action (Not Complete)
+
+        #region Edit Action
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Edit(int id, Patient patientFromRq)
@@ -87,50 +87,27 @@ namespace Clinic_Management_System.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    Patient patientDB = _unitOfWork.Patients.GetPatientById(id);
-                    patientDB.FullName = patientFromRq.FullName;
-                    patientDB.Address = patientFromRq.Address;
-                    patientDB.Age = patientFromRq.Age;
-                    patientDB.CreateAt = patientFromRq.CreateAt;
-                    patientDB.Phone = patientFromRq.Phone;
-                    patientDB.Gender = patientFromRq.Gender;
-                    patientDB.MedicalRecords = patientFromRq.MedicalRecords;
-                    _unitOfWork.Patients.UpdatePatient(patientDB);
-                    _unitOfWork.SaveChanges();
-                    TempData["EditMessage"] = "تم تعديل بيانات المريض بنجاح!";
-                    return RedirectToAction("GetAll");
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_unitOfWork.Patients.PatientExists(id))
-                        return NotFound();
-                    throw;
-                }
+                var result = _patientService.UpdatePatient(id, patientFromRq);
+                if (!result.Success)
+                    return NotFound();
+
+                TempData["EditMessage"] = result.Message;
+                return RedirectToAction("GetAll");
             }
             return View("Edit", patientFromRq);
         }
         #endregion
-        [Authorize(Roles = "AdminDoctor")]
 
+        [Authorize(Roles = "AdminDoctor")]
         public IActionResult Delete(int? id)
         {
             if (id == null || id == 0) return NotFound();
 
-            Patient patient = _unitOfWork.Patients.GetPatientById(id);
-            if (patient != null)
-            {
-                _unitOfWork.Patients.RemovePatient(patient);
-                _unitOfWork.SaveChanges();
-                return RedirectToAction("GetAll");
-            }
-            else
-            {
+            var result = _patientService.DeletePatient(id);
+            if (!result.Success)
                 return NotFound();
-            }
 
+            return RedirectToAction("GetAll");
         }
-
     }
 }

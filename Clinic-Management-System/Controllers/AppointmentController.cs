@@ -1,9 +1,7 @@
-﻿using Clinic_Management_System.Models;
-using Clinic_Management_System.Repositories;
+using Clinic_Management_System.Services.Appointments;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Controllers
@@ -11,16 +9,11 @@ namespace Clinic_Management_System.Controllers
     [Authorize(Roles = "AdminDoctor,Secretary")]
     public class AppointmentController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAppointmentService _appointmentService;
 
-        private readonly int OpeningHour = 12;
-        private readonly int LastStartHour = 22;
-        private readonly int MaxPerHour = 4;
-        private readonly TimeSpan AppointmentDuration = TimeSpan.FromHours(1);
-
-        public AppointmentController(IUnitOfWork unitOfWork)
+        public AppointmentController(IAppointmentService appointmentService)
         {
-            _unitOfWork = unitOfWork;
+            _appointmentService = appointmentService;
         }
 
         public IActionResult Calendar()
@@ -31,20 +24,18 @@ namespace Clinic_Management_System.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAppointments()
         {
-            var appointments = await _unitOfWork.Appointments.GetAllAppointmentsAsync();
-
+            var appointments = await _appointmentService.GetAllAppointmentsAsync();
             return Json(appointments);
         }
 
         [HttpGet]
         public async Task<IActionResult> ConfirmBooking(int patientId, DateTime date)
         {
-
-            var receptionists = await _unitOfWork.Appointments.GetReceptionistsAsync();
+            var (receptionists, formattedDate) = await _appointmentService.GetConfirmBookingDataAsync(patientId, date);
 
             ViewBag.Receptionists = receptionists;
             ViewBag.PatientId = patientId;
-            ViewBag.Date = date.ToString("yyyy-MM-ddTHH:mm");
+            ViewBag.Date = formattedDate;
 
             return PartialView("_ConfirmBooking", model: null);
         }
@@ -52,64 +43,14 @@ namespace Clinic_Management_System.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(int patientId, string start, int receptionistId)
         {
-            if (!DateTime.TryParseExact(
-                start,
-                "yyyy-MM-ddTHH:mm",
-                System.Globalization.CultureInfo.InvariantCulture,
-                System.Globalization.DateTimeStyles.None,
-                out DateTime startTime))
-            {
-                return Json(new { success = false, message = "❌ صيغة التاريخ غير صحيحة." });
-            }
-
-            var receptionist = await _unitOfWork.Appointments.FindReceptionistAsync(receptionistId);
-            if (receptionist == null)
-            {
-                return Json(new { success = false, message = "❌ اختيار سكرتير غير صالح." });
-            }
-
-            startTime = new DateTime(startTime.Year, startTime.Month, startTime.Day, startTime.Hour, startTime.Minute, 0);
-            DateTime endTime = startTime.Add(AppointmentDuration);
-
-            if (startTime.Hour < OpeningHour || startTime.Hour > LastStartHour)
-            {
-                return Json(new { success = false, message = $"⚠ ساعات العمل من {OpeningHour}:00 إلى {LastStartHour + 1}:00" });
-            }
-
-            bool patientOverlap = await _unitOfWork.Appointments.PatientHasOverlappingAppointmentAsync(patientId, startTime, endTime);
-
-            if (patientOverlap)
-            {
-                return Json(new { success = false, message = "⚠ المريض لديه موعد متداخل في نفس الفترة." });
-            }
-
-            int overlappingCount = await _unitOfWork.Appointments.CountOverlappingAppointmentsAsync(startTime, endTime);
-
-            if (overlappingCount >= MaxPerHour)
-            {
-                return Json(new { success = false, message = "⚠ هذا التوقيت ممتلئ بالفعل (4 مرضى كحد أقصى)." });
-            }
-
-            var appointment = new Appointment
-            {
-                PatientId = patientId,
-                ReceptionistId = receptionistId,
-                StartTime = startTime,
-                EndTime = endTime,
-                IsWithMainDoctor = true
-            };
-
-            _unitOfWork.Appointments.AddAppointment(appointment);
-            await _unitOfWork.SaveChangesAsync();
-
-            return Json(new { success = true, message = "✅ تم حجز الموعد بنجاح." });
+            var result = await _appointmentService.CreateAppointmentAsync(patientId, start, receptionistId);
+            return Json(new { success = result.Success, message = result.Message });
         }
 
         [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
-            var appt = await _unitOfWork.Appointments.GetAppointmentDetailsAsync(id);
-
+            var appt = await _appointmentService.GetAppointmentDetailsAsync(id);
             if (appt == null) return NotFound();
 
             return PartialView("_AppointmentDetails", appt);
@@ -118,14 +59,8 @@ namespace Clinic_Management_System.Controllers
         [HttpPost]
         public async Task<IActionResult> Cancel(int id)
         {
-            var appt = await _unitOfWork.Appointments.FindAppointmentAsync(id);
-            if (appt == null) return NotFound();
-
-            appt.IsCanceled = true;
-            appt.IsAttended = false;
-            _unitOfWork.Appointments.UpdateAppointment(appt);
-            await _unitOfWork.SaveChangesAsync();
-            Console.WriteLine("✅ SaveChangesAsync executed");
+            var result = await _appointmentService.CancelAppointmentAsync(id);
+            if (!result.Success) return NotFound();
 
             return Ok(new { success = true });
         }
@@ -133,13 +68,8 @@ namespace Clinic_Management_System.Controllers
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(int id, bool isAttended, bool isCanceled)
         {
-            var appt = await _unitOfWork.Appointments.FindAppointmentAsync(id);
-            if (appt == null) return NotFound();
-
-            appt.IsAttended = isAttended;
-            appt.IsCanceled = isCanceled;
-            _unitOfWork.Appointments.UpdateAppointment(appt);
-            await _unitOfWork.SaveChangesAsync();
+            var result = await _appointmentService.UpdateAppointmentStatusAsync(id, isAttended, isCanceled);
+            if (!result.Success) return NotFound();
 
             return Ok(new { success = true });
         }
@@ -147,11 +77,8 @@ namespace Clinic_Management_System.Controllers
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
         {
-            var appt = await _unitOfWork.Appointments.FindAppointmentAsync(id);
-            if (appt == null) return NotFound();
-
-            _unitOfWork.Appointments.RemoveAppointment(appt);
-            await _unitOfWork.SaveChangesAsync();
+            var result = await _appointmentService.DeleteAppointmentAsync(id);
+            if (!result.Success) return NotFound();
 
             return Ok(new { success = true });
         }
@@ -159,13 +86,11 @@ namespace Clinic_Management_System.Controllers
         [HttpGet]
         public async Task<IActionResult> DetailsPage(int id)
         {
-            var appointment = await _unitOfWork.Appointments.GetAppointmentDetailsAsync(id);
-
+            var appointment = await _appointmentService.GetAppointmentDetailsAsync(id);
             if (appointment == null)
                 return NotFound();
 
             return View("DetailsPage", appointment);
         }
-
     }
 }

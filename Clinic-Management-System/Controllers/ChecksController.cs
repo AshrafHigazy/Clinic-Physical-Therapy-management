@@ -1,29 +1,25 @@
-﻿using Clinic_Management_System.Models;
-using Clinic_Management_System.Repositories;
+using Clinic_Management_System.Models;
+using Clinic_Management_System.Services.Checks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Controllers
 {
     [Authorize(Roles = "AdminDoctor,Secretary")]
-
     public class ChecksController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly ICheckService _checkService;
 
-        public ChecksController(IUnitOfWork unitOfWork)
+        public ChecksController(ICheckService checkService)
         {
-            _unitOfWork = unitOfWork;
+            _checkService = checkService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var checks = await _unitOfWork.Checks.GetChecksAsync();
-
+            var checks = await _checkService.GetChecksAsync();
             return View(checks);
         }
 
@@ -32,8 +28,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _unitOfWork.Checks.GetCheckDetailsAsync(id);
-
+            var check = await _checkService.GetCheckDetailsAsync(id);
             if (check == null)
                 return NotFound();
 
@@ -44,7 +39,7 @@ namespace Clinic_Management_System.Controllers
         {
             if (patientId.HasValue)
             {
-                var patient = _unitOfWork.Checks.GetPatientById(patientId.Value);
+                var patient = _checkService.GetPatientById(patientId.Value);
                 ViewBag.PatientName = patient?.FullName;
 
                 var check = new Check
@@ -55,7 +50,7 @@ namespace Clinic_Management_System.Controllers
                 return View(check);
             }
 
-            ViewData["PatientId"] = new SelectList(_unitOfWork.Checks.GetPatientsForSelect(), "Id", "FullName");
+            ViewData["PatientId"] = new SelectList(_checkService.GetPatientsForSelect(), "Id", "FullName");
             return View();
         }
 
@@ -63,7 +58,6 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("CheckId,PatientId,Sugestion,ClinicAssessment,Diagnosis,PlaneOfTreatment,MethodsOfTreatment")] Check check)
         {
-
             if (check.PatientId == 0)
             {
                 ModelState.AddModelError("PatientId", "يجب اختيار المريض قبل إنشاء الكشف.");
@@ -71,14 +65,11 @@ namespace Clinic_Management_System.Controllers
 
             if (!ModelState.IsValid)
             {
-                ViewData["PatientId"] = new SelectList(_unitOfWork.Checks.GetPatientsForSelect(), "Id", "FullName", check.PatientId);
+                ViewData["PatientId"] = new SelectList(_checkService.GetPatientsForSelect(), "Id", "FullName", check.PatientId);
                 return View(check);
             }
 
-            check.CreatedAt = System.DateTime.Now;
-            _unitOfWork.Checks.AddCheck(check);
-            await _unitOfWork.SaveChangesAsync();
-
+            await _checkService.CreateCheckAsync(check);
             return RedirectToAction(nameof(Index));
         }
 
@@ -87,8 +78,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _unitOfWork.Checks.GetCheckForEditAsync(id);
-
+            var check = await _checkService.GetCheckForEditAsync(id);
             if (check == null)
                 return NotFound();
 
@@ -106,17 +96,9 @@ namespace Clinic_Management_System.Controllers
             if (!ModelState.IsValid)
                 return View(check);
 
-            try
-            {
-                _unitOfWork.Checks.UpdateCheck(check);
-                await _unitOfWork.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!_unitOfWork.Checks.CheckExists(check.CheckId))
-                    return NotFound();
-                throw;
-            }
+            var result = await _checkService.UpdateCheckAsync(id, check);
+            if (!result.Success)
+                return NotFound();
 
             return RedirectToAction(nameof(Index));
         }
@@ -127,8 +109,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var check = await _unitOfWork.Checks.GetCheckForEditAsync(id);
-
+            var check = await _checkService.GetCheckForEditAsync(id);
             if (check == null)
                 return NotFound();
 
@@ -140,13 +121,7 @@ namespace Clinic_Management_System.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var check = await _unitOfWork.Checks.FindCheckAsync(id);
-            if (check != null)
-            {
-                _unitOfWork.Checks.RemoveCheck(check);
-                await _unitOfWork.SaveChangesAsync();
-            }
-
+            await _checkService.DeleteCheckAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

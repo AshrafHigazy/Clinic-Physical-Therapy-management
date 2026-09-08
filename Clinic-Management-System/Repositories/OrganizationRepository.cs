@@ -1,5 +1,6 @@
 using Clinic_Management_System.Data;
 using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,14 +8,9 @@ using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Repositories
 {
-    public class OrganizationRepository : IOrganizationRepository
+    public class OrganizationRepository : Repository<Organization>, IOrganizationRepository
     {
-        private readonly ApplicationDbContext _context;
-
-        public OrganizationRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public OrganizationRepository(ApplicationDbContext context) : base(context) { }
 
         public async Task<List<Organization>> GetOrganizationsAsync()
         {
@@ -30,30 +26,18 @@ namespace Clinic_Management_System.Repositories
                 .FirstOrDefaultAsync(m => m.Id == id);
         }
 
-        public void AddOrganization(Organization organization)
-        {
-            _context.Add(organization);
-        }
+        public void AddOrganization(Organization organization) => Add(organization);
 
         public async Task<Organization?> FindOrganizationAsync(int id)
         {
-            return await _context.Organizations.FindAsync(id);
+            return await GetByIdAsync(id);
         }
 
-        public void UpdateOrganization(Organization organization)
-        {
-            _context.Update(organization);
-        }
+        public void UpdateOrganization(Organization organization) => Update(organization);
 
-        public void RemoveOrganization(Organization organization)
-        {
-            _context.Organizations.Remove(organization);
-        }
+        public void RemoveOrganization(Organization organization) => Remove(organization);
 
-        public bool OrganizationExists(int id)
-        {
-            return _context.Organizations.Any(e => e.Id == id);
-        }
+        public bool OrganizationExists(int id) => Exists(e => e.Id == id);
 
         public async Task<Organization?> GetOrganizationForDeleteAsync(int? id)
         {

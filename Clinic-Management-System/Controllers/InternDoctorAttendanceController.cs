@@ -1,5 +1,5 @@
-﻿using Clinic_Management_System.Models;
-using Clinic_Management_System.Repositories;
+using Clinic_Management_System.Models;
+using Clinic_Management_System.Services.InternDoctorAttendances;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -7,22 +7,20 @@ using System;
 namespace Clinic_Management_System.Controllers
 {
     [Authorize(Roles = "AdminDoctor,Secretary")]
-
     public class InternDoctorAttendanceController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IInternDoctorAttendanceService _attendanceService;
 
-        public InternDoctorAttendanceController(IUnitOfWork unitOfWork)
+        public InternDoctorAttendanceController(IInternDoctorAttendanceService attendanceService)
         {
-            _unitOfWork = unitOfWork;
+            _attendanceService = attendanceService;
         }
 
         #region Index - عرض حضور اليوم أو تاريخ معين
         public IActionResult Index(DateTime? date)
         {
             var selectedDate = date ?? DateTime.Today;
-
-            var attendances = _unitOfWork.InternDoctorAttendances.GetAttendancesByDate(selectedDate);
+            var attendances = _attendanceService.GetAttendancesByDate(selectedDate);
 
             ViewBag.SelectedDate = selectedDate;
             return View(attendances);
@@ -33,7 +31,7 @@ namespace Clinic_Management_System.Controllers
         [HttpGet]
         public IActionResult Create(int? doctorId)
         {
-            var activeDoctors = _unitOfWork.InternDoctorAttendances.GetActiveInternDoctors();
+            var activeDoctors = _attendanceService.GetActiveInternDoctors();
 
             ViewBag.Doctors = activeDoctors;
             ViewBag.SelectedDoctorId = doctorId;
@@ -48,35 +46,23 @@ namespace Clinic_Management_System.Controllers
             if (!ModelState.IsValid)
                 return View(attendance);
 
-            var doctor = _unitOfWork.InternDoctorAttendances.GetActiveInternDoctor(attendance.InternDoctorId);
-
-            if (doctor == null)
+            var result = _attendanceService.RecordAttendance(attendance);
+            if (!result.Success)
             {
-                ModelState.AddModelError("", "لا يمكن تسجيل الحضور إلا للدكاترة الفعّالين.");
+                ModelState.AddModelError("", result.Message!);
+                ViewBag.Doctors = _attendanceService.GetActiveInternDoctors();
+                ViewBag.SelectedDoctorId = attendance.InternDoctorId;
                 return View(attendance);
             }
-
-            bool exists = _unitOfWork.InternDoctorAttendances.AttendanceExists(attendance.InternDoctorId, attendance.Date);
-
-            if (exists)
-            {
-                ModelState.AddModelError("", "تم تسجيل الحضور لهذا اليوم بالفعل.");
-                return View(attendance);
-            }
-
-            _unitOfWork.InternDoctorAttendances.AddAttendance(attendance);
-            _unitOfWork.SaveChanges();
 
             return RedirectToAction("GetById", "InternDoctors", new { id = attendance.InternDoctorId });
-
         }
         #endregion
 
         #region GetByDoctor - عرض كل الحضور لدكتور معين
         public IActionResult GetByDoctor(int id)
         {
-            var doctor = _unitOfWork.InternDoctorAttendances.GetInternDoctorWithAttendances(id);
-
+            var doctor = _attendanceService.GetDoctorWithAttendances(id);
             if (doctor == null)
                 return NotFound();
 
@@ -87,114 +73,41 @@ namespace Clinic_Management_System.Controllers
         #region Dashboard - تقرير شامل عن حضور دكتور واحد
         public IActionResult Dashboard(int id, int? month = null, int? year = null, DateTime? from = null, DateTime? to = null)
         {
-            var doctor = _unitOfWork.InternDoctorAttendances.GetInternDoctorWithAttendances(id);
-
-            if (doctor == null)
+            var report = _attendanceService.GetDoctorAttendanceReport(id, from, to);
+            if (report == null)
                 return NotFound();
 
-            DateTime startDate;
-            DateTime endDate;
+            ViewBag.TotalDays = report.TotalDays;
+            ViewBag.TotalHours = report.TotalHours;
+            ViewBag.AvgHours = report.AvgHours;
+            ViewBag.DoctorName = report.DoctorName;
+            ViewBag.StartDate = report.StartDate.ToShortDateString();
+            ViewBag.EndDate = report.EndDate.ToShortDateString();
 
-            if (from.HasValue && to.HasValue)
-            {
-                startDate = from.Value.Date;
-                endDate = to.Value.Date;
-            }
-
-            else
-            {
-                startDate = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1);
-                endDate = startDate.AddMonths(1).AddDays(-1);
-            }
-
-            var filteredAttendances = doctor.Attendances
-                .Where(a => a.Date.Date >= startDate && a.Date.Date <= endDate)
-                .OrderBy(a => a.Date)
-                .ToList();
-
-            var totalDays = filteredAttendances.Count;
-            var totalHours = Math.Round(filteredAttendances.Sum(a => a.Hours ?? 0), 2);
-            var avgHours = totalDays > 0 ? Math.Round(totalHours / totalDays, 2) : 0;
-
-            ViewBag.TotalDays = totalDays;
-            ViewBag.TotalHours = totalHours;
-            ViewBag.AvgHours = avgHours;
-            ViewBag.DoctorName = doctor.FullName;
-            ViewBag.StartDate = startDate.ToShortDateString();
-            ViewBag.EndDate = endDate.ToShortDateString();
-
-            return View(filteredAttendances);
+            return View(report.Attendances);
         }
-
         #endregion
 
         [HttpPost]
         public IActionResult QuickCheckIn(int doctorId)
         {
-            var doctor = _unitOfWork.InternDoctorAttendances.GetActiveInternDoctor(doctorId);
-            if (doctor == null)
-                return NotFound("Doctor not found or inactive.");
+            var result = _attendanceService.QuickCheckIn(doctorId);
+            if (result.Message == "Doctor not found or inactive.")
+                return NotFound(result.Message);
 
-            bool alreadyCheckedIn = _unitOfWork.InternDoctorAttendances.AttendanceExists(doctorId, DateTime.Today);
-
-            if (alreadyCheckedIn)
-            {
-                TempData["Message"] = "✅ تم تسجيل الحضور بالفعل اليوم.";
-                return RedirectToAction("Index", "InternDoctors");
-            }
-
-            var attendance = new InternDoctorAttendance
-            {
-                InternDoctorId = doctorId,
-                Date = DateTime.Today,
-                CheckIn = DateTime.Now,
-                CheckOut = null,
-                Hours = null
-            };
-
-            _unitOfWork.InternDoctorAttendances.AddAttendance(attendance);
-            _unitOfWork.SaveChanges();
-
-            TempData["Message"] = $"✅ تم تسجيل حضور {doctor.FullName} في {DateTime.Now:HH:mm}";
+            TempData["Message"] = result.Message;
             return RedirectToAction("Index", "InternDoctors");
         }
 
         [HttpPost]
         public IActionResult QuickCheckOut(int doctorId)
         {
-            var doctor = _unitOfWork.InternDoctorAttendances.GetActiveInternDoctor(doctorId);
-            if (doctor == null)
-                return NotFound("Doctor not found or inactive.");
+            var result = _attendanceService.QuickCheckOut(doctorId);
+            if (result.Message == "Doctor not found or inactive.")
+                return NotFound(result.Message);
 
-            var today = DateTime.Today;
-            var tomorrow = today.AddDays(1);
-
-            var todayAttendance = _unitOfWork.InternDoctorAttendances.GetTodayAttendance(doctorId, today, tomorrow);
-
-            if (todayAttendance == null)
-            {
-                TempData["Message"] = "⚠️ لم يتم تسجيل حضور هذا الطبيب اليوم.";
-                return RedirectToAction("Index", "InternDoctors");
-            }
-
-            if (todayAttendance.CheckOut != null)
-            {
-                TempData["Message"] = "✅ تم تسجيل الانصراف بالفعل.";
-                return RedirectToAction("Index", "InternDoctors");
-            }
-
-            todayAttendance.CheckOut = DateTime.Now;
-            if (todayAttendance.CheckIn != null)
-            {
-                var duration = (todayAttendance.CheckOut.Value - todayAttendance.CheckIn.Value).TotalHours;
-                todayAttendance.Hours = Math.Round(duration, 2);
-            }
-
-            _unitOfWork.SaveChanges();
-
-            TempData["Message"] = $"👋 تم تسجيل انصراف {doctor.FullName} في {DateTime.Now:HH:mm}";
+            TempData["Message"] = result.Message;
             return RedirectToAction("Index", "InternDoctors");
         }
-
     }
 }

@@ -1,5 +1,16 @@
 using Clinic_Management_System.Data;
 using Clinic_Management_System.Repositories;
+using Clinic_Management_System.Services.Appointments;
+using Clinic_Management_System.Services.Checks;
+using Clinic_Management_System.Services.Dashboard;
+using Clinic_Management_System.Services.InternDoctorAttendances;
+using Clinic_Management_System.Services.InternDoctors;
+using Clinic_Management_System.Services.Organizations;
+using Clinic_Management_System.Services.Packages;
+using Clinic_Management_System.Services.Patients;
+using Clinic_Management_System.Services.ReceptionistAttendances;
+using Clinic_Management_System.Services.Receptionists;
+using Clinic_Management_System.Services.TreatmentSessions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -35,6 +46,9 @@ namespace Clinic_Management_System
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
 
+            // ================================
+            // Repositories & Unit of Work
+            // ================================
             builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
             builder.Services.AddScoped<ICheckRepository, CheckRepository>();
             builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
@@ -47,6 +61,21 @@ namespace Clinic_Management_System
             builder.Services.AddScoped<IReceptionistAttendanceRepository, ReceptionistAttendanceRepository>();
             builder.Services.AddScoped<ITreatmentSessionRepository, TreatmentSessionRepository>();
             builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+            // ================================
+            // Service Layer Registration
+            // ================================
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+            builder.Services.AddScoped<ITreatmentSessionService, TreatmentSessionService>();
+            builder.Services.AddScoped<IPackageService, PackageService>();
+            builder.Services.AddScoped<IDashboardService, DashboardService>();
+            builder.Services.AddScoped<IInternDoctorAttendanceService, InternDoctorAttendanceService>();
+            builder.Services.AddScoped<IInternDoctorService, InternDoctorService>();
+            builder.Services.AddScoped<IReceptionistAttendanceService, ReceptionistAttendanceService>();
+            builder.Services.AddScoped<IReceptionistService, ReceptionistService>();
+            builder.Services.AddScoped<IPatientService, PatientService>();
+            builder.Services.AddScoped<ICheckService, CheckService>();
+            builder.Services.AddScoped<IOrganizationService, OrganizationService>();
 
             var app = builder.Build();
 

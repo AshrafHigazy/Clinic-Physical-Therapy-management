@@ -1,5 +1,6 @@
 using Clinic_Management_System.Data;
 using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories.Generic;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -8,14 +9,9 @@ using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Repositories
 {
-    public class ReceptionistAttendanceRepository : IReceptionistAttendanceRepository
+    public class ReceptionistAttendanceRepository : Repository<ReceptionistAttendance>, IReceptionistAttendanceRepository
     {
-        private readonly ApplicationDbContext _context;
-
-        public ReceptionistAttendanceRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public ReceptionistAttendanceRepository(ApplicationDbContext context) : base(context) { }
 
         public List<Receptionist> GetReceptionistsForSelect()
         {
@@ -61,7 +57,7 @@ namespace Clinic_Management_System.Repositories
 
         public void AddAttendanceAndRemoveShift(ReceptionistAttendance attendance, ReceptionistCurrentShift shift)
         {
-            _context.ReceptionistAttendance.Add(attendance);
+            Add(attendance);
             _context.ReceptionistCurrentShifts.Remove(shift);
         }
 

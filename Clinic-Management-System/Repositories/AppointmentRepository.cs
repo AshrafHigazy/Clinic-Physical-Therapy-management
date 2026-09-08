@@ -1,23 +1,19 @@
 using Clinic_Management_System.Data;
 using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Repositories
 {
-    public class AppointmentRepository : IAppointmentRepository
+    public class AppointmentRepository : Repository<Appointment>, IAppointmentRepository
     {
-        private readonly ApplicationDbContext _context;
-
-        public AppointmentRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public AppointmentRepository(ApplicationDbContext context) : base(context) { }
 
         public async Task<List<AppointmentCalendarDto>> GetAllAppointmentsAsync()
         {
-            var appointments = await _context.Appointment
+            return await _context.Appointment
                 .Include(a => a.Patient)
                 .Include(a => a.Receptionist)
                 .Select(a => new AppointmentCalendarDto
@@ -30,12 +26,9 @@ namespace Clinic_Management_System.Repositories
                     isCanceled = a.IsCanceled,
                     receptionist = a.Receptionist != null ? (a.Receptionist.FullName ?? a.Receptionist.Id.ToString()) : "غير محدد",
                     description = a.IsCanceled ? " غاب" : (a.IsAttended ? " حضر" : " لم يتأكد"),
-
                     color = a.IsCanceled ? "#dc3545" : "#28a745"
                 })
                 .ToListAsync();
-
-            return appointments;
         }
 
         public async Task<List<Receptionist>> GetReceptionistsAsync()
@@ -46,9 +39,7 @@ namespace Clinic_Management_System.Repositories
         }
 
         public async Task<Receptionist?> FindReceptionistAsync(int id)
-        {
-            return await _context.Receptionist.FindAsync(id);
-        }
+            => await _context.Receptionist.FindAsync(id);
 
         public async Task<bool> PatientHasOverlappingAppointmentAsync(int patientId, System.DateTime startTime, System.DateTime endTime)
         {
@@ -69,10 +60,7 @@ namespace Clinic_Management_System.Repositories
             );
         }
 
-        public void AddAppointment(Appointment appointment)
-        {
-            _context.Appointment.Add(appointment);
-        }
+        public void AddAppointment(Appointment appointment) => Add(appointment);
 
         public async Task<Appointment?> GetAppointmentDetailsAsync(int id)
         {
@@ -83,18 +71,10 @@ namespace Clinic_Management_System.Repositories
         }
 
         public async Task<Appointment?> FindAppointmentAsync(int id)
-        {
-            return await _context.Appointment.FindAsync(id);
-        }
+            => await GetByIdAsync(id);
 
-        public void UpdateAppointment(Appointment appointment)
-        {
-            _context.Appointment.Update(appointment);
-        }
+        public void UpdateAppointment(Appointment appointment) => Update(appointment);
 
-        public void RemoveAppointment(Appointment appointment)
-        {
-            _context.Appointment.Remove(appointment);
-        }
+        public void RemoveAppointment(Appointment appointment) => Remove(appointment);
     }
 }

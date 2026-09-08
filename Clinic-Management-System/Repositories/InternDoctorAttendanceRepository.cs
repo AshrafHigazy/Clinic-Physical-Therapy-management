@@ -1,21 +1,18 @@
 using Clinic_Management_System.Data;
 using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories.Generic;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Clinic_Management_System.Repositories
 {
-    public class InternDoctorAttendanceRepository : IInternDoctorAttendanceRepository
+    public class InternDoctorAttendanceRepository : Repository<InternDoctorAttendance>, IInternDoctorAttendanceRepository
     {
-        private readonly ApplicationDbContext _context;
+        public InternDoctorAttendanceRepository(ApplicationDbContext context) : base(context) { }
 
-        public InternDoctorAttendanceRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
-
-        public System.Collections.Generic.List<InternDoctorAttendance> GetAttendancesByDate(DateTime selectedDate)
+        public List<InternDoctorAttendance> GetAttendancesByDate(DateTime selectedDate)
         {
             return _context.InternDoctorAttendances
                 .Include(a => a.InternDoctor)
@@ -23,7 +20,7 @@ namespace Clinic_Management_System.Repositories
                 .ToList();
         }
 
-        public System.Collections.Generic.List<InternDoctor> GetActiveInternDoctors()
+        public List<InternDoctor> GetActiveInternDoctors()
         {
             return _context.InternDoctors
                 .Where(d => d.IsActive)
@@ -42,10 +39,7 @@ namespace Clinic_Management_System.Repositories
                 .Any(a => a.InternDoctorId == doctorId && a.Date.Date == date.Date);
         }
 
-        public void AddAttendance(InternDoctorAttendance attendance)
-        {
-            _context.InternDoctorAttendances.Add(attendance);
-        }
+        public void AddAttendance(InternDoctorAttendance attendance) => Add(attendance);
 
         public InternDoctor? GetInternDoctorWithAttendances(int id)
         {

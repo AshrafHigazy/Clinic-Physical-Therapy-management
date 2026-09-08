@@ -1,4 +1,4 @@
-﻿@model Clinic_Management_System.Models.Package
+@model Clinic_Management_System.Models.Package
 @{
     ViewData["Title"] = "تعديل بيانات الباقة";
 }
@@ -32,7 +32,7 @@
                     @foreach (var doctor in (List<Clinic_Management_System.Models.InternDoctor>)ViewBag.Doctors)
                     {
                         <option value="@doctor.InternDoctorId"
-                                @@(doctor.InternDoctorId == Model.InternDoctorId ? "selected" : "")>
+                                selected="@(doctor.InternDoctorId == Model.InternDoctorId ? "selected" : null)">
                             @doctor.FullName
                         </option>
                     }
@@ -49,7 +49,7 @@
                     @foreach (var org in (List<Clinic_Management_System.Models.Organization>)ViewBag.Organizations)
                     {
                         <option value="@org.Id"
-                               @@(org.Id == Model.OrganizationId ? "selected" : "")>
+                               selected="@(org.Id == Model.OrganizationId ? "selected" : null)">
                             @org.Name
                         </option>
                     }
@@ -66,7 +66,7 @@
                     @foreach (var check in (List<Clinic_Management_System.Models.Check>)ViewBag.Checks)
                     {
                         <option value="@check.CheckId"
-                                @@(check.CheckId == Model.CheckId ? "selected" : "")>
+                                selected="@(check.CheckId == Model.CheckId ? "selected" : null)">
                             @check.Diagnosis
                         </option>
                     }
@@ -111,8 +111,8 @@
                         class="form-select border-2 rounded-3"
                         style="border-color:#00B4D8;">
                     <option value="">-- اختر الحالة --</option>
-                    <option value="Active" @@(Model.Status == "Active" ? "selected" : "")>نشطة</option>
-                    <option value="Ended" @@(Model.Status == "Ended" ? "selected" : "")>منتهية</option>
+                    <option value="Active" selected="@(Model.Status == "Active" ? "selected" : null)">نشطة</option>
+                    <option value="Ended" selected="@(Model.Status == "Ended" ? "selected" : null)">منتهية</option>
                 </select>
                 <span asp-validation-for="Status" class="text-danger small"></span>
             </div>

@@ -1,4 +1,4 @@
-﻿@model Clinic_Management_System.Models.InternDoctorAttendance
+@model Clinic_Management_System.Models.InternDoctorAttendance
 
 @{
     ViewData["Title"] = "تسجيل حضور الطبيب المتدرب";
@@ -24,7 +24,7 @@
                     @foreach (var doc in doctors)
                     {
                         <option value="@doc.InternDoctorId"
-                                @@(selectedDoctorId= =doc.InternDoctorId ? "selected" : "" )>
+                                selected="@(selectedDoctorId == doc.InternDoctorId ? "selected" : null)">
                             @doc.FullName
                         </option>
                     }

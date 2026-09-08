@@ -1,5 +1,6 @@
 using Clinic_Management_System.Data;
 using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,14 +8,9 @@ using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Repositories
 {
-    public class PackageRepository : IPackageRepository
+    public class PackageRepository : Repository<Package>, IPackageRepository
     {
-        private readonly ApplicationDbContext _context;
-
-        public PackageRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public PackageRepository(ApplicationDbContext context) : base(context) { }
 
         public Patient? GetPatientWithPackages(int patientId)
         {
@@ -24,56 +20,36 @@ namespace Clinic_Management_System.Repositories
         }
 
         public List<Check> GetChecksByPatient(int patientId)
-        {
-            return _context.Checks.Where(c => c.PatientId == patientId).ToList();
-        }
+            => _context.Checks.Where(c => c.PatientId == patientId).ToList();
 
         public List<Organization> GetAllOrganizations()
-        {
-            return _context.Organizations.ToList();
-        }
+            => _context.Organizations.ToList();
 
         public List<DoctorSearchDto> SearchDoctors(string term)
         {
-            var doctors = _context.InternDoctors
+            return _context.InternDoctors
                 .Where(d => d.FullName.Contains(term))
-                .Select(d => new DoctorSearchDto
-                {
-                    id = d.InternDoctorId,
-                    name = d.FullName
-                })
+                .Select(d => new DoctorSearchDto { id = d.InternDoctorId, name = d.FullName })
                 .ToList();
-
-            return doctors;
         }
 
-        public void AddPackage(Package package)
-        {
-            _context.Packages.Add(package);
-        }
+        public void AddPackage(Package package) => Add(package);
 
         public async Task<Package?> GetPackageWithPatientAndOrgAsync(int id)
         {
             return await _context.Packages
-           .Include(p => p.Patient)
-           .Include(p => p.Organization)
-           .FirstOrDefaultAsync(p => p.Id == id);
+                .Include(p => p.Patient)
+                .Include(p => p.Organization)
+                .FirstOrDefaultAsync(p => p.Id == id);
         }
 
         public List<InternDoctor> GetActiveInternDoctors()
-        {
-            return _context.InternDoctors.Where(d => d.IsActive).ToList();
-        }
+            => _context.InternDoctors.Where(d => d.IsActive).ToList();
 
         public async Task<Package?> GetPackageAsNoTrackingAsync(int id)
-        {
-            return await _context.Packages.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
-        }
+            => await _context.Packages.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
 
-        public void UpdatePackage(Package package)
-        {
-            _context.Update(package);
-        }
+        public void UpdatePackage(Package package) => Update(package);
 
         public async Task<Package?> GetPackageDetailsAsync(int id)
         {
@@ -107,8 +83,6 @@ namespace Clinic_Management_System.Repositories
         }
 
         public async Task<Patient?> FindPatientAsync(int patientId)
-        {
-            return await _context.Patient.FindAsync(patientId);
-        }
+            => await _context.Patient.FindAsync(patientId);
     }
 }

@@ -53,48 +53,72 @@
     }
 
     .stat-card {
+        background: #ffffff;
+        border: 1px solid #e5eaf2;
         border-radius: 14px;
-        padding: 1.25rem 1rem;
+        padding: 1.25rem 0.9rem;
         text-align: center;
-        color: #fff;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-        transition: transform 0.35s cubic-bezier(.25,.8,.25,1), box-shadow 0.35s;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         margin-bottom: 1rem;
+        border-top: 3.5px solid transparent;
     }
 
     .stat-card:hover {
-        transform: translateY(-6px) scale(1.02);
-        box-shadow: 0 12px 28px rgba(0, 0, 0, 0.14);
+        transform: translateY(-4px);
+        box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
     }
 
-    .stat-card .stat-icon {
-        font-size: 2rem;
-        margin-bottom: 0.5rem;
-        display: block;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.15));
+    .stat-icon-wrap {
+        width: 46px;
+        height: 46px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        margin: 0 auto 0.65rem;
+        transition: transform 0.25s ease;
+    }
+
+    .stat-card:hover .stat-icon-wrap {
+        transform: scale(1.08);
     }
 
     .stat-card .stat-num {
-        font-size: 2rem;
-        font-weight: 900;
-        line-height: 1;
-        margin-bottom: 0.4rem;
+        font-size: 1.85rem;
+        font-weight: 800;
+        line-height: 1.1;
+        margin-bottom: 0.35rem;
+        color: #1B3A4B;
     }
 
     .stat-card .stat-label {
         font-size: 0.82rem;
         font-weight: 600;
-        opacity: 0.92;
+        color: #64748b;
     }
 
-    .bg-grad-blue { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    .bg-grad-green { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-    .bg-grad-teal { background: linear-gradient(135deg, #00B4D8, #0096c7); }
-    .bg-grad-red { background: linear-gradient(135deg, #f78ca0 0%, #f9748f 50%, #fd868c 100%); }
-    .bg-grad-orange { background: linear-gradient(135deg, #fccb90 0%, #d57eeb 100%); }
-    .bg-grad-purple { background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%); }
+    /* Simpler, modern, elegant card colors */
+    .stat-blue { border-top-color: #0284c7; }
+    .stat-blue .stat-icon-wrap { background: #e0f2fe; color: #0284c7; }
+
+    .stat-green { border-top-color: #16a34a; }
+    .stat-green .stat-icon-wrap { background: #dcfce7; color: #16a34a; }
+
+    .stat-teal { border-top-color: #0d9488; }
+    .stat-teal .stat-icon-wrap { background: #ccfbf1; color: #0d9488; }
+
+    .stat-red { border-top-color: #e11d48; }
+    .stat-red .stat-icon-wrap { background: #ffe4e6; color: #e11d48; }
+
+    .stat-orange { border-top-color: #d97706; }
+    .stat-orange .stat-icon-wrap { background: #fef3c7; color: #d97706; }
+
+    .stat-purple { border-top-color: #7c3aed; }
+    .stat-purple .stat-icon-wrap { background: #ede9fe; color: #7c3aed; }
 
     .today-header {
         display: flex;
@@ -384,43 +408,55 @@
     <div class="sec-title"><i class="bi bi-grid-3x3-gap-fill"></i> ملخص سريع</div>
     <div class="row g-3 mb-4">
         <div class="col-xl-2 col-lg-4 col-md-4 col-6">
-            <div class="stat-card bg-grad-blue">
-                <i class="bi bi-people-fill stat-icon"></i>
+            <div class="stat-card stat-blue">
+                <div class="stat-icon-wrap">
+                    <i class="bi bi-people-fill"></i>
+                </div>
                 <div class="stat-num counter" data-target="@ViewBag.TotalPatients">0</div>
                 <div class="stat-label">إجمالي المرضى</div>
             </div>
         </div>
         <div class="col-xl-2 col-lg-4 col-md-4 col-6">
-            <div class="stat-card bg-grad-green">
-                <i class="bi bi-calendar2-check stat-icon"></i>
+            <div class="stat-card stat-green">
+                <div class="stat-icon-wrap">
+                    <i class="bi bi-calendar2-check"></i>
+                </div>
                 <div class="stat-num counter" data-target="@ViewBag.TodayAppointmentsCount">0</div>
                 <div class="stat-label">مواعيد اليوم</div>
             </div>
         </div>
         <div class="col-xl-2 col-lg-4 col-md-4 col-6">
-            <div class="stat-card bg-grad-teal">
-                <i class="bi bi-check-circle-fill stat-icon"></i>
+            <div class="stat-card stat-teal">
+                <div class="stat-icon-wrap">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
                 <div class="stat-num counter" data-target="@ViewBag.TodayAttended">0</div>
                 <div class="stat-label">حضور اليوم</div>
             </div>
         </div>
         <div class="col-xl-2 col-lg-4 col-md-4 col-6">
-            <div class="stat-card bg-grad-red">
-                <i class="bi bi-x-octagon-fill stat-icon"></i>
+            <div class="stat-card stat-red">
+                <div class="stat-icon-wrap">
+                    <i class="bi bi-x-octagon-fill"></i>
+                </div>
                 <div class="stat-num counter" data-target="@ViewBag.TodayCanceled">0</div>
                 <div class="stat-label">غياب اليوم</div>
             </div>
         </div>
         <div class="col-xl-2 col-lg-4 col-md-4 col-6">
-            <div class="stat-card bg-grad-orange">
-                <i class="bi bi-box2-heart-fill stat-icon"></i>
+            <div class="stat-card stat-orange">
+                <div class="stat-icon-wrap">
+                    <i class="bi bi-box2-heart-fill"></i>
+                </div>
                 <div class="stat-num counter" data-target="@ViewBag.ActivePackagesCount">0</div>
                 <div class="stat-label">باقات نشطة</div>
             </div>
         </div>
         <div class="col-xl-2 col-lg-4 col-md-4 col-6">
-            <div class="stat-card bg-grad-purple">
-                <i class="bi bi-cash-stack stat-icon"></i>
+            <div class="stat-card stat-purple">
+                <div class="stat-icon-wrap">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
                 <div class="stat-num counter" data-target="@Math.Round((decimal)ViewBag.TotalRevenue, 0)">0</div>
                 <div class="stat-label">الإيرادات (ج.م)</div>
             </div>

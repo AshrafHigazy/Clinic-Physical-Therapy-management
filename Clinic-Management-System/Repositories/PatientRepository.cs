@@ -1,19 +1,14 @@
 using Clinic_Management_System.Data;
-using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories.Generic;
 using Microsoft.EntityFrameworkCore;
-using System;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Repositories
 {
-    public class PatientRepository : IPatientRepository
+    public class PatientRepository : Repository<Patient>, IPatientRepository
     {
-        private readonly ApplicationDbContext _context;
-
-        public PatientRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public PatientRepository(ApplicationDbContext context) : base(context) { }
 
         public System.Collections.Generic.List<Patient> GetPatients(string? searchString, string sortOrder)
         {
@@ -24,7 +19,6 @@ namespace Clinic_Management_System.Repositories
                 patients = patients.Where(p =>
                     p.FullName.Contains(searchString) ||
                     p.Phone.Contains(searchString));
-
             }
 
             switch (sortOrder)
@@ -47,33 +41,16 @@ namespace Clinic_Management_System.Repositories
         }
 
         public Patient? GetPatientById(int? id)
-        {
-            return _context.Patient.FirstOrDefault(p => p.Id == id);
-        }
+            => _context.Patient.FirstOrDefault(p => p.Id == id);
 
-        public void AddPatient(Patient patient)
-        {
-            _context.Patient.Add(patient);
-        }
+        public void AddPatient(Patient patient) => Add(patient);
 
-        public Patient? FindPatient(int? id)
-        {
-            return _context.Patient.Find(id);
-        }
+        public Patient? FindPatient(int? id) => GetById(id!);
 
-        public void UpdatePatient(Patient patient)
-        {
-            _context.Update(patient);
-        }
+        public void UpdatePatient(Patient patient) => Update(patient);
 
-        public bool PatientExists(int id)
-        {
-            return _context.Patient.Any(p => p.Id == id);
-        }
+        public bool PatientExists(int id) => Exists(p => p.Id == id);
 
-        public void RemovePatient(Patient patient)
-        {
-            _context.Patient.Remove(patient);
-        }
+        public void RemovePatient(Patient patient) => Remove(patient);
     }
 }

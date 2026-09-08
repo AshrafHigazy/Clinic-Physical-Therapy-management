@@ -1,19 +1,15 @@
 using Clinic_Management_System.Data;
 using Clinic_Management_System.Models;
+using Clinic_Management_System.Repositories.Generic;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Repositories
 {
-    public class CheckRepository : ICheckRepository
+    public class CheckRepository : Repository<Check>, ICheckRepository
     {
-        private readonly ApplicationDbContext _context;
-
-        public CheckRepository(ApplicationDbContext context)
-        {
-            _context = context;
-        }
+        public CheckRepository(ApplicationDbContext context) : base(context) { }
 
         public async Task<List<Check>> GetChecksAsync()
         {
@@ -31,19 +27,12 @@ namespace Clinic_Management_System.Repositories
         }
 
         public Patient? GetPatientById(int id)
-        {
-            return _context.Patient.FirstOrDefault(p => p.Id == id);
-        }
+            => _context.Patient.FirstOrDefault(p => p.Id == id);
 
         public List<Patient> GetPatientsForSelect()
-        {
-            return _context.Patient.ToList();
-        }
+            => _context.Patient.ToList();
 
-        public void AddCheck(Check check)
-        {
-            _context.Checks.Add(check);
-        }
+        public void AddCheck(Check check) => Add(check);
 
         public async Task<Check?> GetCheckForEditAsync(int? id)
         {
@@ -52,24 +41,13 @@ namespace Clinic_Management_System.Repositories
                 .FirstOrDefaultAsync(c => c.CheckId == id);
         }
 
-        public void UpdateCheck(Check check)
-        {
-            _context.Update(check);
-        }
+        public void UpdateCheck(Check check) => Update(check);
 
-        public bool CheckExists(int id)
-        {
-            return _context.Checks.Any(e => e.CheckId == id);
-        }
+        public bool CheckExists(int id) => Exists(e => e.CheckId == id);
 
         public async Task<Check?> FindCheckAsync(int id)
-        {
-            return await _context.Checks.FindAsync(id);
-        }
+            => await _context.Checks.FindAsync(id);
 
-        public void RemoveCheck(Check check)
-        {
-            _context.Checks.Remove(check);
-        }
+        public void RemoveCheck(Check check) => Remove(check);
     }
 }

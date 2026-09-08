@@ -1,27 +1,24 @@
-﻿using Clinic_Management_System.Models;
-using Clinic_Management_System.Repositories;
+using Clinic_Management_System.Models;
+using Clinic_Management_System.Services.Receptionists;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 
 namespace Clinic_Management_System.Controllers
 {
     [Authorize(Roles = "AdminDoctor,Secretary")]
-
     public class ReceptionistsController : Controller
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IReceptionistService _receptionistService;
 
-        public ReceptionistsController(IUnitOfWork unitOfWork)
+        public ReceptionistsController(IReceptionistService receptionistService)
         {
-            _unitOfWork = unitOfWork;
+            _receptionistService = receptionistService;
         }
 
         public async Task<IActionResult> Index()
         {
-            var list = await _unitOfWork.Receptionists.GetReceptionistsAsync();
-
+            var list = await _receptionistService.GetReceptionistsAsync();
             return View(list);
         }
 
@@ -30,7 +27,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var receptionist = await _unitOfWork.Receptionists.GetReceptionistByIdAsync(id);
+            var receptionist = await _receptionistService.GetReceptionistByIdAsync(id);
             if (receptionist == null)
                 return NotFound();
 
@@ -53,14 +50,8 @@ namespace Clinic_Management_System.Controllers
         {
             if (ModelState.IsValid)
             {
-                receptionist.HiringDate = System.DateTime.Now;
-                receptionist.IsActive = true;
-                receptionist.AppointmentLinks = new System.Collections.Generic.List<AppointmentByPatientOrReceptionist>();
-
-                _unitOfWork.Receptionists.AddReceptionist(receptionist);
-                await _unitOfWork.SaveChangesAsync();
-
-                TempData["SuccessMessage"] = "تمت إضافة موظف الاستقبال بنجاح!";
+                var result = await _receptionistService.CreateReceptionistAsync(receptionist);
+                TempData["SuccessMessage"] = result.Message;
                 return RedirectToAction(nameof(Index));
             }
             return View(receptionist);
@@ -71,7 +62,7 @@ namespace Clinic_Management_System.Controllers
             if (id == null)
                 return NotFound();
 
-            var receptionist = await _unitOfWork.Receptionists.FindReceptionistAsync(id.Value);
+            var receptionist = await _receptionistService.FindReceptionistAsync(id.Value);
             if (receptionist == null)
                 return NotFound();
 
@@ -87,32 +78,23 @@ namespace Clinic_Management_System.Controllers
 
             if (ModelState.IsValid)
             {
-                try
-                {
-                    _unitOfWork.Receptionists.UpdateReceptionist(receptionist);
-                    await _unitOfWork.SaveChangesAsync();
+                var result = await _receptionistService.UpdateReceptionistAsync(id, receptionist);
+                if (!result.Success)
+                    return NotFound();
 
-                    TempData["EditMessage"] = "تم تعديل بيانات موظف الاستقبال بنجاح!";
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!_unitOfWork.Receptionists.ReceptionistExists(receptionist.Id))
-                        return NotFound();
-                    else
-                        throw;
-                }
+                TempData["EditMessage"] = result.Message;
                 return RedirectToAction(nameof(Index));
             }
             return View(receptionist);
         }
-        [Authorize(Roles = "AdminDoctor")]
 
+        [Authorize(Roles = "AdminDoctor")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
                 return NotFound();
 
-            var receptionist = await _unitOfWork.Receptionists.GetReceptionistByIdAsync(id);
+            var receptionist = await _receptionistService.GetReceptionistByIdAsync(id);
             if (receptionist == null)
                 return NotFound();
 
@@ -122,16 +104,12 @@ namespace Clinic_Management_System.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "AdminDoctor")]
-
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var receptionist = await _unitOfWork.Receptionists.FindReceptionistAsync(id);
-            if (receptionist != null)
+            var result = await _receptionistService.DeleteReceptionistAsync(id);
+            if (result.Success)
             {
-                _unitOfWork.Receptionists.RemoveReceptionist(receptionist);
-                await _unitOfWork.SaveChangesAsync();
-
-                TempData["DeleteMessage"] = "تم حذف موظف الاستقبال بنجاح!";
+                TempData["DeleteMessage"] = result.Message;
             }
 
             return RedirectToAction(nameof(Index));
@@ -139,18 +117,11 @@ namespace Clinic_Management_System.Controllers
 
         public async Task<IActionResult> ToggleStatus(int id)
         {
-            var receptionist = await _unitOfWork.Receptionists.FindReceptionistAsync(id);
-            if (receptionist == null)
+            var result = await _receptionistService.ToggleStatusAsync(id);
+            if (!result.Success)
                 return NotFound();
 
-            receptionist.IsActive = !receptionist.IsActive;
-            _unitOfWork.Receptionists.UpdateReceptionist(receptionist);
-            await _unitOfWork.SaveChangesAsync();
-
-            TempData["EditMessage"] = receptionist.IsActive
-                ? "تم تفعيل الموظف بنجاح!"
-                : "تم تعطيل الموظف بنجاح!";
-
+            TempData["EditMessage"] = result.Message;
             return RedirectToAction(nameof(Index));
         }
     }
